@@ -1,1 +1,1 @@
-module go-skriplang
+module github.com/zeuxisoo/go-skriplang
