@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"strings"
+	"io/ioutil"
 
 	"github.com/urfave/cli"
 
@@ -24,7 +25,14 @@ func runRun(c *cli.Context) error {
 		logger.Fatal("Please enter the script file path")
 	}
 
+	contentBytes, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		logger.Error("Cannot open the script file")
+		logger.Fatal("%v", err)
+	}
+
 	fmt.Println("Run run run ...")
+	fmt.Println(string(contentBytes))
 
 	return nil
 }
