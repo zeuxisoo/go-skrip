@@ -23,6 +23,7 @@ const (
 //
 var logger *log.Logger
 
+var osExit  = os.Exit
 var formats = map[LEVEL]string{
 	TRACE: "[TRACE] ",
 	INFO:  "[ INFO] ",
@@ -80,5 +81,5 @@ func Error(format string, values ...interface{}) {
 func Fatal(format string, values ...interface{}) {
 	Write(FATAL, format, values...)
 
-	os.Exit(0)
+	osExit(1)
 }
