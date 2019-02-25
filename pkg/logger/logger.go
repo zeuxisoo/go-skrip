@@ -44,9 +44,14 @@ func init() {
 	logger = log.New(color.Output, "", log.Flags() &^ (log.Ldate | log.Ltime))
 }
 
+// FormatMessage will return styled message
+func FormatMessage(level LEVEL, format string, values ...interface{}) string {
+	return formats[level] + fmt.Sprintf(format, values...)
+}
+
 // Write is shared output method
 func Write(level LEVEL, format string, values ...interface{}) {
-	message := formats[level] + fmt.Sprintf(format, values...)
+	message := FormatMessage(level, format, values...)
 
 	logger.Print(outputColors[level](message))
 }
