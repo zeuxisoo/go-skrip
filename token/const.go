@@ -6,10 +6,10 @@ const (
 	EOF     = "EOF"
 
 	// Identifiers and literals
-	IDENT  = "IDENT"	// function name, variable name, etc
-	INT    = "INT"		// 12345
-	FLOAT  = "FLOAT"	// 12.345
-	STRING = "STRING"	// "text"
+	IDENTIFIER = "IDENTIFIER"	// function name, variable name, etc
+	INT        = "INT"          // 12345
+	FLOAT      = "FLOAT"        // 12.345
+	STRING     = "STRING"       // "text"
 
 	// Operators
 	ASSIGN   = "="

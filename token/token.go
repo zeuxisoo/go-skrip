@@ -21,11 +21,11 @@ var keywords = map[string]Kind{
 	"for":	  FOR,
 }
 
-// LookupKeywordType will return keyword type or plain ident
-func LookupKeywordType(ident string) Kind {
+// FindKeywordType will return keyword type or plain ident
+func FindKeywordType(ident string) Kind {
 	if keyword, ok := keywords[ident]; ok {
 		return keyword
 	}
 
-	return IDENT
+	return IDENTIFIER
 }
