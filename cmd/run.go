@@ -8,6 +8,7 @@ import (
 	"github.com/urfave/cli"
 
 	"github.com/zeuxisoo/go-skriplang/pkg/logger"
+	"github.com/zeuxisoo/go-skriplang/lexer"
 )
 
 // Run command for run the script file
@@ -33,6 +34,8 @@ func runRun(c *cli.Context) error {
 
 	fmt.Println("Run run run ...")
 	fmt.Println(string(contentBytes))
+
+	fmt.Println(lexer.NewLexer(string(contentBytes)))
 
 	return nil
 }
