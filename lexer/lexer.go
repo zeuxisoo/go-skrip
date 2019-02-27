@@ -14,5 +14,26 @@ func NewLexer(source string) *Lexer {
 		currentLine: 1,
 	}
 
+	lexer.readChar()
+
 	return lexer
+}
+
+func (l *Lexer) readChar() {
+	// Reset to 0 when next position greater than source length
+	// Otherwise set next position to current position
+	if l.nextPosition >= len(l.source) {
+		l.currentChar = 0
+	}else{
+		l.currentChar = l.source[l.nextPosition]
+	}
+
+	// Increase the current line no when encountering a newline
+	if l.currentChar == '\n' {
+		l.currentLine++
+	}
+
+	l.currentPosition = l.nextPosition
+
+	l.nextPosition++
 }
