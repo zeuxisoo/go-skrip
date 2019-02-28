@@ -9,6 +9,7 @@ import (
 
 	"github.com/zeuxisoo/go-skriplang/pkg/logger"
 	"github.com/zeuxisoo/go-skriplang/lexer"
+	"github.com/zeuxisoo/go-skriplang/parser"
 )
 
 // Run command for run the script file
@@ -32,10 +33,10 @@ func runRun(c *cli.Context) error {
 		logger.Fatal("%v", err)
 	}
 
-	fmt.Println("Run run run ...")
-	fmt.Println(string(contentBytes))
+	theLexer  := lexer.NewLexer(string(contentBytes))
+	theParser := parser.NewParser(theLexer)
 
-	fmt.Println(lexer.NewLexer(string(contentBytes)))
+	fmt.Println(theParser)
 
 	return nil
 }
