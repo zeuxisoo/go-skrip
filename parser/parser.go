@@ -14,7 +14,7 @@ type Parser struct {
 	lexer 	*lexer.Lexer
 	errors  errorStrings
 
-	prefixParseFunctions map[token.Kind]prefixParseFunction
+	prefixParseFunctions map[token.Type]prefixParseFunction
 }
 
 func NewParser(lexer *lexer.Lexer) *Parser {
@@ -23,7 +23,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 		errors: []string{},
 	}
 
-	parser.prefixParseFunctions = make(map[token.Kind]prefixParseFunction)
+	parser.prefixParseFunctions = make(map[token.Type]prefixParseFunction)
 
 	return parser
 }

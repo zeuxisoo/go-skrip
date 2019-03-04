@@ -1,16 +1,16 @@
 package token
 
-// Kind will represent each token type
-type Kind string
+// Type will represent each token type
+type Type string
 
 // Token will store the input value
 type Token struct {
-	Type 		Kind
+	Type 		Type
 	Literal 	string
 	LineNumber 	int
 }
 
-var keywords = map[string]Kind{
+var keywords = map[string]Type{
 	"func":   FUNCTION,
 	"let":    LET,
 	"true":   TRUE,
@@ -22,7 +22,7 @@ var keywords = map[string]Kind{
 }
 
 // FindKeywordType will return keyword type or plain ident
-func FindKeywordType(ident string) Kind {
+func FindKeywordType(ident string) Type {
 	if keyword, ok := keywords[ident]; ok {
 		return keyword
 	}
