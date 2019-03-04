@@ -17,6 +17,10 @@ type Parser struct {
 	prefixParseFunctions map[token.Type]prefixParseFunction
 }
 
+func (p *Parser) registerPrefix(tokenType token.Type, callback prefixParseFunction) {
+	p.prefixParseFunctions[tokenType] = callback
+}
+
 func NewParser(lexer *lexer.Lexer) *Parser {
 	parser := &Parser{
 		lexer: 	lexer,
