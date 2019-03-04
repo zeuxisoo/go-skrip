@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	prefixParseFunction ast.Expression
+	prefixParseFunction func() ast.Expression
 )
 
 type Parser struct {
@@ -15,10 +15,21 @@ type Parser struct {
 	errors  errorStrings
 
 	prefixParseFunctions map[token.Type]prefixParseFunction
+
+	currentToken token.Token
 }
 
 func (p *Parser) registerPrefix(tokenType token.Type, callback prefixParseFunction) {
 	p.prefixParseFunctions[tokenType] = callback
+}
+
+func (p *Parser) parserIdentifier() ast.Expression {
+	identifier := &ast.Identifier{
+		Token: p.currentToken,
+		Value: p.currentToken.Literal,
+	}
+
+	return identifier
 }
 
 func NewParser(lexer *lexer.Lexer) *Parser {
@@ -28,6 +39,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	}
 
 	parser.prefixParseFunctions = make(map[token.Type]prefixParseFunction)
+	parser.registerPrefix(token.IDENTIFIER, parser.parserIdentifier)
 
 	return parser
 }
