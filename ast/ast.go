@@ -11,3 +11,9 @@ type Expression interface {
 	Node
 	expressionNode() // Dummy methods to identify their types
 }
+
+// Statement node should be implement this interface
+type Statement interface {
+	Node
+	statementNode() // Dummy methods to identify their types
+}

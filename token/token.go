@@ -21,9 +21,9 @@ var keywords = map[string]Type{
 	"for":	  FOR,
 }
 
-// FindKeywordType will return keyword type or plain ident
-func FindKeywordType(ident string) Type {
-	if keyword, ok := keywords[ident]; ok {
+// FindKeywordType will return keyword type
+func FindKeywordType(literal string) Type {
+	if keyword, ok := keywords[literal]; ok {
 		return keyword
 	}
 

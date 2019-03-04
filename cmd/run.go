@@ -33,10 +33,11 @@ func runRun(c *cli.Context) error {
 		logger.Fatal("%v", err)
 	}
 
-	theLexer  := lexer.NewLexer(string(contentBytes))
-	theParser := parser.NewParser(theLexer)
+	theLexer   := lexer.NewLexer(string(contentBytes))
+	theParser  := parser.NewParser(theLexer)
+	theProgram := theParser.Parse()
 
-	fmt.Println(theParser)
+	fmt.Println(theProgram.Statements)
 
 	return nil
 }
