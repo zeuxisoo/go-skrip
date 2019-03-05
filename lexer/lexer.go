@@ -46,10 +46,7 @@ func (l *Lexer) NextToken() token.Token {
 				Literal: string(currentChar) + string(l.currentChar), // text: ==
 			}
 		}else{
-			theToken = token.Token{
-				Type   : token.ASSIGN,
-				Literal: string(l.currentChar),
-			}
+			theToken = l.newToken(token.ASSIGN)
 		}
 	case '+':
 		theToken = l.newToken(token.PLUS)
