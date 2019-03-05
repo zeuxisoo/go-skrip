@@ -13,6 +13,11 @@ func TestBasicLexer(t *testing.T) {
 	Convey("Basic Lexer testing", t, func() {
 		source := `
 			let five = 5;
+			let ten = 10;
+
+			let add = func(x, y) {
+				x + y;
+			};
 		`;
 
 		testTokens := []struct{
@@ -23,6 +28,29 @@ func TestBasicLexer(t *testing.T) {
 			{ token.IDENTIFIER, "five" },
 			{ token.ASSIGN, "=" },
 			{ token.INT, "5" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.LET, "let" },
+			{ token.IDENTIFIER, "ten" },
+			{ token.ASSIGN, "=" },
+			{ token.INT, "10" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.LET, "let" },
+			{ token.IDENTIFIER, "add" },
+			{ token.ASSIGN, "=" },
+			{ token.FUNCTION, "func" },
+			{ token.LEFT_PARENTHESIS, "(" },
+			{ token.IDENTIFIER, "x" },
+			{ token.COMMA, "," },
+			{ token.IDENTIFIER, "y" },
+			{ token.RIGHT_PARENTHESIS, ")" },
+			{ token.LEFT_BRACE, "{" },
+			{ token.IDENTIFIER, "x" },
+			{ token.PLUS, "+" },
+			{ token.IDENTIFIER, "y" },
+			{ token.SEMICOLON, ";" },
+			{ token.RIGHT_BRACE, "}" },
 			{ token.SEMICOLON, ";" },
 		}
 

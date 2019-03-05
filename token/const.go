@@ -34,12 +34,12 @@ const (
 	SEMICOLON = ";"
 	COLON     = ":"
 
-	LPAREN   = "("
-	RPAREN   = ")"
-	LBRACE   = "{"
-	RBRACE   = "}"
-	LBRACKET = "["
-	RBRACKET = "]"
+	LEFT_PARENTHESIS  = "("
+	RIGHT_PARENTHESIS = ")"
+	LEFT_BRACE        = "{"
+	RIGHT_BRACE       = "}"
+	LEFT_BRACKET      = "["
+	RIGHT_BRACKET     = "]"
 
 	// Keywords
 	FUNCTION = "FUNCTION"

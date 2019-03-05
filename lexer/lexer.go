@@ -53,6 +53,18 @@ func (l *Lexer) NextToken() token.Token {
 		}
 	case ';':
 		theToken = l.newToken(token.SEMICOLON)
+	case '(':
+		theToken = l.newToken(token.LEFT_PARENTHESIS)
+	case ',':
+		theToken = l.newToken(token.COMMA)
+	case ')':
+		theToken = l.newToken(token.RIGHT_PARENTHESIS)
+	case '{':
+		theToken = l.newToken(token.LEFT_BRACE)
+	case '+':
+		theToken = l.newToken(token.PLUS)
+	case '}':
+		theToken = l.newToken(token.RIGHT_BRACE)
 	case 0:
 		theToken.Literal = ""
 		theToken.Type    = token.EOF
