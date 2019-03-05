@@ -9,6 +9,28 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+//
+type expectedToken struct{
+	Type 	token.Type
+	Literal string
+}
+
+//
+func compareToken(theLexer *Lexer, expectedTokens []expectedToken) {
+	for index, currentExpectedToken := range expectedTokens {
+		lexerToken := theLexer.NextToken()
+
+		got      := lexerToken.Type
+		expected := currentExpectedToken.Type
+		message  := fmt.Sprintf("Running %d, got: %s, expected: %s", index, got, expected)
+
+		Convey(message, func() {
+			So(lexerToken.Type, ShouldEqual, currentExpectedToken.Type)
+		})
+	}
+}
+
+//
 func TestLexerAssign(t *testing.T) {
 	Convey("Basic assign testing", t, func() {
 		source := `
@@ -22,10 +44,7 @@ func TestLexerAssign(t *testing.T) {
 			let result = add(five, ten);
 		`;
 
-		testTokens := []struct{
-			expectedType 	token.Type
-			expectedLiteral string
-		}{
+		expectedTokens := []expectedToken{
 			{ token.LET, "let" },
 			{ token.IDENTIFIER, "five" },
 			{ token.ASSIGN, "=" },
@@ -67,19 +86,7 @@ func TestLexerAssign(t *testing.T) {
 			{ token.SEMICOLON, ";" },
 		}
 
-		theLexer := NewLexer(source)
-
-		for index, testToken := range testTokens {
-			lexerToken := theLexer.NextToken()
-
-			got      := lexerToken.Type
-			expected := testToken.expectedType
-			message  := fmt.Sprintf("Running %d, got: %s, expected: %s", index, got, expected)
-
-			Convey(message, func() {
-				So(lexerToken.Type, ShouldEqual, testToken.expectedType)
-			})
-		}
+		compareToken(NewLexer(source), expectedTokens)
 	})
 }
 
@@ -87,19 +94,22 @@ func TestLexerOperator(t *testing.T) {
 	Convey("Operator testing", t, func() {
 		source := `
 			!-/*5;
+			5 != 10;
 			5 < 10 > 5;
 			5 <= 10 >= 5;
 		`
 
-		testTokens := []struct{
-			expectedType 	token.Type
-			expectedLiteral string
-		}{
+		expectedTokens := []expectedToken{
 			{ token.BANG, "!" },
 			{ token.MINUS, "-" },
 			{ token.SLASH, "/" },
 			{ token.ASTERISK, "*" },
 			{ token.INT, "5" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.INT, "5" },
+			{ token.NOT_EQ, "!=" },
+			{ token.INT, "10" },
 			{ token.SEMICOLON, ";" },
 
 			{ token.INT, "5" },
@@ -117,18 +127,6 @@ func TestLexerOperator(t *testing.T) {
 			{ token.SEMICOLON, ";" },
 		}
 
-		theLexer := NewLexer(source)
-
-		for index, testToken := range testTokens {
-			lexerToken := theLexer.NextToken()
-
-			got      := lexerToken.Type
-			expected := testToken.expectedType
-			message  := fmt.Sprintf("Running %d, got: %s, expected: %s", index, got, expected)
-
-			Convey(message, func() {
-				So(lexerToken.Type, ShouldEqual, testToken.expectedType)
-			})
-		}
+		compareToken(NewLexer(source), expectedTokens)
 	})
 }
