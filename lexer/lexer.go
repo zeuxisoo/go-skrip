@@ -51,6 +51,8 @@ func (l *Lexer) NextToken() token.Token {
 				Literal: string(l.currentChar),
 			}
 		}
+	case ';':
+		theToken = l.newToken(token.SEMICOLON)
 	case 0:
 		theToken.Literal = ""
 		theToken.Type    = token.EOF
@@ -131,6 +133,14 @@ func (l *Lexer) readNumber() string {
 	}
 
 	return l.source[startPosition:l.currentPosition]
+}
+
+func (l *Lexer) newToken(tokenType token.Type) token.Token {
+	return token.Token{
+		Type      : tokenType,
+		Literal   : string(l.currentChar),
+		LineNumber: l.currentLine,
+	}
 }
 
 func (l *Lexer) newIllegalToken(literal string) token.Token {

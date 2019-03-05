@@ -12,7 +12,7 @@ import (
 func TestBasicLexer(t *testing.T) {
 	Convey("Basic Lexer testing", t, func() {
 		source := `
-			let five = 5
+			let five = 5;
 		`;
 
 		testTokens := []struct{
@@ -23,6 +23,7 @@ func TestBasicLexer(t *testing.T) {
 			{ token.IDENTIFIER, "five" },
 			{ token.ASSIGN, "=" },
 			{ token.INT, "5" },
+			{ token.SEMICOLON, ";" },
 		}
 
 		theLexer := NewLexer(source)
