@@ -82,3 +82,53 @@ func TestLexerAssign(t *testing.T) {
 		}
 	})
 }
+
+func TestLexerOperator(t *testing.T) {
+	Convey("Operator testing", t, func() {
+		source := `
+			!-/*5;
+			5 < 10 > 5;
+			5 <= 10 >= 5;
+		`
+
+		testTokens := []struct{
+			expectedType 	token.Type
+			expectedLiteral string
+		}{
+			{ token.BANG, "!" },
+			{ token.MINUS, "-" },
+			{ token.SLASH, "/" },
+			{ token.ASTERISK, "*" },
+			{ token.INT, "5" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.INT, "5" },
+			{ token.LT, "<" },
+			{ token.INT, "10" },
+			{ token.GT, ">" },
+			{ token.INT, "5" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.INT, "5" },
+			{ token.LTEQ, "<=" },
+			{ token.INT, "10" },
+			{ token.GTEQ, ">=" },
+			{ token.INT, "5" },
+			{ token.SEMICOLON, ";" },
+		}
+
+		theLexer := NewLexer(source)
+
+		for index, testToken := range testTokens {
+			lexerToken := theLexer.NextToken()
+
+			got      := lexerToken.Type
+			expected := testToken.expectedType
+			message  := fmt.Sprintf("Running %d, got: %s, expected: %s", index, got, expected)
+
+			Convey(message, func() {
+				So(lexerToken.Type, ShouldEqual, testToken.expectedType)
+			})
+		}
+	})
+}

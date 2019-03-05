@@ -65,6 +65,51 @@ func (l *Lexer) NextToken() token.Token {
 		theToken = l.newToken(token.LEFT_BRACE)
 	case '}':
 		theToken = l.newToken(token.RIGHT_BRACE)
+	case '!':
+		if l.nextChar() == '=' {
+			currentChar := l.currentChar
+
+			l.readChar()
+
+			theToken = token.Token{
+				Type   : token.NOT_EQ,
+				Literal: string(currentChar) + string(l.currentChar), // text: !=
+			}
+		}else{
+			theToken = l.newToken(token.BANG)
+		}
+	case '-':
+		theToken = l.newToken(token.MINUS)
+	case '/':
+		theToken = l.newToken(token.SLASH)
+	case '*':
+		theToken = l.newToken(token.ASTERISK)
+	case '<':
+		if l.nextChar() == '=' {
+			currentChar := l.currentChar
+
+			l.readChar()
+
+			theToken = token.Token{
+				Type: token.LTEQ,
+				Literal: string(currentChar) + string(l.currentChar), // text: <=
+			}
+		}else{
+			theToken = l.newToken(token.LT)
+		}
+	case '>':
+		if l.nextChar() == '=' {
+			currentChar := l.currentChar
+
+			l.readChar()
+
+			theToken = token.Token{
+				Type: token.GTEQ,
+				Literal: string(currentChar) + string(l.currentChar), // text: >=
+			}
+		}else{
+			theToken = l.newToken(token.GT)
+		}
 	case 0:
 		theToken.Literal = ""
 		theToken.Type    = token.EOF
