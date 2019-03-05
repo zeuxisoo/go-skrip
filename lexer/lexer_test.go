@@ -9,8 +9,8 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestBasicLexer(t *testing.T) {
-	Convey("Basic Lexer testing", t, func() {
+func TestLexerAssign(t *testing.T) {
+	Convey("Basic assign testing", t, func() {
 		source := `
 			let five = 5;
 			let ten = 10;
@@ -18,6 +18,8 @@ func TestBasicLexer(t *testing.T) {
 			let add = func(x, y) {
 				x + y;
 			};
+
+			let result = add(five, ten);
 		`;
 
 		testTokens := []struct{
@@ -51,6 +53,17 @@ func TestBasicLexer(t *testing.T) {
 			{ token.IDENTIFIER, "y" },
 			{ token.SEMICOLON, ";" },
 			{ token.RIGHT_BRACE, "}" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.LET, "let" },
+			{ token.IDENTIFIER, "result" },
+			{ token.ASSIGN, "=" },
+			{ token.IDENTIFIER, "add" },
+			{ token.LEFT_PARENTHESIS, "(" },
+			{ token.IDENTIFIER, "five" },
+			{ token.COMMA, "," },
+			{ token.IDENTIFIER, "ten" },
+			{ token.RIGHT_PARENTHESIS, ")" },
 			{ token.SEMICOLON, ";" },
 		}
 
