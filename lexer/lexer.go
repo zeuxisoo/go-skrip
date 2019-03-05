@@ -107,6 +107,11 @@ func (l *Lexer) NextToken() token.Token {
 		}else{
 			theToken = l.newToken(token.GT)
 		}
+	case '"':
+		theToken = token.Token{
+			Type   : token.STRING,
+			Literal: l.readString(),
+		}
 	case 0:
 		theToken.Literal = ""
 		theToken.Type    = token.EOF
@@ -187,6 +192,30 @@ func (l *Lexer) readNumber() string {
 	}
 
 	return l.source[startPosition:l.currentPosition]
+}
+
+func (l *Lexer) readString() string {
+	startPosition := l.currentPosition + 1 // skip start "
+
+	for l.currentChar != 0 {
+		l.readChar()
+
+		// Continue when meet quote escape \"
+		if l.currentChar == '\\' && l.nextChar() == '"' {
+			l.readChar()
+			l.readChar()
+		}
+
+		// Break when meet end of "
+		if l.currentChar == '"' {
+			break
+		}
+	}
+
+	text := l.source[startPosition:l.currentPosition]
+
+	// No limit for replacements \" to "
+	return strings.Replace(text, "\\\"", "\"", -1)
 }
 
 func (l *Lexer) newToken(tokenType token.Type) token.Token {

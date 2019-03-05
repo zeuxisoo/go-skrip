@@ -36,6 +36,7 @@ func TestLexerAssign(t *testing.T) {
 		source := `
 			let five = 5;
 			let ten = 10;
+			let hello_world = "Hello world";
 
 			let add = func(x, y) {
 				x + y;
@@ -55,6 +56,12 @@ func TestLexerAssign(t *testing.T) {
 			{ token.IDENTIFIER, "ten" },
 			{ token.ASSIGN, "=" },
 			{ token.INT, "10" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.LET, "let" },
+			{ token.IDENTIFIER, "hello_world" },
+			{ token.ASSIGN, "=" },
+			{ token.STRING, "Hello world" },
 			{ token.SEMICOLON, ";" },
 
 			{ token.LET, "let" },
