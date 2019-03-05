@@ -33,6 +33,24 @@ func (l *Lexer) NextToken() token.Token {
 	l.skipWhitespace()
 
 	switch l.currentChar {
+	case '=':
+		// if next char is '=', it should be "==" operator
+		// otherwise, it should be "=" assign operator
+		if l.nextChar() == '=' {
+			currentChar := l.currentChar
+
+			l.readChar()
+
+			theToken = token.Token{
+				Type   : token.EQ,
+				Literal: string(currentChar) + string(l.currentChar), // text: ==
+			}
+		}else{
+			theToken = token.Token{
+				Type   : token.ASSIGN,
+				Literal: string(l.currentChar),
+			}
+		}
 	case 0:
 		theToken.Literal = ""
 		theToken.Type    = token.EOF
@@ -121,4 +139,13 @@ func (l *Lexer) newIllegalToken(literal string) token.Token {
 		Literal   : literal,
 		LineNumber: l.currentLine,
 	}
+}
+
+func (l *Lexer) nextChar() byte {
+	// e.g. End of file will return 0
+	if l.nextPosition > len(l.source) {
+		return 0
+	}
+
+	return l.source[l.nextPosition]
 }
