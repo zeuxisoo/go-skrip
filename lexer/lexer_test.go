@@ -110,7 +110,7 @@ func TestLexerAssign(t *testing.T) {
 			{ token.ASSIGN, "=" },
 			{ token.LEFT_BRACE, "{" },
 			{ token.STRING, "foo" },
-			{ token.COLON, "," },
+			{ token.COLON, ":" },
 			{ token.STRING, "bar" },
 			{ token.RIGHT_BRACE, "}" },
 			{ token.SEMICOLON, ";" },
