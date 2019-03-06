@@ -9,7 +9,7 @@ import (
 
 type Lexer struct {
 	source			string
-	currentChar		byte	// current character
+	currentChar		rune	// current character
 	currentPosition	int		// position of current character
 	nextPosition	int 	// position after current character (greater than 1)
 	currentLine		int		// position of current line
@@ -187,7 +187,7 @@ func (l *Lexer) readChar() {
 	if l.nextPosition >= len(l.source) {
 		l.currentChar = 0
 	}else{
-		l.currentChar = l.source[l.nextPosition]
+		l.currentChar = rune(l.source[l.nextPosition])
 	}
 
 	// Increase the current line no when encountering a newline
@@ -266,11 +266,11 @@ func (l *Lexer) newIllegalToken(literal string) token.Token {
 	}
 }
 
-func (l *Lexer) nextChar() byte {
+func (l *Lexer) nextChar() rune {
 	// e.g. End of file will return 0
 	if l.nextPosition > len(l.source) {
 		return 0
 	}
 
-	return l.source[l.nextPosition]
+	return rune(l.source[l.nextPosition])
 }
