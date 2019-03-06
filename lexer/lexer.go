@@ -138,6 +138,8 @@ func (l *Lexer) NextToken() token.Token {
 		}else{
 			theToken = l.newToken(token.ILLEGAL)
 		}
+	case ':':
+		theToken = l.newToken(token.COLON)
 	case 0:
 		theToken.Literal = ""
 		theToken.Type    = token.EOF
