@@ -50,6 +50,8 @@ func TestLexerAssign(t *testing.T) {
 			let result = add(five, ten);
 
 			let key_value = { "foo": "bar" };
+
+			let array = [1, 2];
 		`;
 
 		expectedTokens := []expectedToken{
@@ -113,6 +115,16 @@ func TestLexerAssign(t *testing.T) {
 			{ token.COLON, ":" },
 			{ token.STRING, "bar" },
 			{ token.RIGHT_BRACE, "}" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.LET, "let" },
+			{ token.IDENTIFIER, "array" },
+			{ token.ASSIGN, "=" },
+			{ token.LEFT_BRACKET, "[" },
+			{ token.INT, "1" },
+			{ token.COMMA, "," },
+			{ token.INT, "2" },
+			{ token.RIGHT_BRACKET, "]" },
 			{ token.SEMICOLON, ";" },
 
 			{ token.EOF, "" },

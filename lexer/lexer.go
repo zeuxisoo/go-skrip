@@ -62,6 +62,10 @@ func (l *Lexer) NextToken() token.Token {
 		theToken = l.newToken(token.LEFT_BRACE)
 	case '}':
 		theToken = l.newToken(token.RIGHT_BRACE)
+	case '[':
+		theToken = l.newToken(token.LEFT_BRACKET)
+	case ']':
+		theToken = l.newToken(token.RIGHT_BRACKET)
 	case '!':
 		if l.nextChar() == '=' {
 			oldCurrentChar := l.currentChar
