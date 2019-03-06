@@ -110,6 +110,8 @@ func TestLexerAssign(t *testing.T) {
 			{ token.STRING, "bar" },
 			{ token.RIGHT_BRACE, "}" },
 			{ token.SEMICOLON, ";" },
+
+			{ token.EOF, "" },
 		}
 
 		compareToken(NewLexer(source), expectedTokens)
@@ -170,6 +172,8 @@ func TestLexerOperator(t *testing.T) {
 			{ token.OR, "||" },
 			{ token.INT, "5" },
 			{ token.SEMICOLON, ";" },
+
+			{ token.EOF, "" },
 		}
 
 		compareToken(NewLexer(source), expectedTokens)
@@ -233,8 +237,24 @@ func TestLexerKeywords(t *testing.T) {
 			{ token.IDENTIFIER, "array_data" },
 			{ token.LEFT_BRACE, "{" },
 			{ token.RIGHT_BRACE, "}" },
+
+			{ token.EOF, "" },
 		}
 
 		compareToken(NewLexer(source), expectedTokens)
+	})
+}
+
+func TestStringEscapeQuote(t *testing.T) {
+	Convey("String escape quote", t, func() {
+		source := `
+			"this is a \"quote\" string"
+		`
+
+		theLexer := NewLexer(source)
+		theToken := theLexer.NextToken()
+
+		So(theToken.Type, ShouldEqual, token.STRING)
+		So(theToken.Literal, ShouldEqual, `this is a "quote" string`)
 	})
 }
