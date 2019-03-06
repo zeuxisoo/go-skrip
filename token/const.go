@@ -50,4 +50,5 @@ const (
 	ELSE     = "ELSE"
 	RETURN   = "RETURN"
 	FOR      = "FOR"
+	IN       = "IN"
 )

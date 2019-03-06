@@ -175,3 +175,66 @@ func TestLexerOperator(t *testing.T) {
 		compareToken(NewLexer(source), expectedTokens)
 	})
 }
+
+func TestLexerKeywords(t *testing.T) {
+	Convey("Keywords testing", t, func() {
+		source := `
+			let name = func(x, y) {
+			}
+
+			if (x > 5) {
+				return true;
+			}else{
+				return false;
+			}
+
+			for (index, value) in array_data {
+			}
+		`
+
+		expectedTokens := []expectedToken{
+			{ token.LET, "let" },
+			{ token.IDENTIFIER, "name" },
+			{ token.ASSIGN, "=" },
+			{ token.FUNCTION, "func" },
+			{ token.LEFT_PARENTHESIS, "(" },
+			{ token.IDENTIFIER, "x" },
+			{ token.COMMA, "," },
+			{ token.IDENTIFIER, "y" },
+			{ token.RIGHT_PARENTHESIS, ")" },
+			{ token.LEFT_BRACE, "{" },
+			{ token.RIGHT_BRACE, "}" },
+
+			{ token.IF, "if" },
+			{ token.LEFT_PARENTHESIS, "(" },
+			{ token.IDENTIFIER, "x" },
+			{ token.GT, ">" },
+			{ token.INT, "5" },
+			{ token.RIGHT_PARENTHESIS, ")" },
+			{ token.LEFT_BRACE, "{" },
+			{ token.RETURN, "return" },
+			{ token.TRUE, "true" },
+			{ token.SEMICOLON, ";" },
+			{ token.RIGHT_BRACE, "}" },
+			{ token.ELSE, "else" },
+			{ token.LEFT_BRACE, "{" },
+			{ token.RETURN, "return" },
+			{ token.FALSE, "false" },
+			{ token.SEMICOLON, ";" },
+			{ token.RIGHT_BRACE, "}" },
+
+			{ token.FOR, "for" },
+			{ token.LEFT_PARENTHESIS, "(" },
+			{ token.IDENTIFIER, "index" },
+			{ token.COMMA, "," },
+			{ token.IDENTIFIER, "value" },
+			{ token.RIGHT_PARENTHESIS, ")" },
+			{ token.IN, "in" },
+			{ token.IDENTIFIER, "array_data" },
+			{ token.LEFT_BRACE, "{" },
+			{ token.RIGHT_BRACE, "}" },
+		}
+
+		compareToken(NewLexer(source), expectedTokens)
+	})
+}
