@@ -37,13 +37,13 @@ func (l *Lexer) NextToken() token.Token {
 		// if next char is '=', it should be "==" operator
 		// otherwise, it should be "=" assign operator
 		if l.nextChar() == '=' {
-			currentChar := l.currentChar
+			oldCurrentChar := l.currentChar
 
 			l.readChar()
 
 			theToken = token.Token{
 				Type   : token.EQ,
-				Literal: string(currentChar) + string(l.currentChar), // text: ==
+				Literal: string(oldCurrentChar) + string(l.currentChar), // text: ==
 			}
 		}else{
 			theToken = l.newToken(token.ASSIGN)
@@ -64,13 +64,13 @@ func (l *Lexer) NextToken() token.Token {
 		theToken = l.newToken(token.RIGHT_BRACE)
 	case '!':
 		if l.nextChar() == '=' {
-			currentChar := l.currentChar
+			oldCurrentChar := l.currentChar
 
 			l.readChar()
 
 			theToken = token.Token{
 				Type   : token.NOT_EQ,
-				Literal: string(currentChar) + string(l.currentChar), // text: !=
+				Literal: string(oldCurrentChar) + string(l.currentChar), // text: !=
 			}
 		}else{
 			theToken = l.newToken(token.BANG)
@@ -83,26 +83,26 @@ func (l *Lexer) NextToken() token.Token {
 		theToken = l.newToken(token.ASTERISK)
 	case '<':
 		if l.nextChar() == '=' {
-			currentChar := l.currentChar
+			oldCurrentChar := l.currentChar
 
 			l.readChar()
 
 			theToken = token.Token{
 				Type: token.LTEQ,
-				Literal: string(currentChar) + string(l.currentChar), // text: <=
+				Literal: string(oldCurrentChar) + string(l.currentChar), // text: <=
 			}
 		}else{
 			theToken = l.newToken(token.LT)
 		}
 	case '>':
 		if l.nextChar() == '=' {
-			currentChar := l.currentChar
+			oldCurrentChar := l.currentChar
 
 			l.readChar()
 
 			theToken = token.Token{
 				Type: token.GTEQ,
-				Literal: string(currentChar) + string(l.currentChar), // text: >=
+				Literal: string(oldCurrentChar) + string(l.currentChar), // text: >=
 			}
 		}else{
 			theToken = l.newToken(token.GT)
