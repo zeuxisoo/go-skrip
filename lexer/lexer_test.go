@@ -36,6 +36,7 @@ func TestLexerAssign(t *testing.T) {
 		source := `
 			let five = 5;
 			let ten = 10;
+			let five_float = 5.00;
 			let hello_world = "Hello world";
 
 			let add = func(x, y) {
@@ -56,6 +57,12 @@ func TestLexerAssign(t *testing.T) {
 			{ token.IDENTIFIER, "ten" },
 			{ token.ASSIGN, "=" },
 			{ token.INT, "10" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.LET, "let" },
+			{ token.IDENTIFIER, "five_float" },
+			{ token.ASSIGN, "=" },
+			{ token.FLOAT, "5.00" },
 			{ token.SEMICOLON, ";" },
 
 			{ token.LET, "let" },
