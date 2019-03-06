@@ -20,12 +20,16 @@ func compareToken(theLexer *Lexer, expectedTokens []expectedToken) {
 	for index, currentExpectedToken := range expectedTokens {
 		lexerToken := theLexer.NextToken()
 
-		got      := lexerToken.Type
-		expected := currentExpectedToken.Type
-		message  := fmt.Sprintf("Running %d, got: %s, expected: %s", index, got, expected)
+		messageType  := fmt.Sprintf(
+			"Running %d, Got: %s, %s, Expected: %s, %s",
+			index,
+			lexerToken.Type, lexerToken.Literal,
+			currentExpectedToken.Type, currentExpectedToken.Literal,
+		)
 
-		Convey(message, func() {
+		Convey(messageType, func() {
 			So(lexerToken.Type, ShouldEqual, currentExpectedToken.Type)
+			So(lexerToken.Literal, ShouldEqual, currentExpectedToken.Literal)
 		})
 	}
 }
