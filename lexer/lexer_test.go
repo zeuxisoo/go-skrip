@@ -101,9 +101,14 @@ func TestLexerOperator(t *testing.T) {
 	Convey("Operator testing", t, func() {
 		source := `
 			!-/*5;
+
 			5 != 10;
+
 			5 < 10 > 5;
+
 			5 <= 10 >= 5;
+
+			5 && 5;
 		`
 
 		expectedTokens := []expectedToken{
@@ -130,6 +135,11 @@ func TestLexerOperator(t *testing.T) {
 			{ token.LTEQ, "<=" },
 			{ token.INT, "10" },
 			{ token.GTEQ, ">=" },
+			{ token.INT, "5" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.INT, "5" },
+			{ token.AND, "&&" },
 			{ token.INT, "5" },
 			{ token.SEMICOLON, ";" },
 		}
