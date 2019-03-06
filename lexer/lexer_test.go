@@ -100,7 +100,7 @@ func TestLexerAssign(t *testing.T) {
 func TestLexerOperator(t *testing.T) {
 	Convey("Operator testing", t, func() {
 		source := `
-			!-/*5;
+			!+-=/*5;
 
 			5 != 10;
 
@@ -115,7 +115,9 @@ func TestLexerOperator(t *testing.T) {
 
 		expectedTokens := []expectedToken{
 			{ token.BANG, "!" },
+			{ token.PLUS, "+" },
 			{ token.MINUS, "-" },
+			{ token.ASSIGN, "=" },
 			{ token.SLASH, "/" },
 			{ token.ASTERISK, "*" },
 			{ token.INT, "5" },
