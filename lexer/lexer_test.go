@@ -109,6 +109,8 @@ func TestLexerOperator(t *testing.T) {
 			5 <= 10 >= 5;
 
 			5 && 5;
+
+			5 || 5;
 		`
 
 		expectedTokens := []expectedToken{
@@ -140,6 +142,11 @@ func TestLexerOperator(t *testing.T) {
 
 			{ token.INT, "5" },
 			{ token.AND, "&&" },
+			{ token.INT, "5" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.INT, "5" },
+			{ token.OR, "||" },
 			{ token.INT, "5" },
 			{ token.SEMICOLON, ";" },
 		}

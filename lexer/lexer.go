@@ -125,6 +125,19 @@ func (l *Lexer) NextToken() token.Token {
 		}else{
 			theToken = l.newToken(token.ILLEGAL)
 		}
+	case '|':
+		if l.nextChar() == '|' {
+			oldCurrentChar := l.currentChar
+
+			l.readChar()
+
+			theToken = token.Token{
+				Type   : token.OR,
+				Literal: string(oldCurrentChar) + string(l.currentChar), // text: ||
+			}
+		}else{
+			theToken = l.newToken(token.ILLEGAL)
+		}
 	case 0:
 		theToken.Literal = ""
 		theToken.Type    = token.EOF
