@@ -9,15 +9,23 @@ import (
 	"github.com/zeuxisoo/go-skriplang/ast"
 )
 
+type (
+	prefixParseFunction func() ast.Expression
+	infixParseFunction	func(ast.Expression) ast.Expression
+)
+
 type Parser struct {
 	lexer 	*lexer.Lexer
 	errors  errorStrings
 
 	currentToken token.Token
 	peekToken 	 token.Token
+
+	prefixParseFunctions map[token.Type]prefixParseFunction
+	infixParseFunctions	 map[token.Type]infixParseFunction
 }
 
-//
+// Public functions
 func NewParser(lexer *lexer.Lexer) *Parser {
 	parser := &Parser{
 		lexer: 	lexer,
@@ -50,7 +58,7 @@ func (p *Parser) CurrentTokenEquals(tokenType token.Type) bool {
 	return p.currentToken.Type == tokenType
 }
 
-//
+// Parse functions
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.currentToken.Type {
 	case token.LET:
@@ -64,11 +72,38 @@ func (p *Parser) parseStatement() ast.Statement {
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
-	// TODO: parse expression
-	return nil
+	// Get the prefix parse callback function name like (keywords: IF, FUNCTION, etc)
+	prefixParseFunction := p.prefixParseFunctions[p.currentToken.Type]
+
+	if prefixParseFunction == nil {
+		p.noPrefixParseFunctionError(p.currentToken.Type)
+
+		return nil
+	}
+
+	// Fire the prefix parse callback function
+	leftExpression := prefixParseFunction()
+
+	// Loop each token
+	// 		unitil found semicolon token
+	// 		when current token precedence is greater than LOWEST precedence
+	for p.peekTokenTypeIs(token.SEMICOLON) == false && precedence < p.peekPrecedence() {
+		// Get the  infix parse callback function name like (operator: + plus, - minus, etc)
+		infixParseFunction := p.infixParseFunctions[p.peekToken.Type]
+
+		if infixParseFunction == nil {
+			return leftExpression
+		}else{
+			p.nextToken()
+
+			leftExpression = infixParseFunction(leftExpression)
+		}
+	}
+
+	return leftExpression
 }
 
-//
+// Parse statement functions
 func (p *Parser) parseLetStatement() *ast.LetStatement {
 	// Set the LetStatement Token value is "let token strcut"
 	statement := &ast.LetStatement{
@@ -109,8 +144,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	return statement
 }
 
-
-
+// Helper functions
 func (p *Parser) nextToken() {
 	p.currentToken = p.peekToken
 	p.peekToken    = p.lexer.NextToken()
@@ -131,7 +165,21 @@ func (p *Parser) peekTokenTypeIs(tokenType token.Type) bool {
 	return p.peekToken.Type == tokenType
 }
 
+func (p *Parser) peekPrecedence() int {
+	if precedence, ok := precedences[p.currentToken.Type]; ok {
+		return precedence
+	}
+
+	return LOWEST
+}
+
+// Error handle functions
 func (p *Parser) peekTokenTypeError(tokenType token.Type) {
 	message := fmt.Sprintf("Expected peek token type should be %s, but got %s", tokenType, p.peekToken.Type)
+	p.errors = append(p.errors, message)
+}
+
+func (p *Parser) noPrefixParseFunctionError(tokenType token.Type) {
+	message := fmt.Sprintf("Can not found related prefix parse function for %s", tokenType)
 	p.errors = append(p.errors, message)
 }
