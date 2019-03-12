@@ -58,6 +58,10 @@ func (p *Parser) CurrentTokenEquals(tokenType token.Type) bool {
 	return p.currentToken.Type == tokenType
 }
 
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
 // Parse functions
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.currentToken.Type {
@@ -175,11 +179,11 @@ func (p *Parser) peekPrecedence() int {
 
 // Error handle functions
 func (p *Parser) peekTokenTypeError(tokenType token.Type) {
-	message := fmt.Sprintf("Expected peek token type should be %s, but got %s", tokenType, p.peekToken.Type)
+	message := fmt.Sprintf("Line: %d, Expected peek token type should be %s, but got %s", p.currentToken.LineNumber, tokenType, p.peekToken.Type)
 	p.errors = append(p.errors, message)
 }
 
 func (p *Parser) noPrefixParseFunctionError(tokenType token.Type) {
-	message := fmt.Sprintf("Can not found related prefix parse function for %s", tokenType)
+	message := fmt.Sprintf("Line: %d, Can not found related prefix parse function for %s", p.currentToken.LineNumber, tokenType)
 	p.errors = append(p.errors, message)
 }

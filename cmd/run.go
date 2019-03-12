@@ -37,7 +37,13 @@ func runRun(c *cli.Context) error {
 	theParser  := parser.NewParser(theLexer)
 	theProgram := theParser.Parse()
 
-	fmt.Println(theProgram.Statements)
+	if len(theParser.Errors()) > 0 {
+		for _, message := range theParser.Errors() {
+			logger.Error(message)
+		}
+	}else{
+		fmt.Println(theProgram.Statements)
+	}
 
 	return nil
 }
