@@ -161,14 +161,16 @@ func (l *Lexer) NextToken() token.Token {
 		theToken.Type    = token.EOF
 	default:
 		if helper.IsLetter(l.currentChar) {
-			theToken.Literal = l.readIdentifier()
-			theToken.Type    = token.FindKeywordType(theToken.Literal)
+			theToken.Literal    = l.readIdentifier()
+			theToken.LineNumber = l.currentLine
+			theToken.Type       = token.FindKeywordType(theToken.Literal)
 
 			return theToken
 		}
 
 		if helper.IsDigit(l.currentChar) {
-			theToken.Literal = l.readNumber()
+			theToken.Literal    = l.readNumber()
+			theToken.LineNumber = l.currentLine
 
 			switch len(strings.Split(theToken.Literal, ".")) {
 			case 1:	// e.g. 12, 13
