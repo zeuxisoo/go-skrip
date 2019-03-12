@@ -32,6 +32,12 @@ func (l *Lexer) NextToken() token.Token {
 
 	l.skipWhitespace()
 
+	if l.currentChar == '/' && l.nextChar() == '/' {
+		l.skipSingleLineComment()
+
+		return l.NextToken()
+	}
+
 	switch l.currentChar {
 	case '=':
 		// if next char is '=', it should be "==" operator
@@ -202,6 +208,12 @@ func (l *Lexer) readChar() {
 
 func (l *Lexer) skipWhitespace() {
 	for l.currentChar == ' ' || l.currentChar == '\t' || l.currentChar == '\n' || l.currentChar == '\r' {
+		l.readChar()
+	}
+}
+
+func (l *Lexer) skipSingleLineComment() {
+	for l.currentChar != '\n' && l.currentChar != 0 {
 		l.readChar()
 	}
 }

@@ -274,3 +274,24 @@ func TestStringEscapeQuote(t *testing.T) {
 		So(theToken.Literal, ShouldEqual, `this is a "quote" string`)
 	})
 }
+
+func TestSkipComment(t *testing.T) {
+	Convey("Skip comment", t, func() {
+		source := `
+			// this is single line comment 1
+			// this is single line comment 2
+
+			let a = 5;
+		`
+
+		expectedTokens := []expectedToken{
+			{ token.LET, "let" },
+			{ token.IDENTIFIER, "a" },
+			{ token.ASSIGN, "=" },
+			{ token.INT, "5" },
+			{ token.SEMICOLON, ";" },
+		}
+
+		compareToken(NewLexer(source), expectedTokens)
+	})
+}
