@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"strings"
+	"strconv"
 
 	"github.com/zeuxisoo/go-skriplang/lexer"
 	"github.com/zeuxisoo/go-skriplang/token"
@@ -31,6 +32,10 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 		lexer: 	lexer,
 		errors: []string{},
 	}
+
+	parser.prefixParseFunctions = make(map[token.Type]prefixParseFunction)
+	parser.registerPrefixParseFunction(token.INT, parser.parsePrefixIntegerLiteral)
+
 
 	return parser
 }
@@ -148,6 +153,27 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	return statement
 }
 
+// Parse prefix functions
+func (p *Parser) parsePrefixIntegerLiteral() ast.Expression {
+	integerLiteralExpression := &ast.IntegerLiteralExpression{
+		Token: p.currentToken,
+	}
+
+	value, err := strconv.ParseInt(p.currentToken.Literal, 0, 64)
+	if err != nil {
+		p.errors = append(
+			p.errors,
+			fmt.Sprintf("Can not parse %q as integer", p.currentToken.Literal),
+		)
+
+		return nil
+	}
+
+	integerLiteralExpression.Value = value
+
+	return integerLiteralExpression
+}
+
 // Helper functions
 func (p *Parser) nextToken() {
 	p.currentToken = p.peekToken
@@ -175,6 +201,10 @@ func (p *Parser) peekPrecedence() int {
 	}
 
 	return LOWEST
+}
+
+func (p *Parser) registerPrefixParseFunction(tokenType token.Type, callback prefixParseFunction) {
+	p.prefixParseFunctions[tokenType] = callback
 }
 
 // Error handle functions
