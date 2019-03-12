@@ -137,7 +137,7 @@ func TestLexerAssign(t *testing.T) {
 func TestLexerOperator(t *testing.T) {
 	Convey("Operator testing", t, func() {
 		source := `
-			!+-=/*5;
+			!+-=/ *5;
 
 			5 != 10;
 
@@ -282,6 +282,10 @@ func TestSkipComment(t *testing.T) {
 			// this is single line comment 2
 
 			let a = 5;
+
+			/* this is a test */
+
+			let b = "hello";
 		`
 
 		expectedTokens := []expectedToken{
@@ -289,6 +293,12 @@ func TestSkipComment(t *testing.T) {
 			{ token.IDENTIFIER, "a" },
 			{ token.ASSIGN, "=" },
 			{ token.INT, "5" },
+			{ token.SEMICOLON, ";" },
+
+			{ token.LET, "let" },
+			{ token.IDENTIFIER, "b" },
+			{ token.ASSIGN, "=" },
+			{ token.STRING, "hello" },
 			{ token.SEMICOLON, ";" },
 		}
 

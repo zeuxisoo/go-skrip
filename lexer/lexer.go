@@ -38,6 +38,12 @@ func (l *Lexer) NextToken() token.Token {
 		return l.NextToken()
 	}
 
+	if l.currentChar == '/' && l.nextChar() == '*' {
+		l.skipMultiLineComment()
+
+		return l.NextToken()
+	}
+
 	switch l.currentChar {
 	case '=':
 		// if next char is '=', it should be "==" operator
@@ -216,6 +222,31 @@ func (l *Lexer) skipSingleLineComment() {
 	for l.currentChar != '\n' && l.currentChar != 0 {
 		l.readChar()
 	}
+
+	l.skipWhitespace()
+}
+
+func (l *Lexer) skipMultiLineComment() {
+	stop := false
+
+	for !stop {
+		// stop when got end of file
+		if l.currentChar == 0 {
+			stop = true
+		}
+
+		// stop when found */
+		if l.currentChar == '*' && l.nextChar() == '/' {
+			stop = true
+
+			// Read once for set the current char from "*" to "/"
+			l.readChar()
+		}
+
+		l.readChar()
+	}
+
+	l.skipWhitespace()
 }
 
 func (l *Lexer) readIdentifier() string {
