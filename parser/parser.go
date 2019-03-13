@@ -164,7 +164,7 @@ func (p *Parser) parsePrefixIntegerLiteral() ast.Expression {
 	if err != nil {
 		p.errors = append(
 			p.errors,
-			fmt.Sprintf("Can not parse %q as integer", p.currentToken.Literal),
+			fmt.Sprintf("Line: %d, Can not parse %q as integer", p.currentToken.LineNumber, p.currentToken.Literal),
 		)
 
 		return nil
@@ -184,7 +184,7 @@ func (p *Parser) parsePrefixFloatLiteral() ast.Expression {
 	if err != nil {
 		p.errors = append(
 			p.errors,
-			fmt.Sprintf("Can not parse %q as float", p.currentToken.Literal),
+			fmt.Sprintf("Line: %d, Can not parse %q as float", p.currentToken.LineNumber, p.currentToken.Literal),
 		)
 
 		return nil
