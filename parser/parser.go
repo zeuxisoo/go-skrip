@@ -209,7 +209,7 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 		return nil
 	}
 
-	functionLiteralExpression.Parameters = p.parsePrefixFunctionParameters()
+	functionLiteralExpression.Parameters = p.parseFunctionParameters()
 
 	// Expect next token is "{"
 	if p.expectPeekTokenType(token.LEFT_BRACE) == false {
@@ -259,7 +259,7 @@ func (p *Parser) registerPrefixParseFunction(tokenType token.Type, callback pref
 }
 
 // Helper function for parse function, block and etc
-func (p *Parser) parsePrefixFunctionParameters() []*ast.IdentifierExpression {
+func (p *Parser) parseFunctionParameters() []*ast.IdentifierExpression {
 	identifierExpressions := []*ast.IdentifierExpression{}
 
 	// If the next token is ")", it means no arguments
