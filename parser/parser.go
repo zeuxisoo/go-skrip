@@ -36,7 +36,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.prefixParseFunctions = make(map[token.Type]prefixParseFunction)
 	parser.registerPrefixParseFunction(token.INT, parser.parseIntegerLiteral)
 	parser.registerPrefixParseFunction(token.FLOAT, parser.parseFloatLiteral)
-	parser.registerPrefixParseFunction(token.STRING, parser.parsePrefixStringLiteral)
+	parser.registerPrefixParseFunction(token.STRING, parser.parseStringLiteral)
 	parser.registerPrefixParseFunction(token.FUNCTION, parser.parsePrefixFunctionLiteral)
 
 	return parser
@@ -192,7 +192,7 @@ func (p *Parser) parseFloatLiteral() ast.Expression {
 	return floatLiteralExpression
 }
 
-func (p *Parser) parsePrefixStringLiteral() ast.Expression {
+func (p *Parser) parseStringLiteral() ast.Expression {
 	return &ast.StringLiteralExpression{
 		Token: p.currentToken,
 		Value: p.currentToken.Literal,
