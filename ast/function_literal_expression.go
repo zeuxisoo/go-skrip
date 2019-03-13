@@ -34,7 +34,7 @@ func (f *FunctionLiteralExpression) String() string {
 	out.WriteString("(")							// (
 	out.WriteString(strings.Join(parameters, ", "))	// parameter1, parameter2, etc
 	out.WriteString(") ")							// )
-	out.WriteString(f.Block.String()) 				// { ...... }
+	out.WriteString(f.Block.String()) 				// { ...... } without "{" and "}"
 
 	return out.String()
 }
