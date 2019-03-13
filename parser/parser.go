@@ -37,6 +37,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.INT, parser.parsePrefixIntegerLiteral)
 	parser.registerPrefixParseFunction(token.FLOAT, parser.parsePrefixFloatLiteral)
 	parser.registerPrefixParseFunction(token.STRING, parser.parsePrefixStringLiteral)
+	parser.registerPrefixParseFunction(token.FUNCTION, parser.parsePrefixFunctionLiteral)
 
 	return parser
 }
@@ -202,6 +203,28 @@ func (p *Parser) parsePrefixStringLiteral() ast.Expression {
 	}
 }
 
+func (p *Parser) parsePrefixFunctionLiteral() ast.Expression {
+	functionLiteralExpression := &ast.FunctionLiteralExpression{
+		Token: p.currentToken,
+	}
+
+	// Expect next token is "("
+	if p.expectPeekTokenType(token.LEFT_PARENTHESIS) == false {
+		return nil
+	}
+
+	functionLiteralExpression.Parameters = p.parsePrefixFunctionParameters()
+
+	// Expect next token is "{"
+	if p.expectPeekTokenType(token.LEFT_BRACE) == false {
+		return nil
+	}
+
+	functionLiteralExpression.Block = p.parseBlockStatement()
+
+	return functionLiteralExpression
+}
+
 // Helper functions
 func (p *Parser) nextToken() {
 	p.currentToken = p.peekToken
@@ -233,6 +256,66 @@ func (p *Parser) peekPrecedence() int {
 
 func (p *Parser) registerPrefixParseFunction(tokenType token.Type, callback prefixParseFunction) {
 	p.prefixParseFunctions[tokenType] = callback
+}
+
+// Helper function for parse function, block and etc
+func (p *Parser) parsePrefixFunctionParameters() []*ast.IdentifierExpression {
+	identifierExpressions := []*ast.IdentifierExpression{}
+
+	// If the next token is ")", it means no arguments
+	// so, move to next token and return empty arguments
+	if p.peekTokenTypeIs(token.RIGHT_PARENTHESIS) {
+		p.nextToken()
+
+		return identifierExpressions
+	}
+
+	// Current in "(", so move it to next token
+	p.nextToken()
+
+	// Loop until found ")"
+	for p.CurrentTokenEquals(token.RIGHT_PARENTHESIS) == false {
+		// Append the parameter identifier to parameter identifiers
+		identifierExpression := &ast.IdentifierExpression{
+			Token: p.currentToken,
+			Value: p.currentToken.Literal,
+		}
+		identifierExpressions = append(identifierExpressions, identifierExpression)
+
+		// Move to next token
+		p.nextToken()
+
+		// If current token is ",", skip it then move to next token
+		if p.CurrentTokenEquals(token.COMMA) == true {
+			p.nextToken()
+		}
+	}
+
+	return identifierExpressions
+}
+
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	blockStatement := &ast.BlockStatement{
+		Token: p.currentToken,
+	}
+
+	blockStatement.Statements = []ast.Statement{}
+
+	// Move to next token from "{"
+	p.nextToken()
+
+	// Loop until found "}"
+	for p.CurrentTokenEquals(token.RIGHT_BRACE) == false {
+		statement := p.parseStatement()
+
+		if statement != nil {
+			blockStatement.Statements = append(blockStatement.Statements, statement)
+		}
+
+		p.nextToken()
+	}
+
+	return blockStatement
 }
 
 // Error handle functions
