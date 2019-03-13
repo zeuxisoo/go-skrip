@@ -47,7 +47,7 @@ func (p *Parser) Parse() *ast.Program {
 		Statements: []ast.Statement{},
 	}
 
-	for !p.CurrentTokenEquals(token.EOF) {
+	for !p.currentTokenTypeIs(token.EOF) {
 		statement := p.parseStatement()
 
 		// Add statement node into root program root
@@ -59,10 +59,6 @@ func (p *Parser) Parse() *ast.Program {
 	}
 
 	return program
-}
-
-func (p *Parser) CurrentTokenEquals(tokenType token.Type) bool {
-	return p.currentToken.Type == tokenType
 }
 
 func (p *Parser) Errors() []string {
@@ -242,6 +238,10 @@ func (p *Parser) expectPeekTokenType(tokenType token.Type) bool {
 	return false
 }
 
+func (p *Parser) currentTokenTypeIs(tokenType token.Type) bool {
+	return p.currentToken.Type == tokenType
+}
+
 func (p *Parser) peekTokenTypeIs(tokenType token.Type) bool {
 	return p.peekToken.Type == tokenType
 }
@@ -274,7 +274,7 @@ func (p *Parser) parsePrefixFunctionParameters() []*ast.IdentifierExpression {
 	p.nextToken()
 
 	// Loop until found ")"
-	for p.CurrentTokenEquals(token.RIGHT_PARENTHESIS) == false {
+	for p.currentTokenTypeIs(token.RIGHT_PARENTHESIS) == false {
 		// Append the parameter identifier to parameter identifiers
 		identifierExpression := &ast.IdentifierExpression{
 			Token: p.currentToken,
@@ -286,7 +286,7 @@ func (p *Parser) parsePrefixFunctionParameters() []*ast.IdentifierExpression {
 		p.nextToken()
 
 		// If current token is ",", skip it then move to next token
-		if p.CurrentTokenEquals(token.COMMA) == true {
+		if p.currentTokenTypeIs(token.COMMA) == true {
 			p.nextToken()
 		}
 	}
@@ -305,7 +305,7 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	p.nextToken()
 
 	// Loop until found "}"
-	for p.CurrentTokenEquals(token.RIGHT_BRACE) == false {
+	for p.currentTokenTypeIs(token.RIGHT_BRACE) == false {
 		statement := p.parseStatement()
 
 		if statement != nil {
