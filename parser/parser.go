@@ -34,7 +34,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	}
 
 	parser.prefixParseFunctions = make(map[token.Type]prefixParseFunction)
-	parser.registerPrefixParseFunction(token.INT, parser.parsePrefixIntegerLiteral)
+	parser.registerPrefixParseFunction(token.INT, parser.parseIntegerLiteral)
 	parser.registerPrefixParseFunction(token.FLOAT, parser.parsePrefixFloatLiteral)
 	parser.registerPrefixParseFunction(token.STRING, parser.parsePrefixStringLiteral)
 	parser.registerPrefixParseFunction(token.FUNCTION, parser.parsePrefixFunctionLiteral)
@@ -152,7 +152,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 }
 
 // Parse prefix functions
-func (p *Parser) parsePrefixIntegerLiteral() ast.Expression {
+func (p *Parser) parseIntegerLiteral() ast.Expression {
 	integerLiteralExpression := &ast.IntegerLiteralExpression{
 		Token: p.currentToken,
 	}
