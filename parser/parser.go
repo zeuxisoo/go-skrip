@@ -259,7 +259,7 @@ func (p *Parser) registerPrefixParseFunction(tokenType token.Type, callback pref
 	p.prefixParseFunctions[tokenType] = callback
 }
 
-// Helper function for parse function, block and etc
+// Helper function for parse prefix function like function arguments, function block and so on
 func (p *Parser) parseFunctionParameters() []*ast.IdentifierExpression {
 	identifierExpressions := []*ast.IdentifierExpression{}
 
