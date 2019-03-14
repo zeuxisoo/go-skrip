@@ -42,6 +42,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.STRING, parser.parseStringLiteral)
 	parser.registerPrefixParseFunction(token.FUNCTION, parser.parseFunctionLiteral)
 	parser.registerPrefixParseFunction(token.IDENTIFIER, parser.parseIdentifier)
+	parser.registerPrefixParseFunction(token.TRUE, parser.parseBoolean)
 
 	return parser
 }
@@ -243,6 +244,15 @@ func (p *Parser) parseIdentifier() ast.Expression {
 	}
 
 	return identifier
+}
+
+func (p *Parser) parseBoolean() ast.Expression {
+	boolean := &ast.BooleanExpression{
+		Token: p.currentToken,
+		Value: p.currentTokenTypeIs(token.TRUE),
+	}
+
+	return boolean
 }
 
 // Helper functions
