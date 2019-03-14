@@ -78,38 +78,6 @@ func (p *Parser) parseStatement() ast.Statement {
 	}
 }
 
-func (p *Parser) parseExpression(precedence int) ast.Expression {
-	// Get the prefix parse callback function name like (keywords: IF, FUNCTION, etc)
-	prefixParseFunction := p.prefixParseFunctions[p.currentToken.Type]
-
-	if prefixParseFunction == nil {
-		p.noPrefixParseFunctionError(p.currentToken.Type)
-
-		return nil
-	}
-
-	// Fire the prefix parse callback function
-	leftExpression := prefixParseFunction()
-
-	// Loop each token
-	// 		unitil found semicolon token
-	// 		when current token precedence is greater than LOWEST precedence
-	for p.peekTokenTypeIs(token.SEMICOLON) == false && precedence < p.peekPrecedence() {
-		// Get the  infix parse callback function name like (operator: + plus, - minus, etc)
-		infixParseFunction := p.infixParseFunctions[p.peekToken.Type]
-
-		if infixParseFunction == nil {
-			return leftExpression
-		}else{
-			p.nextToken()
-
-			leftExpression = infixParseFunction(leftExpression)
-		}
-	}
-
-	return leftExpression
-}
-
 // Parse statement functions
 func (p *Parser) parseLetStatement() *ast.LetStatement {
 	// Set the LetStatement Token value is "let token strcut"
@@ -149,6 +117,39 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	}
 
 	return statement
+}
+
+// Parse statement functions
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	// Get the prefix parse callback function name like (keywords: IF, FUNCTION, etc)
+	prefixParseFunction := p.prefixParseFunctions[p.currentToken.Type]
+
+	if prefixParseFunction == nil {
+		p.noPrefixParseFunctionError(p.currentToken.Type)
+
+		return nil
+	}
+
+	// Fire the prefix parse callback function
+	leftExpression := prefixParseFunction()
+
+	// Loop each token
+	// 		unitil found semicolon token
+	// 		when current token precedence is greater than LOWEST precedence
+	for p.peekTokenTypeIs(token.SEMICOLON) == false && precedence < p.peekPrecedence() {
+		// Get the  infix parse callback function name like (operator: + plus, - minus, etc)
+		infixParseFunction := p.infixParseFunctions[p.peekToken.Type]
+
+		if infixParseFunction == nil {
+			return leftExpression
+		}else{
+			p.nextToken()
+
+			leftExpression = infixParseFunction(leftExpression)
+		}
+	}
+
+	return leftExpression
 }
 
 // Parse prefix functions
