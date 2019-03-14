@@ -33,6 +33,9 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 		errors: []string{},
 	}
 
+	parser.nextToken()	// set the current token
+	parser.nextToken() 	// set the peek token
+
 	parser.prefixParseFunctions = make(map[token.Type]prefixParseFunction)
 	parser.registerPrefixParseFunction(token.INT, parser.parseIntegerLiteral)
 	parser.registerPrefixParseFunction(token.FLOAT, parser.parseFloatLiteral)
@@ -70,11 +73,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.currentToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
-	case token.EOF:
-		return nil
 	default:
-		// TODO: default action
-		return nil
+		return p.parseExpressionStatement()
 	}
 }
 
@@ -113,6 +113,19 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
 	//
 	if p.peekTokenTypeIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return statement
+}
+
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	statement := &ast.ExpressionStatement{
+		Token: p.currentToken,
+	}
+	statement.Expression = p.parseExpression(LOWEST)
+
+	for p.peekTokenTypeIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
