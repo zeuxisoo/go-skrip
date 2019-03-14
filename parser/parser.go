@@ -41,6 +41,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.FLOAT, parser.parseFloatLiteral)
 	parser.registerPrefixParseFunction(token.STRING, parser.parseStringLiteral)
 	parser.registerPrefixParseFunction(token.FUNCTION, parser.parseFunctionLiteral)
+	parser.registerPrefixParseFunction(token.IDENTIFIER, parser.parseIdentifier)
 
 	return parser
 }
@@ -233,6 +234,15 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	functionLiteralExpression.Block = p.parseBlockStatement()
 
 	return functionLiteralExpression
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	identifier := &ast.IdentifierExpression{
+		Token: p.currentToken,
+		Value: p.currentToken.Literal,
+	}
+
+	return identifier
 }
 
 // Helper functions
