@@ -15,26 +15,7 @@ type expectedToken struct{
 	Literal string
 }
 
-//
-func compareToken(theLexer *Lexer, expectedTokens []expectedToken) {
-	for index, currentExpectedToken := range expectedTokens {
-		lexerToken := theLexer.NextToken()
-
-		messageType  := fmt.Sprintf(
-			"Running %d, Got: %s, %s, Expected: %s, %s",
-			index,
-			lexerToken.Type, lexerToken.Literal,
-			currentExpectedToken.Type, currentExpectedToken.Literal,
-		)
-
-		Convey(messageType, func() {
-			So(lexerToken.Type, ShouldEqual, currentExpectedToken.Type)
-			So(lexerToken.Literal, ShouldEqual, currentExpectedToken.Literal)
-		})
-	}
-}
-
-//
+// Test case
 func TestLexerAssign(t *testing.T) {
 	Convey("Basic assign testing", t, func() {
 		source := `
@@ -130,7 +111,7 @@ func TestLexerAssign(t *testing.T) {
 			{ token.EOF, "" },
 		}
 
-		compareToken(NewLexer(source), expectedTokens)
+		testToken(NewLexer(source), expectedTokens)
 	})
 }
 
@@ -192,7 +173,7 @@ func TestLexerOperator(t *testing.T) {
 			{ token.EOF, "" },
 		}
 
-		compareToken(NewLexer(source), expectedTokens)
+		testToken(NewLexer(source), expectedTokens)
 	})
 }
 
@@ -257,7 +238,7 @@ func TestLexerKeywords(t *testing.T) {
 			{ token.EOF, "" },
 		}
 
-		compareToken(NewLexer(source), expectedTokens)
+		testToken(NewLexer(source), expectedTokens)
 	})
 }
 
@@ -302,6 +283,25 @@ func TestSkipComment(t *testing.T) {
 			{ token.SEMICOLON, ";" },
 		}
 
-		compareToken(NewLexer(source), expectedTokens)
+		testToken(NewLexer(source), expectedTokens)
 	})
+}
+
+// Sub method for test case
+func testToken(theLexer *Lexer, expectedTokens []expectedToken) {
+	for index, currentExpectedToken := range expectedTokens {
+		lexerToken := theLexer.NextToken()
+
+		messageType  := fmt.Sprintf(
+			"Running %d, Got: %s, %s, Expected: %s, %s",
+			index,
+			lexerToken.Type, lexerToken.Literal,
+			currentExpectedToken.Type, currentExpectedToken.Literal,
+		)
+
+		Convey(messageType, func() {
+			So(lexerToken.Type, ShouldEqual, currentExpectedToken.Type)
+			So(lexerToken.Literal, ShouldEqual, currentExpectedToken.Literal)
+		})
+	}
 }
