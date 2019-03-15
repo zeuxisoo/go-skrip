@@ -30,6 +30,22 @@ func TestLetStatement(t *testing.T) {
 	})
 }
 
+func TestBadLetStatement(t *testing.T) {
+	Convey("Bad let statement testing", t, func() {
+		sources := []string{ "let", "let x;" }
+
+		for _, source := range sources {
+			theLexer   := lexer.NewLexer(source)
+			theParser  := NewParser(theLexer)
+			theProgram := theParser.Parse()
+
+			So(theProgram, ShouldNotBeNil)
+			So(len(theParser.errors), ShouldBeGreaterThanOrEqualTo, 1)
+			So(len(theParser.Errors()), ShouldEqual, len(theParser.errors))
+		}
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedStatement) {
 	for index, currentStatement := range expectedStatements {
