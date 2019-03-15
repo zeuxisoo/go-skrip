@@ -161,9 +161,11 @@ func (l *Lexer) NextToken() token.Token {
 		theToken.Type    = token.EOF
 	default:
 		if helper.IsLetter(l.currentChar) {
-			theToken.Literal    = l.readIdentifier()
+			identifier := l.readIdentifier()
+
+			theToken.Literal    = identifier
 			theToken.LineNumber = l.currentLine
-			theToken.Type       = token.FindKeywordType(theToken.Literal)
+			theToken.Type       = token.FindKeywordType(identifier)
 
 			return theToken
 		}
