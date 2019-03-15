@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"strings"
 	"strconv"
 
 	"github.com/zeuxisoo/go-skriplang/lexer"
@@ -56,7 +55,7 @@ func (p *Parser) Parse() *ast.Program {
 		statement := p.parseStatement()
 
 		// Add statement node into root program root
-		if statement != nil && strings.TrimSpace(statement.String()) != "" {
+		if statement != nil {
 			program.Statements = append(program.Statements, statement)
 		}
 
