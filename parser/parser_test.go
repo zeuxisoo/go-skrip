@@ -43,7 +43,7 @@ func testLetStatement(expectedStatements []expectedStatement) {
 		letStatement, ok := statement.(*ast.LetStatement)
 
 		Convey(message, func() {
-			checkParserError(theParser)
+			testParserError(theParser)
 			testParserProgramLength(theProgram)
 
 			// Identifier
@@ -59,19 +59,15 @@ func testLetStatement(expectedStatements []expectedStatement) {
 }
 
 // Sub method function for sub method
-func checkParserError(parser *Parser) {
-	Convey("Parser error test", func() {
-		parserErrors       := parser.Errors()
-		parserErrorsLength := len(parserErrors)
+func testParserError(parser *Parser) {
+	parserErrors       := parser.Errors()
+	parserErrorsLength := len(parserErrors)
 
-		So(parserErrorsLength, ShouldEqual, 0)
-	})
+	So(parserErrorsLength, ShouldEqual, 0)
 }
 
 func testParserProgramLength(program *ast.Program) {
-	Convey("Paser program length test", func() {
-		So(len(program.Statements), ShouldEqual, 1)
-	})
+	So(len(program.Statements), ShouldEqual, 1)
 }
 
 func testLiteralExpression(expression ast.Expression, expected interface{}) {
@@ -93,63 +89,80 @@ func testLiteralExpression(expression ast.Expression, expected interface{}) {
 
 // Callback function for sub method function "testLiteralExpression"
 func testIdentifierExpression(expression ast.Expression, value string) {
-	Convey("Identifier test", func() {
-		identifier, ok := expression.(*ast.IdentifierExpression)
+	identifier, ok := expression.(*ast.IdentifierExpression)
 
-		So(ok, ShouldBeTrue)
+	identifierValue 	   := identifier.Value
+	identifierTokenLiteral := identifier.TokenLiteral()
 
-		Convey(runMessage("1. Got: %s, Expected: %s", identifier.Value, value), func() {
+	Convey(
+		runMessage(
+			"Identifier test, Value: %s, TokenLiteral: %s, Expected: %s",
+			identifierValue, identifierTokenLiteral, value,
+		),
+		func() {
+			So(ok, ShouldBeTrue)
 			So(identifier.Value, ShouldEqual, value)
-		})
-
-		Convey(runMessage("2. Got: %s, Expected: %s", identifier.TokenLiteral(), value), func() {
 			So(identifier.TokenLiteral(), ShouldEqual, value)
-		})
-	})
+		},
+	)
 }
 
 func testBooleanExpression(expression ast.Expression, value bool) {
-	Convey("Boolean test", func() {
-		boolean, ok := expression.(*ast.BooleanExpression)
+	boolean, ok := expression.(*ast.BooleanExpression)
 
-		So(ok, ShouldBeTrue)
+	booleanValue 		:= boolean.Value
+	booleanTokenLiteral := boolean.TokenLiteral()
 
-		Convey(runMessage("1. Got: %t, Expected: %t", boolean.Value, value), func() {
+	Convey(
+		runMessage(
+			"Boolean test, Value: %t, TokenLiteral: %s, Expected: %s",
+			booleanValue, booleanTokenLiteral, fmt.Sprintf("%t", value),
+		),
+		func() {
+			So(ok, ShouldBeTrue)
 			So(boolean.Value, ShouldEqual, value)
-		})
-
-		Convey(runMessage("2. Got: %s, Expected: %t", boolean.TokenLiteral(), value), func() {
 			So(boolean.TokenLiteral(), ShouldEqual, fmt.Sprintf("%t", value))
-		})
-	})
+		},
+	)
 }
 
 func testIntegerLiteralExpression(expression ast.Expression, value int64) {
-	Convey("Integer literal test", func() {
-		integer, ok := expression.(*ast.IntegerLiteralExpression)
+	integer, ok := expression.(*ast.IntegerLiteralExpression)
 
-		So(ok, ShouldBeTrue)
+	integerValue 		:= integer.Value
+	integerTokenLiteral := integer.TokenLiteral()
 
-		Convey(runMessage("1. Got: %d, Expected: %d", integer.Value, value), func() {
+	Convey(
+		runMessage(
+			"Integer test, Value: %d, TokenLiteral: %s, Expected: %d",
+			integerValue, integerTokenLiteral, value,
+		),
+		func() {
+			So(ok, ShouldBeTrue)
 			So(integer.Value, ShouldEqual, value)
-		})
-
-		Convey(runMessage("2. Got: %s, Expected: %d", integer.TokenLiteral(), value), func() {
 			So(integer.TokenLiteral(), ShouldEqual, fmt.Sprintf("%d", value))
-		})
-	})
+		},
+	)
 }
 
 func testFloatLiteralExpression(expression ast.Expression, value float64) {
-	Convey("Float literal test", func() {
-		float, ok := expression.(*ast.FloatLiteralExpression)
+	float, ok := expression.(*ast.FloatLiteralExpression)
 
-		So(ok, ShouldBeTrue)
+	floatValue 		  := fmt.Sprintf("%.1f", float.Value)
+	floatTokenLiteral := float.TokenLiteral()
+	expectedValue     := fmt.Sprintf("%.1f", value)
 
-		Convey(runMessage("1. Got: %f, Expected: %f", float.Value, value), func() {
-			So(float.Value, ShouldEqual, value)
-		})
-	})
+	Convey(
+		runMessage(
+			"Float literal test, Value: %s, TokenLiteral: %s, Expected: %s",
+			floatValue, floatTokenLiteral, expectedValue,
+		),
+		func() {
+			So(ok, ShouldBeTrue)
+			So(floatValue, ShouldEqual, expectedValue)
+			So(floatTokenLiteral, ShouldEqual, expectedValue)
+		},
+	)
 }
 
 // Helper functions for common
