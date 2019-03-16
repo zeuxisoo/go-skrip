@@ -10,16 +10,21 @@ import (
 	"github.com/zeuxisoo/go-skriplang/ast"
 )
 
-type expectedStatement struct {
+type expectedLetStatement struct {
 	source 		string
 	identifier 	string
 	value		interface{}
 }
 
+type expectedReturnStatement struct {
+	source 		string
+	returnValue interface{}
+}
+
 // Test case
 func TestLetStatement(t *testing.T) {
 	Convey("Let statement testing", t, func() {
-		expectedStatements := []expectedStatement{
+		expectedStatements := []expectedLetStatement{
 			{ "let a = 5;",		"a",	5 },
 			{ "let b = 5.1",	"b",	5.1 },
 			{ "let c = true",	"c",	true },
@@ -46,8 +51,20 @@ func TestBadLetStatement(t *testing.T) {
 	})
 }
 
+func TestReturnStatement(t *testing.T) {
+	Convey("Return statement testing", t, func() {
+		expectedStatements := []expectedReturnStatement{
+			{ "return 5;", 		5 },
+			{ "return 10;", 	10 },
+			{ "return 884422;", 884422 },
+		}
+
+		testReturnStatement(expectedStatements)
+	})
+}
+
 // Sub method for test case
-func testLetStatement(expectedStatements []expectedStatement) {
+func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
 		message := runMessage("Running %d, Source: %s", index, currentStatement.source)
 
@@ -63,13 +80,37 @@ func testLetStatement(expectedStatements []expectedStatement) {
 			testParserProgramLength(theProgram)
 
 			// Identifier
-			So(statement.TokenLiteral(), ShouldEqual, "let")
 			So(ok, ShouldNotBeNil)
+			So(statement.TokenLiteral(), ShouldEqual, "let")
 			So(letStatement.Name.Value, ShouldEqual, currentStatement.identifier)
 			So(letStatement.Name.TokenLiteral(), ShouldEqual, currentStatement.identifier)
 
 			// Value
 			testLiteralExpression(letStatement.Value, currentStatement.value)
+		})
+	}
+}
+
+func testReturnStatement(expectedStatements []expectedReturnStatement) {
+	for index, currentStatement := range expectedStatements {
+		message := runMessage("Running %d, Source: %s", index,currentStatement.source)
+
+		theLexer   := lexer.NewLexer(currentStatement.source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		returnStatement, ok := theProgram.Statements[0].(*ast.ReturnStatement)
+
+		Convey(message, func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram)
+
+			// Return keywords
+			So(ok, ShouldNotBeNil)
+			So(returnStatement.TokenLiteral(), ShouldEqual, "return")
+
+			// Value
+			testLiteralExpression(returnStatement.ReturnValue, currentStatement.returnValue)
 		})
 	}
 }
