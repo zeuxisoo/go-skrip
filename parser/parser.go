@@ -42,6 +42,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.FUNCTION, parser.parseFunctionLiteral)
 	parser.registerPrefixParseFunction(token.IDENTIFIER, parser.parseIdentifier)
 	parser.registerPrefixParseFunction(token.TRUE, parser.parseBoolean)
+	parser.registerPrefixParseFunction(token.FALSE, parser.parseBoolean)
 
 	return parser
 }
