@@ -75,6 +75,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.currentToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
+	case token.RETURN:
+		return p.parseReturnStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -112,6 +114,25 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
 	// Set variable value by parsed expression
 	statement.Value = p.parseExpression(LOWEST)
+
+	//
+	if p.peekTokenTypeIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return statement
+}
+
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	statement := &ast.ReturnStatement{
+		Token: p.currentToken,
+	}
+
+	// Move the current token to return value
+	p.nextToken()
+
+	// Parse the return value expression
+	statement.ReturnValue = p.parseExpression(LOWEST)
 
 	//
 	if p.peekTokenTypeIs(token.SEMICOLON) {
