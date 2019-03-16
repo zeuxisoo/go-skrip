@@ -55,8 +55,9 @@ func TestReturnStatement(t *testing.T) {
 	Convey("Return statement testing", t, func() {
 		expectedStatements := []expectedReturnStatement{
 			{ "return 5;", 		5 },
-			{ "return 10;", 	10 },
-			{ "return 884422;", 884422 },
+			{ "return 10.1;", 	10.1 },
+			{ "return true;", 	true },
+			{ "return foo;", 	"foo" },
 		}
 
 		testReturnStatement(expectedStatements)
