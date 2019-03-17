@@ -43,6 +43,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.IDENTIFIER, parser.parseIdentifier)
 	parser.registerPrefixParseFunction(token.TRUE, parser.parseBoolean)
 	parser.registerPrefixParseFunction(token.FALSE, parser.parseBoolean)
+	parser.registerPrefixParseFunction(token.BANG, parser.parsePrefixExpression)
 
 	return parser
 }
@@ -274,6 +275,19 @@ func (p *Parser) parseBoolean() ast.Expression {
 	}
 
 	return boolean
+}
+
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	prefix := &ast.PrefixExpression{
+		Token   : p.currentToken,
+		Operator: p.currentToken.Literal,
+	}
+
+	p.nextToken()
+
+	prefix.Right = p.parseExpression(PREFIX)
+
+	return prefix
 }
 
 // Helper functions
