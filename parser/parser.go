@@ -46,6 +46,9 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.BANG, parser.parsePrefixExpression)
 	parser.registerPrefixParseFunction(token.MINUS, parser.parsePrefixExpression)
 
+	parser.infixParseFunctions = make(map[token.Type]infixParseFunction)
+	parser.registerInfixParseFunction(token.PLUS, parser.parseInfixExpression)
+
 	return parser
 }
 
@@ -86,7 +89,7 @@ func (p *Parser) parseStatement() ast.Statement {
 
 // Parse statement functions
 func (p *Parser) parseLetStatement() *ast.LetStatement {
-	// Set the LetStatement Token value is "let token strcut"
+	// Set the LetStatement Token value is "let token struct"
 	statement := &ast.LetStatement{
 		Token: p.currentToken,
 	}
@@ -159,25 +162,45 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 
 // Parse statement functions
 func (p *Parser) parseExpression(precedence int) ast.Expression {
-	// Get the prefix parse callback function name like (keywords: IF, FUNCTION, etc)
+	// Workflow
+	// E.g. 5 + 5;
+	//  current token is 5,
+	// 	1. so it is token.INT
+	//  2. so it registered in []prefixParseFunctions list
+	//	  2.1. so it will not call noPrefixParseFunctionError() add error message
+	//  4. fire the prefix parse function from prefixParseFunctions[token.INT]
+	//  5. continue lookup each token when found token.SEMICOLON and ensure precedence less than next token precedence
+
+	// Get the prefix parse callback function from registered list like (if, function, !, -, 5, 5.1, "text")
 	prefixParseFunction := p.prefixParseFunctions[p.currentToken.Type]
 
+	// if the current token type is not registered in prefix parse function list, add the error
 	if prefixParseFunction == nil {
 		p.noPrefixParseFunctionError(p.currentToken.Type)
 
 		return nil
 	}
 
-	// Fire the prefix parse callback function
+	// If the current token type is registered in prefix parse function list, fire the prefix parse function
 	leftExpression := prefixParseFunction()
 
+	// Continue lookup the following tokens
 	// Loop each token
 	// 		unitil found semicolon token
 	// 		when current token precedence is greater than LOWEST precedence
 	for p.peekTokenTypeIs(token.SEMICOLON) == false && precedence < p.peekPrecedence() {
-		// Get the  infix parse callback function name like (operator: + plus, - minus, etc)
+		// Get the  infix parse callback function name from registered list like (operator: + plus, - minus, etc)
 		infixParseFunction := p.infixParseFunctions[p.peekToken.Type]
 
+		// if the next token type is not registered in infix parse function list, only return parsed current token
+		// otherwise, set next token to current token, and pass the parsed previous token to infix parse function
+		// e.g. 5 + 6;
+		// - current token: 5
+		// 	 - left expression: 5
+		// - peek token: +
+		// - infix parse function found
+		// - set current token: +
+		// - pass left express (5) to found infix parse function
 		if infixParseFunction == nil {
 			return leftExpression
 		}else{
@@ -291,6 +314,22 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	return prefix
 }
 
+func (p *Parser) parseInfixExpression(leftExpression ast.Expression) ast.Expression {
+	infix := &ast.InfixExpression{
+		Token   : p.currentToken,
+		Left    : leftExpression,
+		Operator: p.currentToken.Literal,
+	}
+
+	precedence := p.currentPrecedence()
+
+	p.nextToken()
+
+	infix.Right = p.parseExpression(precedence)
+
+	return infix
+}
+
 // Helper functions
 func (p *Parser) nextToken() {
 	p.currentToken = p.peekToken
@@ -324,8 +363,20 @@ func (p *Parser) peekPrecedence() int {
 	return LOWEST
 }
 
+func (p *Parser) currentPrecedence() int {
+	if precedence, ok := precedences[p.currentToken.Type]; ok {
+		return precedence
+	}
+
+	return LOWEST
+}
+
 func (p *Parser) registerPrefixParseFunction(tokenType token.Type, callback prefixParseFunction) {
 	p.prefixParseFunctions[tokenType] = callback
+}
+
+func (p *Parser) registerInfixParseFunction(tokenType token.Type, callback infixParseFunction) {
+	p.infixParseFunctions[tokenType] = callback
 }
 
 // Helper function for parse prefix function like function arguments, function block and so on
