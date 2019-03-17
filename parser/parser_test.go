@@ -91,6 +91,33 @@ func TestIdentifierExpression(t *testing.T) {
 	})
 }
 
+func TestIntegerLiteralExpression(t *testing.T) {
+	Convey("Integer literal expression test", t, func() {
+		source := `5;`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		testParserError(theParser)
+		testParserProgramLength(theProgram)
+
+		Convey("can convert to expression statement", func() {
+			statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+
+			So(ok, ShouldBeTrue)
+
+			Convey(`check the value should be equal 5`, func() {
+				integer, ok := statement.Expression.(*ast.IntegerLiteralExpression)
+
+				So(ok, ShouldBeTrue)
+				So(integer.Value, ShouldEqual, 5)
+				So(integer.TokenLiteral(), ShouldEqual, "5")
+			})
+		})
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
