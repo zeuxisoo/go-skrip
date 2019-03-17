@@ -64,6 +64,33 @@ func TestReturnStatement(t *testing.T) {
 	})
 }
 
+func TestIdentifierExpression(t *testing.T) {
+	Convey("Identifier expression test", t, func() {
+		source := `foobar;`;
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		testParserError(theParser)
+		testParserProgramLength(theProgram)
+
+		Convey("can convert to expression statement", func() {
+			statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+
+			So(ok, ShouldBeTrue)
+
+			Convey(`check the value should be equal "foo"`, func() {
+				identifier, ok := statement.Expression.(*ast.IdentifierExpression)
+
+				So(ok, ShouldBeTrue)
+				So(identifier.Value, ShouldEqual, "foobar")
+				So(identifier.TokenLiteral(), ShouldEqual, "foobar")
+			})
+		})
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
@@ -81,7 +108,7 @@ func testLetStatement(expectedStatements []expectedLetStatement) {
 			testParserProgramLength(theProgram)
 
 			// Identifier
-			So(ok, ShouldNotBeNil)
+			So(ok, ShouldBeTrue)
 			So(statement.TokenLiteral(), ShouldEqual, "let")
 			So(letStatement.Name.Value, ShouldEqual, currentStatement.identifier)
 			So(letStatement.Name.TokenLiteral(), ShouldEqual, currentStatement.identifier)
@@ -107,7 +134,7 @@ func testReturnStatement(expectedStatements []expectedReturnStatement) {
 			testParserProgramLength(theProgram)
 
 			// Return keywords
-			So(ok, ShouldNotBeNil)
+			So(ok, ShouldBeTrue)
 			So(returnStatement.TokenLiteral(), ShouldEqual, "return")
 
 			// Value
