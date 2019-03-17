@@ -317,7 +317,7 @@ func (p *Parser) peekTokenTypeIs(tokenType token.Type) bool {
 }
 
 func (p *Parser) peekPrecedence() int {
-	if precedence, ok := precedences[p.currentToken.Type]; ok {
+	if precedence, ok := precedences[p.peekToken.Type]; ok {
 		return precedence
 	}
 
