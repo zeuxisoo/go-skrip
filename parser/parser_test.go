@@ -81,7 +81,7 @@ func TestIdentifierExpression(t *testing.T) {
 
 			So(ok, ShouldBeTrue)
 
-			Convey(`check the value should be equal "foo"`, func() {
+			Convey(`Check the value should be equal "foo"`, func() {
 				identifier, ok := statement.Expression.(*ast.IdentifierExpression)
 
 				So(ok, ShouldBeTrue)
@@ -103,12 +103,12 @@ func TestIntegerLiteralExpression(t *testing.T) {
 		testParserError(theParser)
 		testParserProgramLength(theProgram)
 
-		Convey("can convert to expression statement", func() {
+		Convey("Can convert to expression statement", func() {
 			statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
 
 			So(ok, ShouldBeTrue)
 
-			Convey(`check the value should be equal 5`, func() {
+			Convey("Check the value should be equal 5", func() {
 				integer, ok := statement.Expression.(*ast.IntegerLiteralExpression)
 
 				So(ok, ShouldBeTrue)
@@ -130,12 +130,12 @@ func TestFloatLiteralExpression(t *testing.T) {
 		testParserError(theParser)
 		testParserProgramLength(theProgram)
 
-		Convey("can convert to expression statement", func() {
+		Convey("Can convert to expression statement", func() {
 			statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
 
 			So(ok, ShouldBeTrue)
 
-			Convey(`check the value should be equal 12.34`, func() {
+			Convey("Check the value should be equal 12.34", func() {
 				float, ok := statement.Expression.(*ast.FloatLiteralExpression)
 
 				So(ok, ShouldBeTrue)
@@ -167,13 +167,13 @@ func TestBooleanExpression(t *testing.T) {
 				testParserError(theParser)
 				testParserProgramLength(theProgram)
 
-				Convey("can convert to expression statement", func() {
+				Convey("Can convert to expression statement", func() {
 					statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
 
 					So(ok, ShouldBeTrue)
 
 					Convey(
-						runMessage("check the value should be equal %s", strconv.FormatBool(expression.value)),
+						runMessage("Check the value should be equal %s", strconv.FormatBool(expression.value)),
 						func() {
 							boolean := statement.Expression.(*ast.BooleanExpression)
 
@@ -212,13 +212,13 @@ func TestPrefixExpression(t *testing.T) {
 				testParserError(theParser)
 				testParserProgramLength(theProgram)
 
-				Convey("can convert to expression statement", func() {
+				Convey("Can convert to expression statement", func() {
 					statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
 
 					So(ok, ShouldBeTrue)
 
 					Convey(
-						runMessage("check the operator should be equal %s", expression.operator),
+						runMessage("Check the operator should be equal %s", expression.operator),
 						func() {
 							prefix := statement.Expression.(*ast.PrefixExpression)
 
