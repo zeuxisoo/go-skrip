@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -142,6 +143,46 @@ func TestFloatLiteralExpression(t *testing.T) {
 				So(float.TokenLiteral(), ShouldEqual, "12.34")
 			})
 		})
+	})
+}
+
+func TestBooleanExpression(t *testing.T) {
+	Convey("Boolean expression test", t, func() {
+		expectedExpressions := []struct{
+			source string
+			value  bool
+		}{
+			{ "true;",  true },
+			{ "false;", false },
+		}
+
+		for index, expression := range expectedExpressions {
+			message := runMessage("Running %d, Source: %s", index, expression.source)
+
+			theLexer   := lexer.NewLexer(expression.source)
+			theParser  := NewParser(theLexer)
+			theProgram := theParser.Parse()
+
+			Convey(message, func() {
+				testParserError(theParser)
+				testParserProgramLength(theProgram)
+
+				Convey("can convert to expression statement", func() {
+					statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+
+					So(ok, ShouldBeTrue)
+
+					Convey(
+						runMessage("check the value should be equal %s", strconv.FormatBool(expression.value)),
+						func() {
+							boolean := statement.Expression.(*ast.BooleanExpression)
+
+							So(boolean.Value, ShouldEqual, expression.value)
+						},
+					)
+				})
+			})
+		}
 	})
 }
 
