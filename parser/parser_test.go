@@ -118,6 +118,33 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	})
 }
 
+func TestFloatLiteralExpression(t *testing.T) {
+	Convey("Float literal expression test", t, func() {
+		source := `12.34;`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		testParserError(theParser)
+		testParserProgramLength(theProgram)
+
+		Convey("can convert to expression statement", func() {
+			statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+
+			So(ok, ShouldBeTrue)
+
+			Convey(`check the value should be equal 12.34`, func() {
+				float, ok := statement.Expression.(*ast.FloatLiteralExpression)
+
+				So(ok, ShouldBeTrue)
+				So(float.Value, ShouldEqual, 12.34)
+				So(float.TokenLiteral(), ShouldEqual, "12.34")
+			})
+		})
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
