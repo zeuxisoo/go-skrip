@@ -186,6 +186,53 @@ func TestBooleanExpression(t *testing.T) {
 	})
 }
 
+func TestPrefixExpression(t *testing.T) {
+	Convey("Prefix expression test", t, func() {
+		expectedExpressions := []struct{
+			source 		string
+			operator 	string
+			value 		interface{}
+		}{
+			{ "!5", 	 "!", 	5 },
+			{ "-10", 	 "-", 	10 },
+			{ "!foobar", "!",	"foobar" },
+			{ "-foobar", "-", 	"foobar"} ,
+			{ "!true",	 "!",	true },
+			{ "!false",  "!",   false },
+		}
+
+		for index, expression := range expectedExpressions {
+			message := runMessage("Running %d, Source: %s", index, expression.source)
+
+			theLexer   := lexer.NewLexer(expression.source)
+			theParser  := NewParser(theLexer)
+			theProgram := theParser.Parse()
+
+			Convey(message, func() {
+				testParserError(theParser)
+				testParserProgramLength(theProgram)
+
+				Convey("can convert to expression statement", func() {
+					statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+
+					So(ok, ShouldBeTrue)
+
+					Convey(
+						runMessage("check the operator should be equal %s", expression.operator),
+						func() {
+							prefix := statement.Expression.(*ast.PrefixExpression)
+
+							So(prefix.Operator, ShouldEqual, expression.operator)
+
+							testLiteralExpression(prefix.Right, expression.value)
+						},
+					)
+				})
+			})
+		}
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
