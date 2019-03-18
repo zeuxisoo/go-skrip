@@ -305,7 +305,7 @@ func TestInfixExpression(t *testing.T) {
 
 func TestOperatorPrecedence(t *testing.T) {
 	Convey("Operator precedence test", t, func() {
-		expectedStatements := []struct{
+		expectedExpressions := []struct{
 			source 		string
 			expected 	string
 			length 		int
@@ -330,10 +330,10 @@ func TestOperatorPrecedence(t *testing.T) {
 			{ "3 < 5 == true", 	"((3 < 5) == true)",	1 },
 		}
 
-		for index, statement := range expectedStatements {
-			message := runMessage("Running %d, Source: %s", index, statement.source)
+		for index, expression := range expectedExpressions {
+			message := runMessage("Running %d, Source: %s", index, expression.source)
 
-			theLexer   := lexer.NewLexer(statement.source)
+			theLexer   := lexer.NewLexer(expression.source)
 			theParser  := NewParser(theLexer)
 			theProgram := theParser.Parse()
 
@@ -342,12 +342,12 @@ func TestOperatorPrecedence(t *testing.T) {
 					testParserError(theParser)
 				})
 
-				Convey(runMessage("Expected length: %d", statement.length), func() {
-					testParserProgramLength(theProgram, statement.length)
+				Convey(runMessage("Expected length: %d", expression.length), func() {
+					testParserProgramLength(theProgram, expression.length)
 				})
 
-				Convey(runMessage("Expected: %s", statement.expected), func() {
-					So(theProgram.String(), ShouldEqual, statement.expected)
+				Convey(runMessage("Expected: %s", expression.expected), func() {
+					So(theProgram.String(), ShouldEqual, expression.expected)
 				})
 			})
 		}
