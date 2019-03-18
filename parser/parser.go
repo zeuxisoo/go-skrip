@@ -50,6 +50,12 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerInfixParseFunction(token.PLUS, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.ASTERISK, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.SLASH, parser.parseInfixExpression)
+	parser.registerInfixParseFunction(token.LT, parser.parseInfixExpression)
+	parser.registerInfixParseFunction(token.GT, parser.parseInfixExpression)
+	parser.registerInfixParseFunction(token.LTEQ, parser.parseInfixExpression)
+	parser.registerInfixParseFunction(token.GTEQ, parser.parseInfixExpression)
+	parser.registerInfixParseFunction(token.EQ, parser.parseInfixExpression)
+	parser.registerInfixParseFunction(token.NOT_EQ, parser.parseInfixExpression)
 
 	return parser
 }
