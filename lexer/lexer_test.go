@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/zeuxisoo/go-skriplang/token"
+	"github.com/zeuxisoo/go-skrip/token"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

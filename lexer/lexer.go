@@ -3,8 +3,8 @@ package lexer
 import (
 	"strings"
 
-	"github.com/zeuxisoo/go-skriplang/token"
-	"github.com/zeuxisoo/go-skriplang/pkg/helper"
+	"github.com/zeuxisoo/go-skrip/token"
+	"github.com/zeuxisoo/go-skrip/pkg/helper"
 )
 
 type Lexer struct {

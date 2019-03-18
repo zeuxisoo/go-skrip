@@ -7,8 +7,8 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/zeuxisoo/go-skriplang/lexer"
-	"github.com/zeuxisoo/go-skriplang/ast"
+	"github.com/zeuxisoo/go-skrip/lexer"
+	"github.com/zeuxisoo/go-skrip/ast"
 )
 
 type expectedLetStatement struct {

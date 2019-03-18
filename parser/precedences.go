@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/zeuxisoo/go-skriplang/token"
+	"github.com/zeuxisoo/go-skrip/token"
 )
 
 const (

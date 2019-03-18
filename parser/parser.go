@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/zeuxisoo/go-skriplang/lexer"
-	"github.com/zeuxisoo/go-skriplang/token"
-	"github.com/zeuxisoo/go-skriplang/ast"
+	"github.com/zeuxisoo/go-skrip/lexer"
+	"github.com/zeuxisoo/go-skrip/token"
+	"github.com/zeuxisoo/go-skrip/ast"
 )
 
 type (

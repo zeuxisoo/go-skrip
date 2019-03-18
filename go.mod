@@ -1,4 +1,4 @@
-module github.com/zeuxisoo/go-skriplang
+module github.com/zeuxisoo/go-skrip
 
 require (
 	github.com/fatih/color v1.7.0

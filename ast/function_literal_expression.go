@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/zeuxisoo/go-skriplang/token"
+	"github.com/zeuxisoo/go-skrip/token"
 )
 
 type FunctionLiteralExpression struct {

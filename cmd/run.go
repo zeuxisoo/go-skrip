@@ -7,9 +7,9 @@ import (
 
 	"github.com/urfave/cli"
 
-	"github.com/zeuxisoo/go-skriplang/pkg/logger"
-	"github.com/zeuxisoo/go-skriplang/lexer"
-	"github.com/zeuxisoo/go-skriplang/parser"
+	"github.com/zeuxisoo/go-skrip/pkg/logger"
+	"github.com/zeuxisoo/go-skrip/lexer"
+	"github.com/zeuxisoo/go-skrip/parser"
 )
 
 // Run command for run the script file
