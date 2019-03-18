@@ -74,7 +74,7 @@ func TestIdentifierExpression(t *testing.T) {
 		theProgram := theParser.Parse()
 
 		testParserError(theParser)
-		testParserProgramLength(theProgram)
+		testParserProgramLength(theProgram, 1)
 
 		Convey("can convert to expression statement", func() {
 			statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
@@ -101,7 +101,7 @@ func TestIntegerLiteralExpression(t *testing.T) {
 		theProgram := theParser.Parse()
 
 		testParserError(theParser)
-		testParserProgramLength(theProgram)
+		testParserProgramLength(theProgram, 1)
 
 		Convey("Can convert to expression statement", func() {
 			statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
@@ -128,7 +128,7 @@ func TestFloatLiteralExpression(t *testing.T) {
 		theProgram := theParser.Parse()
 
 		testParserError(theParser)
-		testParserProgramLength(theProgram)
+		testParserProgramLength(theProgram, 1)
 
 		Convey("Can convert to expression statement", func() {
 			statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
@@ -165,7 +165,7 @@ func TestBooleanExpression(t *testing.T) {
 
 			Convey(message, func() {
 				testParserError(theParser)
-				testParserProgramLength(theProgram)
+				testParserProgramLength(theProgram, 1)
 
 				Convey("Can convert to expression statement", func() {
 					statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
@@ -210,7 +210,7 @@ func TestPrefixExpression(t *testing.T) {
 
 			Convey(message, func() {
 				testParserError(theParser)
-				testParserProgramLength(theProgram)
+				testParserProgramLength(theProgram, 1)
 
 				Convey("Can convert to expression statement", func() {
 					statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
@@ -274,7 +274,7 @@ func TestInfixExpression(t *testing.T) {
 			Convey(message, func() {
 				Convey("Parse program check", func() {
 					testParserError(theParser)
-					testParserProgramLength(theProgram)
+					testParserProgramLength(theProgram, 1)
 				})
 
 				statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
@@ -303,6 +303,57 @@ func TestInfixExpression(t *testing.T) {
 	})
 }
 
+func TestOperatorPrecedence(t *testing.T) {
+	Convey("Operator precedence test", t, func() {
+		expectedStatements := []struct{
+			source 		string
+			expected 	string
+			length 		int
+		}{
+			{ "-a * b", 					"((-a) * b)",								1 },
+			{ "!-a", 						"(!(-a))",									1 },
+			{ "a + b + c", 					"((a + b) + c)", 							1 },
+			{ "a + b - c", 					"((a + b) - c)",							1 },
+			{ "a * b * c", 					"((a * b) * c)", 							1 },
+			{ "a * b / c", 					"((a * b) / c)",							1 },
+			{ "a + b / c", 					"(a + (b / c))", 							1 },
+			{ "a + b * c + d / e - f", 		"(((a + (b * c)) + (d / e)) - f)",			1 },
+			{ "3 + 4; -5 * 5", 				"(3 + 4)((-5) * 5)",						2 },
+			{ "5 > 4 == 3 < 4", 			"((5 > 4) == (3 < 4))",						1 },
+			{ "5 < 4 != 3 > 4", 			"((5 < 4) != (3 > 4))",						1 },
+			{ "3 + 4 * 5 == 3 * 1 + 4 * 5",	"((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",	1 },
+
+			{ "true", 	"true",		1 },
+			{ "false", 	"false",	1 },
+
+			{ "3 > 5 == false",	"((3 > 5) == false)",	1 },
+			{ "3 < 5 == true", 	"((3 < 5) == true)",	1 },
+		}
+
+		for index, statement := range expectedStatements {
+			message := runMessage("Running %d, Source: %s", index, statement.source)
+
+			theLexer   := lexer.NewLexer(statement.source)
+			theParser  := NewParser(theLexer)
+			theProgram := theParser.Parse()
+
+			Convey(message, func() {
+				Convey("Parse program check", func() {
+					testParserError(theParser)
+				})
+
+				Convey(runMessage("Expected length: %d", statement.length), func() {
+					testParserProgramLength(theProgram, statement.length)
+				})
+
+				Convey(runMessage("Expected: %s", statement.expected), func() {
+					So(theProgram.String(), ShouldEqual, statement.expected)
+				})
+			})
+		}
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
@@ -317,7 +368,7 @@ func testLetStatement(expectedStatements []expectedLetStatement) {
 
 		Convey(message, func() {
 			testParserError(theParser)
-			testParserProgramLength(theProgram)
+			testParserProgramLength(theProgram, 1)
 
 			// Identifier
 			So(ok, ShouldBeTrue)
@@ -343,7 +394,7 @@ func testReturnStatement(expectedStatements []expectedReturnStatement) {
 
 		Convey(message, func() {
 			testParserError(theParser)
-			testParserProgramLength(theProgram)
+			testParserProgramLength(theProgram, 1)
 
 			// Return keywords
 			So(ok, ShouldBeTrue)
@@ -363,8 +414,8 @@ func testParserError(parser *Parser) {
 	So(parserErrorsLength, ShouldEqual, 0)
 }
 
-func testParserProgramLength(program *ast.Program) {
-	So(len(program.Statements), ShouldEqual, 1)
+func testParserProgramLength(program *ast.Program, length int) {
+	So(len(program.Statements), ShouldEqual, length)
 }
 
 func testLiteralExpression(expression ast.Expression, expected interface{}) {
