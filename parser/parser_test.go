@@ -233,6 +233,76 @@ func TestPrefixExpression(t *testing.T) {
 	})
 }
 
+func TestInfixExpression(t *testing.T) {
+	Convey("Infix expression test", t, func() {
+		expectedExpressions := []struct{
+			source 		string
+			leftValue 	interface{}
+			operator 	string
+			rightValue 	interface{}
+		}{
+			{ "10 + 10;", 	10, 	"+", 	10 },
+			{ "11 - 11;", 	11, 	"-", 	11 },
+			{ "12 * 12;", 	12, 	"*", 	12 },
+			{ "13 / 13;", 	13, 	"/", 	13 },
+			{ "14 > 14;", 	14, 	">", 	14 },
+			{ "15 < 15;", 	15, 	"<", 	15 },
+			{ "16 == 16;", 	16, 	"==", 	16 },
+			{ "17 != 17;", 	17, 	"!=", 	17 },
+
+			{ "foobar1 + barfoo1;", 	"foobar1", 	"+", 	"barfoo1" },
+			{ "foobar2 - barfoo2;", 	"foobar2", 	"-", 	"barfoo2" },
+			{ "foobar3 * barfoo3;", 	"foobar3", 	"*", 	"barfoo3" },
+			{ "foobar4 / barfoo4;", 	"foobar4", 	"/", 	"barfoo4" },
+			{ "foobar5 > barfoo5;", 	"foobar5", 	">", 	"barfoo5" },
+			{ "foobar6 < barfoo6;", 	"foobar6", 	"<", 	"barfoo6" },
+			{ "foobar7 == barfoo7;", 	"foobar7", 	"==", 	"barfoo7" },
+			{ "foobar8 != barfoo8;", 	"foobar8", 	"!=", 	"barfoo8" },
+
+			{ "true == true", 	true, 	"==", 	true },
+			{ "true != false",	true, 	"!=", 	false },
+			{ "false == false", false, 	"==", 	false },
+		}
+
+		for index, expression := range expectedExpressions {
+			message := runMessage("Running %d, Source: %s", index, expression.source)
+
+			theLexer   := lexer.NewLexer(expression.source)
+			theParser  := NewParser(theLexer)
+			theProgram := theParser.Parse()
+
+			Convey(message, func() {
+				Convey("Parse program check", func() {
+					testParserError(theParser)
+					testParserProgramLength(theProgram)
+				})
+
+				statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+				Convey("Can convert to expression statement", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				infixExpression, _ := statement.Expression.(*ast.InfixExpression)
+				Convey("Can convert to infix expression", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				Convey("Left expression", func() {
+					testLiteralExpression(infixExpression.Left, expression.leftValue)
+				})
+
+				Convey("Operator check", func() {
+					So(infixExpression.Operator, ShouldEqual, expression.operator)
+				})
+
+				Convey("Right expression", func() {
+					testLiteralExpression(infixExpression.Right, expression.rightValue)
+				})
+			})
+		}
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
