@@ -48,6 +48,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 
 	parser.infixParseFunctions = make(map[token.Type]infixParseFunction)
 	parser.registerInfixParseFunction(token.PLUS, parser.parseInfixExpression)
+	parser.registerInfixParseFunction(token.MINUS, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.ASTERISK, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.SLASH, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.LT, parser.parseInfixExpression)
