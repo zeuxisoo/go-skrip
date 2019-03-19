@@ -45,6 +45,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.FALSE, parser.parseBoolean)
 	parser.registerPrefixParseFunction(token.BANG, parser.parsePrefixExpression)
 	parser.registerPrefixParseFunction(token.MINUS, parser.parsePrefixExpression)
+	parser.registerPrefixParseFunction(token.LEFT_BRACKET, parser.parseArrayLiteral)
 
 	parser.infixParseFunctions = make(map[token.Type]infixParseFunction)
 	parser.registerInfixParseFunction(token.PLUS, parser.parseInfixExpression)
@@ -222,7 +223,42 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	return leftExpression
 }
 
-// Parse prefix functions
+func (p *Parser) parseExpressionList(endTokenType token.Type) []ast.Expression {
+	expressions := []ast.Expression{}
+
+	// If next token is equals end token type like "]" and "}" etc
+	// update the current and next token and then return the expression list
+	if p.peekTokenTypeIs(endTokenType) {
+		p.nextToken()
+
+		return expressions
+	}
+
+	// Otherwise, set the current token to first element, and set next token like "," or ")" or "}" etc
+	p.nextToken()
+
+	// Parse the first element and add to expression list
+	expressions = append(expressions, p.parseExpression(LOWEST))
+
+	// Loop when found comma again and again
+	// and add each found element into expression list
+	for p.peekTokenTypeIs(token.COMMA) == true {
+		p.nextToken()	// set current token to ","
+		p.nextToken()	// set current token to next element
+
+		expressions = append(expressions, p.parseExpression(LOWEST))
+	}
+
+	// If next token is equals end token type like "]" and "}" etc
+	// update the current token to this end token and next token
+	if p.expectPeekTokenType(endTokenType) == false {
+		return nil
+	}
+
+	return expressions
+}
+
+// Parse prefix/infix functions
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	integerLiteralExpression := &ast.IntegerLiteralExpression{
 		Token: p.currentToken,
@@ -290,6 +326,15 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	functionLiteralExpression.Block = p.parseBlockStatement()
 
 	return functionLiteralExpression
+}
+
+func (p *Parser) parseArrayLiteral() ast.Expression {
+	arrayLiteralExpression := &ast.ArrayLiteralExpression{
+		Token: p.currentToken,
+	}
+	arrayLiteralExpression.Elements = p.parseExpressionList(token.RIGHT_BRACKET)
+
+	return arrayLiteralExpression
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
