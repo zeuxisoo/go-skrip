@@ -282,22 +282,24 @@ func TestInfixExpression(t *testing.T) {
 					So(ok, ShouldBeTrue)
 				})
 
-				infixExpression, _ := statement.Expression.(*ast.InfixExpression)
-				Convey("Can convert to infix expression", func() {
-					So(ok, ShouldBeTrue)
-				})
+				testInfixExpression(statement.Expression, expression.leftValue, expression.operator, expression.rightValue)
 
-				Convey("Left expression", func() {
-					testLiteralExpression(infixExpression.Left, expression.leftValue)
-				})
+				// infixExpression, ok := statement.Expression.(*ast.InfixExpression)
+				// Convey("Can convert to infix expression", func() {
+				// 	So(ok, ShouldBeTrue)
+				// })
 
-				Convey("Operator check", func() {
-					So(infixExpression.Operator, ShouldEqual, expression.operator)
-				})
+				// Convey("Left expression", func() {
+				// 	testLiteralExpression(infixExpression.Left, expression.leftValue)
+				// })
 
-				Convey("Right expression", func() {
-					testLiteralExpression(infixExpression.Right, expression.rightValue)
-				})
+				// Convey("Operator check", func() {
+				// 	So(infixExpression.Operator, ShouldEqual, expression.operator)
+				// })
+
+				// Convey("Right expression", func() {
+				// 	testLiteralExpression(infixExpression.Right, expression.rightValue)
+				// })
 			})
 		}
 	})
@@ -351,6 +353,47 @@ func TestOperatorPrecedence(t *testing.T) {
 				})
 			})
 		}
+	})
+}
+
+func TestArrayLiteralExpression(t *testing.T) {
+	Convey("Array literal expression", t, func() {
+		source := `[1, 2 * 2, 3 + 3]`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		arrayLiteralExpression, ok := statement.Expression.(*ast.ArrayLiteralExpression)
+		Convey("Can convert to array literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Array element should equals 3", func() {
+			So(len(arrayLiteralExpression.Elements), ShouldEqual, 3)
+		})
+
+		Convey("Element 1 should equals 1", func() {
+			testIntegerLiteralExpression(arrayLiteralExpression.Elements[0], 1)
+		})
+
+		Convey("Element 2 should equals 4", func() {
+			testInfixExpression(arrayLiteralExpression.Elements[1], 2, "*", 2)
+		})
+
+		Convey("Element 3 should equals 6", func() {
+			testInfixExpression(arrayLiteralExpression.Elements[2], 3, "+", 3)
+		})
 	})
 }
 
@@ -511,6 +554,26 @@ func testFloatLiteralExpression(expression ast.Expression, value float64) {
 			So(floatTokenLiteral, ShouldEqual, expectedValue)
 		},
 	)
+}
+
+func testInfixExpression(expression ast.Expression, leftValue interface{}, operator string, rightValue interface{}) {
+	infixExpression, ok := expression.(*ast.InfixExpression)
+
+	Convey("Can convert to infix expression", func() {
+		So(ok, ShouldBeTrue)
+	})
+
+	Convey("Left expression", func() {
+		testLiteralExpression(infixExpression.Left, leftValue)
+	})
+
+	Convey("Operator check", func() {
+		So(infixExpression.Operator, ShouldEqual, operator)
+	})
+
+	Convey("Right expression", func() {
+		testLiteralExpression(infixExpression.Right, rightValue)
+	})
 }
 
 // Helper functions for common
