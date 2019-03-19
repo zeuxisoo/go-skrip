@@ -357,8 +357,8 @@ func TestOperatorPrecedence(t *testing.T) {
 }
 
 func TestArrayLiteralExpression(t *testing.T) {
-	Convey("Array literal expression", t, func() {
-		source := `[1, 2 * 2, 3 + 3]`
+	Convey("Array literal expression test", t, func() {
+		source := `[1, 2 * 2, 3 + 3];`
 
 		theLexer   := lexer.NewLexer(source)
 		theParser  := NewParser(theLexer)
@@ -393,6 +393,35 @@ func TestArrayLiteralExpression(t *testing.T) {
 
 		Convey("Element 3 should equals 6", func() {
 			testInfixExpression(arrayLiteralExpression.Elements[2], 3, "+", 3)
+		})
+	})
+}
+
+func TestEmptyArrayLieteralExpression(t *testing.T) {
+	Convey("Empty array literal expression test", t, func() {
+		source := `[];`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		arrayLiteralExpression, ok := statement.Expression.(*ast.ArrayLiteralExpression)
+		Convey("Can convert to array literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Array element should equals 0", func() {
+			So(len(arrayLiteralExpression.Elements), ShouldEqual, 0)
 		})
 	})
 }
