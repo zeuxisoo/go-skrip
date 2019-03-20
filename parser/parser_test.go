@@ -426,8 +426,8 @@ func TestEmptyArrayLieteralExpression(t *testing.T) {
 	})
 }
 
-func TestHashLiteralExpression(t *testing.T) {
-	Convey("Hash literal expression test", t, func() {
+func TestHashLiteralExpressionStringKeys(t *testing.T) {
+	Convey("Hash literal expression string keys test", t, func() {
 		source   := `{ "one": 1, "two": 2, "three":3 };`
 		expected := map[string]int{
 			"one"  : 1,
@@ -469,6 +469,48 @@ func TestHashLiteralExpression(t *testing.T) {
 	})
 }
 
+func TestHashLiteralExpressionBooleanKeys(t *testing.T) {
+	Convey("Hash literal expression boolean keys test", t, func() {
+		source   := `{ true: 1, false: 2 };`
+		expected := map[string]int{
+			"true" : 1,
+			"false": 2,
+		}
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		hashLiteralExpression, ok := statement.Expression.(*ast.HashLiteralExpression)
+		Convey("Can convert to hash literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Hash pairs length should equals expected pairs length", func() {
+			So(len(hashLiteralExpression.Pairs), ShouldEqual, len(expected))
+		})
+
+		Convey("Hash values should matched", func() {
+			for keyExpression, valueExpression := range hashLiteralExpression.Pairs {
+				keyString     := keyExpression.(*ast.BooleanExpression)
+				expectedValue := expected[keyString.String()]
+
+				testIntegerLiteralExpression(valueExpression, int64(expectedValue))
+			}
+		})
+	})
+}
+
 func TestEmptyHashLiteralExpression(t *testing.T) {
 	Convey("Empty hash literal expression test", t, func() {
 		source := `{};`
@@ -497,6 +539,8 @@ func TestEmptyHashLiteralExpression(t *testing.T) {
 		})
 	})
 }
+
+
 
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
