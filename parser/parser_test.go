@@ -454,7 +454,7 @@ func TestHashLiteralExpression(t *testing.T) {
 			So(ok, ShouldBeTrue)
 		})
 
-		Convey("Hash length should equals expected length", func() {
+		Convey("Hash pairs length should equals expected pairs length", func() {
 			So(len(hashLiteralExpression.Pairs), ShouldEqual, len(expected))
 		})
 
@@ -465,6 +465,35 @@ func TestHashLiteralExpression(t *testing.T) {
 
 				testIntegerLiteralExpression(valueExpression, int64(expectedValue))
 			}
+		})
+	})
+}
+
+func TestEmptyHashLiteralExpression(t *testing.T) {
+	Convey("Empty hash literal expression test", t, func() {
+		source := `{};`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		hashLiteralExpression, ok := statement.Expression.(*ast.HashLiteralExpression)
+		Convey("Can convert to hash literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Hash pairs length should equals 0", func() {
+			So(len(hashLiteralExpression.Pairs), ShouldEqual, 0)
 		})
 	})
 }
