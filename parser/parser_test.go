@@ -283,23 +283,6 @@ func TestInfixExpression(t *testing.T) {
 				})
 
 				testInfixExpression(statement.Expression, expression.leftValue, expression.operator, expression.rightValue)
-
-				// infixExpression, ok := statement.Expression.(*ast.InfixExpression)
-				// Convey("Can convert to infix expression", func() {
-				// 	So(ok, ShouldBeTrue)
-				// })
-
-				// Convey("Left expression", func() {
-				// 	testLiteralExpression(infixExpression.Left, expression.leftValue)
-				// })
-
-				// Convey("Operator check", func() {
-				// 	So(infixExpression.Operator, ShouldEqual, expression.operator)
-				// })
-
-				// Convey("Right expression", func() {
-				// 	testLiteralExpression(infixExpression.Right, expression.rightValue)
-				// })
 			})
 		}
 	})
@@ -551,6 +534,60 @@ func TestHashLiteralExpressionIntegerKeys(t *testing.T) {
 				testIntegerLiteralExpression(valueExpression, int64(expectedValue))
 			}
 		})
+	})
+}
+
+func TestHashLiteralExpressionWithExpressionValues(t *testing.T) {
+	Convey("Hash literal expression integer keys test", t, func() {
+		type expectedValue struct {
+			left 		interface{}
+			operator  	string
+			right 		interface{}
+		}
+
+		source   := `{ "one": 1 + 2, "two": 10 - 7, "three": 15 / 3 };`
+		expected := map[string]expectedValue{
+			"one"  : expectedValue{ 1, "+", 2 },
+			"two"  : expectedValue{ 10, "-", 7 },
+			"three": expectedValue{ 15, "/", 3 },
+		}
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		hashLiteralExpression, ok := statement.Expression.(*ast.HashLiteralExpression)
+		Convey("Can convert to hash literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Hash pairs length should equals expected pairs length", func() {
+			So(len(hashLiteralExpression.Pairs), ShouldEqual, len(expected))
+		})
+
+		for keyExpression, valueExpression := range hashLiteralExpression.Pairs {
+			keyString     := keyExpression.(*ast.StringLiteralExpression)
+			expectedValue := expected[keyString.String()]
+
+			message := runMessage(
+				"Running: %s, left: %d, operator: %s, right: %d",
+				keyString, expectedValue.left, expectedValue.operator, expectedValue.right,
+			)
+
+			Convey(message, func() {
+				testInfixExpression(valueExpression, expectedValue.left, expectedValue.operator, expectedValue.right)
+			})
+		}
 	})
 }
 
