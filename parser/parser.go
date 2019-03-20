@@ -46,6 +46,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.BANG, parser.parsePrefixExpression)
 	parser.registerPrefixParseFunction(token.MINUS, parser.parsePrefixExpression)
 	parser.registerPrefixParseFunction(token.LEFT_BRACKET, parser.parseArrayLiteral)
+	parser.registerPrefixParseFunction(token.LEFT_BRACE, parser.parseHashLiteral)
 
 	parser.infixParseFunctions = make(map[token.Type]infixParseFunction)
 	parser.registerInfixParseFunction(token.PLUS, parser.parseInfixExpression)
@@ -335,6 +336,50 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 	arrayLiteralExpression.Elements = p.parseExpressionList(token.RIGHT_BRACKET)
 
 	return arrayLiteralExpression
+}
+
+func (p *Parser) parseHashLiteral() ast.Expression {
+	hashLiteralExpression := &ast.HashLiteralExpression{
+		Token: p.currentToken,
+	}
+
+	hashLiteralExpression.Pairs = make(map[ast.Expression]ast.Expression)
+
+	// Loop until found "}"
+	for p.peekTokenTypeIs(token.RIGHT_BRACE) == false {
+		// Set current token to key token
+		p.nextToken()
+
+		// Parse current/key token expression and assign to key variable
+		key := p.parseExpression(LOWEST)
+
+		// If next token is not ":", return nil. Otherwise update current token to this ":"
+		if p.expectPeekTokenType(token.COLON) == false {
+			return nil
+		}
+
+		// Set current token to value token
+		p.nextToken()
+
+		// Parse current/value token expression and assign to value variable
+		value := p.parseExpression(LOWEST)
+
+		// Update the pairs map data
+		hashLiteralExpression.Pairs[key] = value
+
+		// If next token is not "}" and it will expect next token it is "," and update the current token to this
+		// otherwise return nil to break the loop
+		if p.peekTokenTypeIs(token.RIGHT_BRACE) == false && p.expectPeekTokenType(token.COMMA) == false {
+			return nil
+		}
+	}
+
+	// End of loop, if the next token is not "}", return nil
+	if p.expectPeekTokenType(token.RIGHT_BRACE) == false {
+		return nil
+	}
+
+	return hashLiteralExpression
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
