@@ -59,6 +59,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerInfixParseFunction(token.GTEQ, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.EQ, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.NOT_EQ, parser.parseInfixExpression)
+	parser.registerInfixParseFunction(token.LEFT_BRACKET, parser.parseIndexExpression)
 
 	return parser
 }
@@ -427,6 +428,25 @@ func (p *Parser) parseInfixExpression(leftExpression ast.Expression) ast.Express
 	infix.Right = p.parseExpression(precedence)
 
 	return infix
+}
+
+func (p *Parser) parseIndexExpression(leftExpression ast.Expression) ast.Expression {
+	index := &ast.IndexExpression{
+		Token: p.currentToken,
+		Left : leftExpression,
+	}
+
+	p.nextToken()
+
+	index.Index = p.parseExpression(LOWEST)
+
+	// If next token is }, update the current token to this
+	// otherwise, return nil
+	if p.expectPeekTokenType(token.RIGHT_BRACKET) == false {
+		return nil
+	}
+
+	return index
 }
 
 // Helper functions
