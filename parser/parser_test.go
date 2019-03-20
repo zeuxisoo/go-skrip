@@ -366,15 +366,15 @@ func TestArrayLiteralExpression(t *testing.T) {
 			So(len(arrayLiteralExpression.Elements), ShouldEqual, 3)
 		})
 
-		Convey("Element 1 should equals 1", func() {
+		Convey("Element 1, integer literal should equals 1", func() {
 			testIntegerLiteralExpression(arrayLiteralExpression.Elements[0], 1)
 		})
 
-		Convey("Element 2 should equals 4", func() {
+		Convey("Element 2, infix expression should equals 4", func() {
 			testInfixExpression(arrayLiteralExpression.Elements[1], 2, "*", 2)
 		})
 
-		Convey("Element 3 should equals 6", func() {
+		Convey("Element 3, infix expression should equals 6", func() {
 			testInfixExpression(arrayLiteralExpression.Elements[2], 3, "+", 3)
 		})
 	})
@@ -538,15 +538,15 @@ func TestHashLiteralExpressionIntegerKeys(t *testing.T) {
 }
 
 func TestHashLiteralExpressionWithExpressionValues(t *testing.T) {
-	Convey("Hash literal expression integer keys test", t, func() {
+	Convey("Hash literal expression with expression values test", t, func() {
 		type expectedValue struct {
 			left 		interface{}
 			operator  	string
 			right 		interface{}
 		}
 
-		source   := `{ "one": 1 + 2, "two": 10 - 7, "three": 15 / 3 };`
-		expected := map[string]expectedValue{
+		source      := `{ "one": 1 + 2, "two": 10 - 7, "three": 15 / 3 };`
+		expectedMap := map[string]expectedValue{
 			"one"  : expectedValue{ 1, "+", 2 },
 			"two"  : expectedValue{ 10, "-", 7 },
 			"three": expectedValue{ 15, "/", 3 },
@@ -572,22 +572,28 @@ func TestHashLiteralExpressionWithExpressionValues(t *testing.T) {
 		})
 
 		Convey("Hash pairs length should equals expected pairs length", func() {
-			So(len(hashLiteralExpression.Pairs), ShouldEqual, len(expected))
+			So(len(hashLiteralExpression.Pairs), ShouldEqual, len(expectedMap))
 		})
 
-		for keyExpression, valueExpression := range hashLiteralExpression.Pairs {
-			keyString     := keyExpression.(*ast.StringLiteralExpression)
-			expectedValue := expected[keyString.String()]
+		Convey("Hash pairs expected test", func() {
+			// Convert the hash[Expression]Expression to hash[string]Expression
+			hashWithStringKeys := make(map[string]ast.Expression)
+			for keyExpression, valueExpression := range hashLiteralExpression.Pairs {
+				keyStringExpression, _ := keyExpression.(*ast.StringLiteralExpression)
 
-			message := runMessage(
-				"Running: %s, left: %d, operator: %s, right: %d",
-				keyString, expectedValue.left, expectedValue.operator, expectedValue.right,
-			)
+				hashWithStringKeys[keyStringExpression.String()] = valueExpression
+			}
 
-			Convey(message, func() {
-				testInfixExpression(valueExpression, expectedValue.left, expectedValue.operator, expectedValue.right)
-			})
-		}
+			// And then loop expectedMap not hashLiteralExpression.Pairs
+			// to fix the for loop(hashLiteralExpression.Pairs) inside convey will make the test message/result sorting incorrect
+			for key, value := range expectedMap {
+				Convey(runMessage("Expected test case: %s", key), func() {
+					hashValueExpression := hashWithStringKeys[key]
+
+					testInfixExpression(hashValueExpression, value.left, value.operator, value.right)
+				})
+			}
+		})
 	})
 }
 
