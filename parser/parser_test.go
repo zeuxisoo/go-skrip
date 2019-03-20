@@ -511,6 +511,49 @@ func TestHashLiteralExpressionBooleanKeys(t *testing.T) {
 	})
 }
 
+func TestHashLiteralExpressionIntegerKeys(t *testing.T) {
+	Convey("Hash literal expression integer keys test", t, func() {
+		source   := `{ 1: 1, 2: 2, 3: 3 };`
+		expected := map[string]int{
+			"1": 1,
+			"2": 2,
+			"3": 3,
+		}
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		hashLiteralExpression, ok := statement.Expression.(*ast.HashLiteralExpression)
+		Convey("Can convert to hash literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Hash pairs length should equals expected pairs length", func() {
+			So(len(hashLiteralExpression.Pairs), ShouldEqual, len(expected))
+		})
+
+		Convey("Hash values should matched", func() {
+			for keyExpression, valueExpression := range hashLiteralExpression.Pairs {
+				keyString     := keyExpression.(*ast.IntegerLiteralExpression)
+				expectedValue := expected[keyString.String()]
+
+				testIntegerLiteralExpression(valueExpression, int64(expectedValue))
+			}
+		})
+	})
+}
+
 func TestEmptyHashLiteralExpression(t *testing.T) {
 	Convey("Empty hash literal expression test", t, func() {
 		source := `{};`
