@@ -626,7 +626,38 @@ func TestEmptyHashLiteralExpression(t *testing.T) {
 	})
 }
 
+func TestIndexExpression(t *testing.T) {
+	Convey("Index expression test", t, func() {
+		source := `myArray[1+2];`
 
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		indexExpression, ok := statement.Expression.(*ast.IndexExpression)
+		Convey("Can convert to index expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Left expression should equals myArray", func() {
+			testIdentifierExpression(indexExpression.Left, "myArray")
+		})
+
+		Convey("Index expression should equals [1+2]", func() {
+			testInfixExpression(indexExpression.Index, 1, "+", 2)
+		})
+	})
+}
 
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
