@@ -47,6 +47,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.MINUS, parser.parsePrefixExpression)
 	parser.registerPrefixParseFunction(token.LEFT_BRACKET, parser.parseArrayLiteral)
 	parser.registerPrefixParseFunction(token.LEFT_BRACE, parser.parseHashLiteral)
+	parser.registerPrefixParseFunction(token.LEFT_PARENTHESIS, parser.parseGroupedExpression)
 
 	parser.infixParseFunctions = make(map[token.Type]infixParseFunction)
 	parser.registerInfixParseFunction(token.PLUS, parser.parseInfixExpression)
@@ -381,6 +382,21 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 	}
 
 	return hashLiteralExpression
+}
+
+func (p *Parser) parseGroupedExpression() ast.Expression {
+	// Move current token "(" to next token
+	p.nextToken()
+
+	expression := p.parseExpression(LOWEST)
+
+	// If the next token is ")", set current token
+	// otherwise return nil
+	if p.expectPeekTokenType(token.RIGHT_PARENTHESIS) == false {
+		return nil
+	}
+
+	return expression
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
