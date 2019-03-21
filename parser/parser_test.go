@@ -691,6 +691,36 @@ func TestGroupedExpression(t *testing.T) {
 	})
 }
 
+func TestCallExpression(t *testing.T) {
+	Convey("Call expression test", t, func() {
+		expectedExpressions := []struct{
+			source   string
+			expected string
+		}{
+			{ "a + add(b * c) + d", 				"((a + add((b * c))) + d)"},
+			{ "a * [4, 5, 6, 7][b * c] * d", 		"((a * ([4, 5, 6, 7][(b * c)])) * d)"},
+			{ "add(a * b[4], b[5], 2 * [6, 7][1])", "add((a * (b[4])), (b[5]), (2 * ([6, 7][1])))"},
+		}
+
+		for index, expression := range expectedExpressions {
+			Convey(runMessage("Running: %d, Source: %s", index, expression.source), func() {
+				theLexer   := lexer.NewLexer(expression.source)
+				theParser  := NewParser(theLexer)
+				theProgram := theParser.Parse()
+
+				Convey("Parse program check", func() {
+					testParserError(theParser)
+					testParserProgramLength(theProgram, 1)
+				})
+
+				Convey(runMessage("Expected: %s", expression.expected), func() {
+					So(theProgram.String(), ShouldEqual, expression.expected)
+				})
+			})
+		}
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
