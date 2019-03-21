@@ -61,6 +61,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerInfixParseFunction(token.EQ, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.NOT_EQ, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.LEFT_BRACKET, parser.parseIndexExpression)
+	parser.registerInfixParseFunction(token.LEFT_PARENTHESIS, parser.parseCallExpression)
 
 	return parser
 }
@@ -463,6 +464,17 @@ func (p *Parser) parseIndexExpression(leftExpression ast.Expression) ast.Express
 	}
 
 	return index
+}
+
+func (p *Parser) parseCallExpression(leftExpression ast.Expression) ast.Expression {
+	call := &ast.CallExpression{
+		Token   : p.currentToken,
+		Function: leftExpression,
+	}
+
+	call.Arguments = p.parseExpressionList(token.RIGHT_PARENTHESIS)
+
+	return call
 }
 
 // Helper functions
