@@ -146,6 +146,35 @@ func TestFloatLiteralExpression(t *testing.T) {
 	})
 }
 
+func TestStringLiteralExpression(t *testing.T) {
+	Convey("String literal expression test", t, func() {
+		source := `"Hello World";`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		stringExpressionLiteral, ok := statement.Expression.(*ast.StringLiteralExpression)
+		Convey("Can convert to string literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey(runMessage("String Literal value should be equal %s", "Hello World"), func() {
+			So(stringExpressionLiteral.Value, ShouldEqual, "Hello World")
+		})
+	})
+}
+
 func TestBooleanExpression(t *testing.T) {
 	Convey("Boolean expression test", t, func() {
 		expectedExpressions := []struct{
