@@ -203,22 +203,26 @@ func TestBooleanExpression(t *testing.T) {
 			theProgram := theParser.Parse()
 
 			Convey(message, func() {
-				testParserError(theParser)
-				testParserProgramLength(theProgram, 1)
+				Convey("Parse program check", func() {
+					testParserError(theParser)
+					testParserProgramLength(theProgram, 1)
+				})
 
+				statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
 				Convey("Can convert to expression statement", func() {
-					statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
-
 					So(ok, ShouldBeTrue)
+				})
 
-					Convey(
-						runMessage("Check the value should be equal %s", strconv.FormatBool(expression.value)),
-						func() {
-							boolean := statement.Expression.(*ast.BooleanExpression)
+				booleanExpression, ok := statement.Expression.(*ast.BooleanExpression)
+				Convey("Can convert to boolean expression", func() {
+					So(ok, ShouldBeTrue)
+				})
 
-							So(boolean.Value, ShouldEqual, expression.value)
-						},
-					)
+				Convey(runMessage(
+					"Boolean expression value should be equal %s",
+					strconv.FormatBool(expression.value),
+				), func() {
+						So(booleanExpression.Value, ShouldEqual, expression.value)
 				})
 			})
 		}
