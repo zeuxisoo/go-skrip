@@ -48,6 +48,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.LEFT_BRACKET, parser.parseArrayLiteral)
 	parser.registerPrefixParseFunction(token.LEFT_BRACE, parser.parseHashLiteral)
 	parser.registerPrefixParseFunction(token.LEFT_PARENTHESIS, parser.parseGroupedExpression)
+	parser.registerPrefixParseFunction(token.IF, parser.parseIfExpression)
 
 	parser.infixParseFunctions = make(map[token.Type]infixParseFunction)
 	parser.registerInfixParseFunction(token.PLUS, parser.parseInfixExpression)
@@ -398,6 +399,52 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	}
 
 	return expression
+}
+
+func (p *Parser) parseIfExpression() ast.Expression {
+	ifExpression := &ast.IfExpression{
+		Token: p.currentToken,
+	}
+
+	// If next token is "(", set current token to this,
+	// otherwise, return nil
+	if p.expectPeekTokenType(token.LEFT_PARENTHESIS) == false {
+		return nil
+	}
+
+	// Move current token to if condition
+	p.nextToken()
+
+	// Parse the condition between "(" and ")"
+	ifExpression.Condition = p.parseExpression(LOWEST)
+
+	// If next token is ")", set current token to this
+	// otherwise, return nil
+	if p.expectPeekTokenType(token.RIGHT_PARENTHESIS) == false {
+		return nil
+	}
+
+	// If next token is "{", set current token to this
+	// otherwise, return nil
+	if p.expectPeekTokenType(token.LEFT_BRACE) == false {
+		return nil
+	}
+
+	// Parse the block after if condition
+	ifExpression.Block = p.parseBlockStatement()
+
+	// When found else after if condition block, parse the else block
+	if p.peekTokenTypeIs(token.ELSE) == true {
+		p.nextToken()
+
+		if p.expectPeekTokenType(token.LEFT_BRACE) == false {
+			return nil
+		}
+
+		ifExpression.Alternative = p.parseBlockStatement()
+	}
+
+	return ifExpression
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
