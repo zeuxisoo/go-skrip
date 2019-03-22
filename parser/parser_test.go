@@ -127,21 +127,24 @@ func TestFloatLiteralExpression(t *testing.T) {
 		theParser  := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
-		testParserError(theParser)
-		testParserProgramLength(theProgram, 1)
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
 
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
 		Convey("Can convert to expression statement", func() {
-			statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
-
 			So(ok, ShouldBeTrue)
+		})
 
-			Convey("Check the value should be equal 12.34", func() {
-				float, ok := statement.Expression.(*ast.FloatLiteralExpression)
+		float, ok := statement.Expression.(*ast.FloatLiteralExpression)
+		Convey("Can convert to float literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
 
-				So(ok, ShouldBeTrue)
-				So(float.Value, ShouldEqual, 12.34)
-				So(float.TokenLiteral(), ShouldEqual, "12.34")
-			})
+		Convey("Float literal expression value should be equal 12.34", func() {
+			So(float.Value, ShouldEqual, 12.34)
+			So(float.TokenLiteral(), ShouldEqual, "12.34")
 		})
 	})
 }
@@ -164,13 +167,14 @@ func TestStringLiteralExpression(t *testing.T) {
 			So(ok, ShouldBeTrue)
 		})
 
-		stringExpressionLiteral, ok := statement.Expression.(*ast.StringLiteralExpression)
+		StringLiteralExpression, ok := statement.Expression.(*ast.StringLiteralExpression)
 		Convey("Can convert to string literal expression", func() {
 			So(ok, ShouldBeTrue)
 		})
 
-		Convey(runMessage("String Literal value should be equal %s", "Hello World"), func() {
-			So(stringExpressionLiteral.Value, ShouldEqual, "Hello World")
+		Convey(`String literal expression value should be equal "Hello World"`, func() {
+			So(StringLiteralExpression.Value, ShouldEqual, "Hello World")
+			So(StringLiteralExpression.TokenLiteral(), ShouldEqual, "Hello World")
 		})
 	})
 }
