@@ -846,8 +846,8 @@ func TestCallExpression(t *testing.T) {
 			source   string
 			expected string
 		}{
+			{ "add(1, 2 * 3, 4 + 5)",				"add(1, (2 * 3), (4 + 5))" },
 			{ "a + add(b * c) + d", 				"((a + add((b * c))) + d)"},
-			{ "a * [4, 5, 6, 7][b * c] * d", 		"((a * ([4, 5, 6, 7][(b * c)])) * d)"},
 			{ "add(a * b[4], b[5], 2 * [6, 7][1])", "add((a * (b[4])), (b[5]), (2 * ([6, 7][1])))"},
 		}
 
