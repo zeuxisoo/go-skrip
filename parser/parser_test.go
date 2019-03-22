@@ -65,36 +65,6 @@ func TestReturnStatement(t *testing.T) {
 	})
 }
 
-func TestIdentifierExpression(t *testing.T) {
-	Convey("Identifier expression test", t, func() {
-		source := `foobar;`;
-
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
-		theProgram := theParser.Parse()
-
-		Convey("Parse program check", func() {
-			testParserError(theParser)
-			testParserProgramLength(theProgram, 1)
-		})
-
-		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
-		Convey("can convert to expression statement", func() {
-			So(ok, ShouldBeTrue)
-		})
-
-		identifierExpression, ok := statement.Expression.(*ast.IdentifierExpression)
-		Convey("can convert to identifer expression", func() {
-			So(ok, ShouldBeTrue)
-		})
-
-		Convey(`Identifer expression value should be equal "foobar"`, func() {
-			So(identifierExpression.Value, ShouldEqual, "foobar")
-			So(identifierExpression.TokenLiteral(), ShouldEqual, "foobar")
-		})
-	})
-}
-
 func TestIntegerLiteralExpression(t *testing.T) {
 	Convey("Integer literal expression test", t, func() {
 		source := `5;`
@@ -181,6 +151,36 @@ func TestStringLiteralExpression(t *testing.T) {
 		Convey(`String literal expression value should be equal "Hello World"`, func() {
 			So(StringLiteralExpression.Value, ShouldEqual, "Hello World")
 			So(StringLiteralExpression.TokenLiteral(), ShouldEqual, "Hello World")
+		})
+	})
+}
+
+func TestIdentifierExpression(t *testing.T) {
+	Convey("Identifier expression test", t, func() {
+		source := `foobar;`;
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		identifierExpression, ok := statement.Expression.(*ast.IdentifierExpression)
+		Convey("can convert to identifer expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey(`Identifer expression value should be equal "foobar"`, func() {
+			So(identifierExpression.Value, ShouldEqual, "foobar")
+			So(identifierExpression.TokenLiteral(), ShouldEqual, "foobar")
 		})
 	})
 }
