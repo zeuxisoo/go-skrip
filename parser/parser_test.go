@@ -721,6 +721,52 @@ func TestCallExpression(t *testing.T) {
 	})
 }
 
+func TestIfExpression(t *testing.T) {
+	Convey("If expression test", t, func() {
+		source := `if (a < b) { c };`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		ifExpression, ok := statement.Expression.(*ast.IfExpression)
+		Convey("Can convert to if expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("If condition test", func() {
+			testInfixExpression(ifExpression.Condition, "a", "<", "b")
+		})
+
+		Convey("If condition block length should equals 1", func() {
+			So(len(ifExpression.Block.Statements), ShouldEqual, 1)
+		})
+
+		block, ok := ifExpression.Block.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert if condition block to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Identifier should be named c", func() {
+			testIdentifierExpression(block.Expression, "c")
+		})
+
+		Convey("Else alternative block should be nil", func() {
+			So(ifExpression.Alternative, ShouldBeNil)
+		})
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
