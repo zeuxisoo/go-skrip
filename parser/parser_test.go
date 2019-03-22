@@ -143,14 +143,61 @@ func TestStringLiteralExpression(t *testing.T) {
 			So(ok, ShouldBeTrue)
 		})
 
-		StringLiteralExpression, ok := statement.Expression.(*ast.StringLiteralExpression)
+		stringLiteralExpression, ok := statement.Expression.(*ast.StringLiteralExpression)
 		Convey("Can convert to string literal expression", func() {
 			So(ok, ShouldBeTrue)
 		})
 
 		Convey(`String literal expression value should be equal "Hello World"`, func() {
-			So(StringLiteralExpression.Value, ShouldEqual, "Hello World")
-			So(StringLiteralExpression.TokenLiteral(), ShouldEqual, "Hello World")
+			So(stringLiteralExpression.Value, ShouldEqual, "Hello World")
+			So(stringLiteralExpression.TokenLiteral(), ShouldEqual, "Hello World")
+		})
+	})
+}
+
+func TestFunctionLiteralExpression(t *testing.T) {
+	Convey("Function literal expression test", t, func() {
+		source := `func(x, y) { x + y; }`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		functionLiteralExpression, ok := statement.Expression.(*ast.FunctionLiteralExpression)
+		Convey("Can convert to function literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Function parameter length should be equal 2", func() {
+			So(len(functionLiteralExpression.Parameters), ShouldEqual, 2)
+		})
+
+		Convey("Function parameter should be x and y", func() {
+			testLiteralExpression(functionLiteralExpression.Parameters[0], "x")
+			testLiteralExpression(functionLiteralExpression.Parameters[1], "y")
+		})
+
+		Convey("Function body statement length should be equal 1", func() {
+			So(len(functionLiteralExpression.Block.Statements), ShouldEqual, 1)
+		})
+
+		functionBlockStatement, ok := functionLiteralExpression.Block.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert function block to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Function block should equals x+y", func() {
+			testInfixExpression(functionBlockStatement.Expression, "x", "+", "y")
 		})
 	})
 }
