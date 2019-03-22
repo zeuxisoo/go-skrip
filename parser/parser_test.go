@@ -73,21 +73,24 @@ func TestIdentifierExpression(t *testing.T) {
 		theParser  := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
-		testParserError(theParser)
-		testParserProgramLength(theProgram, 1)
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
 
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
 		Convey("can convert to expression statement", func() {
-			statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
-
 			So(ok, ShouldBeTrue)
+		})
 
-			Convey(`Check the value should be equal "foo"`, func() {
-				identifier, ok := statement.Expression.(*ast.IdentifierExpression)
+		identifierExpression, ok := statement.Expression.(*ast.IdentifierExpression)
+		Convey("can convert to identifer expression", func() {
+			So(ok, ShouldBeTrue)
+		})
 
-				So(ok, ShouldBeTrue)
-				So(identifier.Value, ShouldEqual, "foobar")
-				So(identifier.TokenLiteral(), ShouldEqual, "foobar")
-			})
+		Convey(`Identifer expression value should be equal "foobar"`, func() {
+			So(identifierExpression.Value, ShouldEqual, "foobar")
+			So(identifierExpression.TokenLiteral(), ShouldEqual, "foobar")
 		})
 	})
 }
