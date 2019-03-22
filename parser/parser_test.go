@@ -252,24 +252,28 @@ func TestPrefixExpression(t *testing.T) {
 			theProgram := theParser.Parse()
 
 			Convey(message, func() {
-				testParserError(theParser)
-				testParserProgramLength(theProgram, 1)
+				Convey("Parse program check", func() {
+					testParserError(theParser)
+					testParserProgramLength(theProgram, 1)
+				})
 
+				statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
 				Convey("Can convert to expression statement", func() {
-					statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
-
 					So(ok, ShouldBeTrue)
+				})
 
-					Convey(
-						runMessage("Check the operator should be equal %s", expression.operator),
-						func() {
-							prefix := statement.Expression.(*ast.PrefixExpression)
+				prefixExpression := statement.Expression.(*ast.PrefixExpression)
+				Convey("Can convert to prefix expression", func() {
+					So(ok, ShouldBeTrue)
+				})
 
-							So(prefix.Operator, ShouldEqual, expression.operator)
+				Convey(runMessage(
+					"Check the operator should be equal %s",
+					expression.operator,
+				), func() {
+					So(prefixExpression.Operator, ShouldEqual, expression.operator)
 
-							testLiteralExpression(prefix.Right, expression.value)
-						},
-					)
+					testLiteralExpression(prefixExpression.Right, expression.value)
 				})
 			})
 		}
