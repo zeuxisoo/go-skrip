@@ -100,21 +100,24 @@ func TestIntegerLiteralExpression(t *testing.T) {
 		theParser  := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
-		testParserError(theParser)
-		testParserProgramLength(theProgram, 1)
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
 
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
 		Convey("Can convert to expression statement", func() {
-			statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
-
 			So(ok, ShouldBeTrue)
+		})
 
-			Convey("Check the value should be equal 5", func() {
-				integer, ok := statement.Expression.(*ast.IntegerLiteralExpression)
+		integerLiteralExpression, ok := statement.Expression.(*ast.IntegerLiteralExpression)
+		Convey("Can convert to integer literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
 
-				So(ok, ShouldBeTrue)
-				So(integer.Value, ShouldEqual, 5)
-				So(integer.TokenLiteral(), ShouldEqual, "5")
-			})
+		Convey("Integer float expression value should be equal 5", func() {
+			So(integerLiteralExpression.Value, ShouldEqual, 5)
+			So(integerLiteralExpression.TokenLiteral(), ShouldEqual, "5")
 		})
 	})
 }
