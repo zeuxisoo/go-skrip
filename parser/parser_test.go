@@ -202,6 +202,61 @@ func TestFunctionLiteralExpression(t *testing.T) {
 	})
 }
 
+func TestFunctionParameterParsing(t *testing.T) {
+	Convey("Function parameter parsing test", t, func() {
+		expectedStatements := []struct{
+			source 		string
+			parameters 	[]string
+		}{
+			{ "func() {};", 		[]string{} },
+			{ "func(x) {};", 		[]string{ "x" } },
+			{ "func(x, y, z) {};",  []string{ "x", "y", "z" } },
+		}
+
+		for index, expected := range expectedStatements {
+			message := runMessage("Running %d, Source: %s", index, expected.source)
+
+			theLexer   := lexer.NewLexer(expected.source)
+			theParser  := NewParser(theLexer)
+			theProgram := theParser.Parse()
+
+			Convey(message, func() {
+				Convey("Parse program check", func() {
+					testParserError(theParser)
+					testParserProgramLength(theProgram, 1)
+				})
+
+				statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+				Convey("Can convert to expression statement", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				functionLiteralExpression, ok := statement.Expression.(*ast.FunctionLiteralExpression)
+				Convey("Can convert to function literal expression", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				expectedFunctionParameterLength := len(expected.parameters)
+				Convey(runMessage(
+					"Function parameter length should be equals %d",
+					expectedFunctionParameterLength,
+				), func() {
+					So(len(functionLiteralExpression.Parameters), ShouldEqual, expectedFunctionParameterLength)
+				})
+
+				for index2, parameter := range expected.parameters {
+					Convey(runMessage(
+						"Running: %d, Expected paramter: %s",
+						index2, parameter,
+					), func() {
+						testLiteralExpression(functionLiteralExpression.Parameters[index2], parameter)
+					})
+				}
+			})
+		}
+	})
+}
+
 func TestIdentifierExpression(t *testing.T) {
 	Convey("Identifier expression test", t, func() {
 		source := `foobar;`;
