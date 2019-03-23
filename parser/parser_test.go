@@ -65,6 +65,48 @@ func TestReturnStatement(t *testing.T) {
 	})
 }
 
+func TestFunctionStatement(t *testing.T) {
+	Convey("Function statement testing", t, func() {
+		source := `func funcName(x, y) { x + y; };`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		functionStatement, ok := theProgram.Statements[0].(*ast.FunctionStatement)
+		Convey("Can convert to function statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Function name should equals funcName", func() {
+			So(functionStatement.Name.String(), ShouldEqual, "funcName")
+		})
+
+		Convey("Function parameter length should equals 2", func() {
+			So(len(functionStatement.Function.Parameters), ShouldEqual, 2)
+		})
+
+		Convey("Function Parameter names should equal x and y", func() {
+			testLiteralExpression(functionStatement.Function.Parameters[0], "x")
+			testLiteralExpression(functionStatement.Function.Parameters[1], "y")
+		})
+
+		functionBlockStatement, ok := functionStatement.Function.Block.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert function block to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Function block should be equals x+y", func() {
+			testInfixExpression(functionBlockStatement.Expression, "x", "+", "y")
+		})
+	})
+}
+
 func TestIntegerLiteralExpression(t *testing.T) {
 	Convey("Integer literal expression test", t, func() {
 		source := `5;`
