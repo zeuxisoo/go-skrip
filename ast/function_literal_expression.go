@@ -30,6 +30,8 @@ func (f *FunctionLiteralExpression) String() string {
 		parameters = append(parameters, parameter.String())
 	}
 
+	// Only for expression:
+	// let foo = func(params) { block }
 	out.WriteString(f.TokenLiteral())				// functionName
 	out.WriteString("(")							// (
 	out.WriteString(strings.Join(parameters, ", "))	// 	parameter1, parameter2, etc
