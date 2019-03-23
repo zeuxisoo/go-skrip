@@ -33,7 +33,6 @@ func (c *CallExpression) String() string {
 	out.WriteString("(")
 	out.WriteString(strings.Join(arguments, ", "))
 	out.WriteString(")")
-	out.WriteString(";")
 
 	return out.String()
 }
