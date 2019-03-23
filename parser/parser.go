@@ -165,10 +165,18 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 }
 
 func (p *Parser) parseFunctionStatement() *ast.FunctionStatement {
+	// Make sure the next token must be identifier
+	// like: func name() {} not func() {}
+	if p.peekTokenTypeIs(token.IDENTIFIER) == false {
+		return nil
+	}
+
+	// Set up function statement struct
 	statement := &ast.FunctionStatement{
 		Token: p.currentToken,
 	}
 
+	// Move to next token function name
 	p.nextToken()
 
 	// Parse and set function name

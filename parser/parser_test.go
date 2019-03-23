@@ -199,7 +199,7 @@ func TestStringLiteralExpression(t *testing.T) {
 
 func TestFunctionLiteralExpression(t *testing.T) {
 	Convey("Function literal expression test", t, func() {
-		source := `func(x, y) { x + y; }`
+		source := `let x = func(x, y) { x + y; }`
 
 		theLexer   := lexer.NewLexer(source)
 		theParser  := NewParser(theLexer)
@@ -210,12 +210,12 @@ func TestFunctionLiteralExpression(t *testing.T) {
 			testParserProgramLength(theProgram, 1)
 		})
 
-		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
-		Convey("Can convert to expression statement", func() {
+		letStatement, ok := theProgram.Statements[0].(*ast.LetStatement)
+		Convey("Can convert to let statement", func() {
 			So(ok, ShouldBeTrue)
 		})
 
-		functionLiteralExpression, ok := statement.Expression.(*ast.FunctionLiteralExpression)
+		functionLiteralExpression, ok := letStatement.Value.(*ast.FunctionLiteralExpression)
 		Convey("Can convert to function literal expression", func() {
 			So(ok, ShouldBeTrue)
 		})
@@ -250,9 +250,9 @@ func TestFunctionParameterParsing(t *testing.T) {
 			source 		string
 			parameters 	[]string
 		}{
-			{ "func() {};", 		[]string{} },
-			{ "func(x) {};", 		[]string{ "x" } },
-			{ "func(x, y, z) {};",  []string{ "x", "y", "z" } },
+			{ "let x = func() {};", 		[]string{} },
+			{ "let y = func(x) {};", 		[]string{ "x" } },
+			{ "let z = func(x, y, z) {};",  []string{ "x", "y", "z" } },
 		}
 
 		for index, expected := range expectedStatements {
@@ -268,12 +268,12 @@ func TestFunctionParameterParsing(t *testing.T) {
 					testParserProgramLength(theProgram, 1)
 				})
 
-				statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
-				Convey("Can convert to expression statement", func() {
+				letStatement, ok := theProgram.Statements[0].(*ast.LetStatement)
+				Convey("Can convert to let statement", func() {
 					So(ok, ShouldBeTrue)
 				})
 
-				functionLiteralExpression, ok := statement.Expression.(*ast.FunctionLiteralExpression)
+				functionLiteralExpression, ok := letStatement.Value.(*ast.FunctionLiteralExpression)
 				Convey("Can convert to function literal expression", func() {
 					So(ok, ShouldBeTrue)
 				})
