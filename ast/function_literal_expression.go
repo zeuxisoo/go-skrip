@@ -32,9 +32,11 @@ func (f *FunctionLiteralExpression) String() string {
 
 	out.WriteString(f.TokenLiteral())				// functionName
 	out.WriteString("(")							// (
-	out.WriteString(strings.Join(parameters, ", "))	// parameter1, parameter2, etc
+	out.WriteString(strings.Join(parameters, ", "))	// 	parameter1, parameter2, etc
 	out.WriteString(") ")							// )
-	out.WriteString(f.Block.String()) 				// { ...... } without "{" and "}"
+	out.WriteString("{ ")							// {
+	out.WriteString(f.Block.String()) 				// 	block
+	out.WriteString(" }")							// }
 
 	return out.String()
 }
