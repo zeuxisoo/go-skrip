@@ -97,6 +97,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseLetStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
+	case token.FUNCTION:
+		return p.parseFunctionStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -156,6 +158,30 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 	//
 	if p.peekTokenTypeIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return statement
+}
+
+func (p *Parser) parseFunctionStatement() *ast.FunctionStatement {
+	statement := &ast.FunctionStatement{
+		Token: p.currentToken,
+	}
+
+	p.nextToken()
+
+	// Parse and set function name
+	statement.Name = &ast.IdentifierExpression{
+		Token: p.currentToken,
+		Value: p.currentToken.Literal,
+	}
+
+	// Parse function literal expression
+	statement.Function = p.parseFunctionLiteral().(*ast.FunctionLiteralExpression)
+
+	//
+	if p.peekTokenTypeIs(token.SEMICOLON) == true {
 		p.nextToken()
 	}
 
