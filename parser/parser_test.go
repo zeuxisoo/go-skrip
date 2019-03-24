@@ -197,9 +197,9 @@ func TestStringLiteralExpression(t *testing.T) {
 	})
 }
 
-func TestFunctionLiteralExpression(t *testing.T) {
-	Convey("Function literal expression test", t, func() {
-		source := `let x = func(x, y) { x + y; }`
+func TestLetStatementFunctionLiteralExpression(t *testing.T) {
+	Convey("Let statement function literal expression test", t, func() {
+		source := `let foo = func(x, y) { x + y; }`
 
 		theLexer   := lexer.NewLexer(source)
 		theParser  := NewParser(theLexer)
@@ -213,6 +213,10 @@ func TestFunctionLiteralExpression(t *testing.T) {
 		letStatement, ok := theProgram.Statements[0].(*ast.LetStatement)
 		Convey("Can convert to let statement", func() {
 			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Let function name should be foo", func() {
+			So(letStatement.Name.String(), ShouldEqual, "foo")
 		})
 
 		functionLiteralExpression, ok := letStatement.Value.(*ast.FunctionLiteralExpression)
@@ -244,15 +248,15 @@ func TestFunctionLiteralExpression(t *testing.T) {
 	})
 }
 
-func TestFunctionParameterParsing(t *testing.T) {
-	Convey("Function parameter parsing test", t, func() {
+func TestLetStatementFunctionParameterParsing(t *testing.T) {
+	Convey("Let statement function parameter parsing test", t, func() {
 		expectedStatements := []struct{
 			source 		string
 			parameters 	[]string
 		}{
-			{ "let x = func() {};", 		[]string{} },
-			{ "let y = func(x) {};", 		[]string{ "x" } },
-			{ "let z = func(x, y, z) {};",  []string{ "x", "y", "z" } },
+			{ "let foo = func() {};", 			[]string{} },
+			{ "let foo = func(x) {};", 			[]string{ "x" } },
+			{ "let foo = func(x, y, z) {};",  	[]string{ "x", "y", "z" } },
 		}
 
 		for index, expected := range expectedStatements {
@@ -269,11 +273,117 @@ func TestFunctionParameterParsing(t *testing.T) {
 				})
 
 				letStatement, ok := theProgram.Statements[0].(*ast.LetStatement)
-				Convey("Can convert to let statement", func() {
+				Convey("Can convert to expression statement", func() {
 					So(ok, ShouldBeTrue)
 				})
 
+				Convey("Let function name should be foo", func() {
+					So(letStatement.Name.String(), ShouldEqual, "foo")
+				})
+
 				functionLiteralExpression, ok := letStatement.Value.(*ast.FunctionLiteralExpression)
+				Convey("Can convert to function literal expression", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				expectedFunctionParameterLength := len(expected.parameters)
+				Convey(runMessage(
+					"Function parameter length should be equals %d",
+					expectedFunctionParameterLength,
+				), func() {
+					So(len(functionLiteralExpression.Parameters), ShouldEqual, expectedFunctionParameterLength)
+				})
+
+				for index2, parameter := range expected.parameters {
+					Convey(runMessage(
+						"Running: %d, Expected paramter: %s",
+						index2, parameter,
+					), func() {
+						testLiteralExpression(functionLiteralExpression.Parameters[index2], parameter)
+					})
+				}
+			})
+		}
+	})
+}
+
+func TestNoNamedFunctionLiteralExpression(t *testing.T) {
+	Convey("No named function literal expression test", t, func() {
+		source := `func(x, y) { x + y; }`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		functionLiteralExpression, ok := statement.Expression.(*ast.FunctionLiteralExpression)
+		Convey("Can convert to function literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Function parameter length should be equal 2", func() {
+			So(len(functionLiteralExpression.Parameters), ShouldEqual, 2)
+		})
+
+		Convey("Function parameter should be x and y", func() {
+			testLiteralExpression(functionLiteralExpression.Parameters[0], "x")
+			testLiteralExpression(functionLiteralExpression.Parameters[1], "y")
+		})
+
+		Convey("Function body statement length should be equal 1", func() {
+			So(len(functionLiteralExpression.Block.Statements), ShouldEqual, 1)
+		})
+
+		functionBlockStatement, ok := functionLiteralExpression.Block.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert function block to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Function block should equals x+y", func() {
+			testInfixExpression(functionBlockStatement.Expression, "x", "+", "y")
+		})
+	})
+}
+
+func TestNoNamedFunctionParameterParsing(t *testing.T) {
+	Convey("No named function parameter parsing test", t, func() {
+		expectedStatements := []struct{
+			source 		string
+			parameters 	[]string
+		}{
+			{ "func() {};", 		[]string{} },
+			{ "func(x) {};", 		[]string{ "x" } },
+			{ "func(x, y, z) {};",  []string{ "x", "y", "z" } },
+		}
+
+		for index, expected := range expectedStatements {
+			message := runMessage("Running %d, Source: %s", index, expected.source)
+
+			theLexer   := lexer.NewLexer(expected.source)
+			theParser  := NewParser(theLexer)
+			theProgram := theParser.Parse()
+
+			Convey(message, func() {
+				Convey("Parse program check", func() {
+					testParserError(theParser)
+					testParserProgramLength(theProgram, 1)
+				})
+
+				statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+				Convey("Can convert to expression statement", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				functionLiteralExpression, ok := statement.Expression.(*ast.FunctionLiteralExpression)
 				Convey("Can convert to function literal expression", func() {
 					So(ok, ShouldBeTrue)
 				})
