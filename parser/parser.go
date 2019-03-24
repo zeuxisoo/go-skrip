@@ -98,7 +98,13 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return p.parseReturnStatement()
 	case token.FUNCTION:
-		return p.parseFunctionStatement()
+		// If next token is token.identifier, parse by function statement e.g. "func name() {}"
+		// otherwise, parse by function literal expression e.g. "func() {}"
+		if p.peekTokenTypeIs(token.IDENTIFIER) == true {
+			return p.parseFunctionStatement()
+		}else{
+			return p.parseExpressionStatement()
+		}
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -165,12 +171,6 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 }
 
 func (p *Parser) parseFunctionStatement() *ast.FunctionStatement {
-	// Make sure the next token must be identifier
-	// like: func name() {} not func() {}
-	if p.peekTokenTypeIs(token.IDENTIFIER) == false {
-		return nil
-	}
-
 	// Set up function statement struct
 	statement := &ast.FunctionStatement{
 		Token: p.currentToken,
