@@ -121,7 +121,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	//		call nextToken() to set the current token point to this
 	// otherwise, the token is not identifier
 	//		return nil
-	if p.expectPeekTokenType(token.IDENTIFIER) == false {
+	if p.expectPeekTokenTypeIs(token.IDENTIFIER) == false {
 		return nil
 	}
 
@@ -133,7 +133,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	}
 
 	// Ensure that next token is assign symbol, and set the current token point to this
-	if p.expectPeekTokenType(token.ASSIGN) == false {
+	if p.expectPeekTokenTypeIs(token.ASSIGN) == false {
 		return nil
 	}
 
@@ -290,7 +290,7 @@ func (p *Parser) parseExpressionList(endTokenType token.Type) []ast.Expression {
 
 	// If next token is equals end token type like "]" and "}" etc
 	// update the current token to this end token and next token
-	if p.expectPeekTokenType(endTokenType) == false {
+	if p.expectPeekTokenTypeIs(endTokenType) == false {
 		return nil
 	}
 
@@ -351,14 +351,14 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	}
 
 	// Expect next token is "("
-	if p.expectPeekTokenType(token.LEFT_PARENTHESIS) == false {
+	if p.expectPeekTokenTypeIs(token.LEFT_PARENTHESIS) == false {
 		return nil
 	}
 
 	functionLiteralExpression.Parameters = p.parseFunctionParameters()
 
 	// Expect next token is "{"
-	if p.expectPeekTokenType(token.LEFT_BRACE) == false {
+	if p.expectPeekTokenTypeIs(token.LEFT_BRACE) == false {
 		return nil
 	}
 
@@ -392,7 +392,7 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 		key := p.parseExpression(LOWEST)
 
 		// If next token is not ":", return nil. Otherwise update current token to this ":"
-		if p.expectPeekTokenType(token.COLON) == false {
+		if p.expectPeekTokenTypeIs(token.COLON) == false {
 			return nil
 		}
 
@@ -407,13 +407,13 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 
 		// If next token is not "}" and it will expect next token it is "," and update the current token to this
 		// otherwise return nil to break the loop
-		if p.peekTokenTypeIs(token.RIGHT_BRACE) == false && p.expectPeekTokenType(token.COMMA) == false {
+		if p.peekTokenTypeIs(token.RIGHT_BRACE) == false && p.expectPeekTokenTypeIs(token.COMMA) == false {
 			return nil
 		}
 	}
 
 	// End of loop, if the next token is not "}", return nil
-	if p.expectPeekTokenType(token.RIGHT_BRACE) == false {
+	if p.expectPeekTokenTypeIs(token.RIGHT_BRACE) == false {
 		return nil
 	}
 
@@ -428,7 +428,7 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 
 	// If the next token is ")", set current token
 	// otherwise return nil
-	if p.expectPeekTokenType(token.RIGHT_PARENTHESIS) == false {
+	if p.expectPeekTokenTypeIs(token.RIGHT_PARENTHESIS) == false {
 		return nil
 	}
 
@@ -442,7 +442,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 
 	// If next token is "(", set current token to this,
 	// otherwise, return nil
-	if p.expectPeekTokenType(token.LEFT_PARENTHESIS) == false {
+	if p.expectPeekTokenTypeIs(token.LEFT_PARENTHESIS) == false {
 		return nil
 	}
 
@@ -454,13 +454,13 @@ func (p *Parser) parseIfExpression() ast.Expression {
 
 	// If next token is ")", set current token to this
 	// otherwise, return nil
-	if p.expectPeekTokenType(token.RIGHT_PARENTHESIS) == false {
+	if p.expectPeekTokenTypeIs(token.RIGHT_PARENTHESIS) == false {
 		return nil
 	}
 
 	// If next token is "{", set current token to this
 	// otherwise, return nil
-	if p.expectPeekTokenType(token.LEFT_BRACE) == false {
+	if p.expectPeekTokenTypeIs(token.LEFT_BRACE) == false {
 		return nil
 	}
 
@@ -471,7 +471,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	if p.peekTokenTypeIs(token.ELSE) == true {
 		p.nextToken()
 
-		if p.expectPeekTokenType(token.LEFT_BRACE) == false {
+		if p.expectPeekTokenTypeIs(token.LEFT_BRACE) == false {
 			return nil
 		}
 
@@ -540,7 +540,7 @@ func (p *Parser) parseIndexExpression(leftExpression ast.Expression) ast.Express
 
 	// If next token is }, update the current token to this
 	// otherwise, return nil
-	if p.expectPeekTokenType(token.RIGHT_BRACKET) == false {
+	if p.expectPeekTokenTypeIs(token.RIGHT_BRACKET) == false {
 		return nil
 	}
 
@@ -564,7 +564,7 @@ func (p *Parser) nextToken() {
 	p.peekToken    = p.lexer.NextToken()
 }
 
-func (p *Parser) expectPeekTokenType(tokenType token.Type) bool {
+func (p *Parser) expectPeekTokenTypeIs(tokenType token.Type) bool {
 	if p.peekTokenTypeIs(tokenType) {
 		p.nextToken()
 		return true
