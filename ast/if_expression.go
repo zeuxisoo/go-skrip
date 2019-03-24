@@ -34,7 +34,7 @@ func (i *IfExpression) String() string {
 		out.WriteString("else")
 		out.WriteString(" { ")
 		out.WriteString(i.Alternative.String())
-		out.WriteString(" } ")
+		out.WriteString(" }")
 	}
 
 	return out.String()
