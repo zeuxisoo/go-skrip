@@ -563,6 +563,11 @@ func TestInfixExpression(t *testing.T) {
 			{ "true == true", 	true, 	"==", 	true },
 			{ "true != false",	true, 	"!=", 	false },
 			{ "false == false", false, 	"==", 	false },
+
+			{ "foo && bar", 	"foo", 	"&&", "bar" },
+			{ "foo || bar", 	"foo", 	"||", "bar" },
+			{ "true && true",  	"true", "&&", "true"},
+			{ "true && false", 	"true",	"&&", "false" },
 		}
 
 		for index, expression := range expectedExpressions {
