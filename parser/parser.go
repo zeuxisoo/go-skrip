@@ -63,8 +63,10 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerInfixParseFunction(token.NOT_EQ, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.AND, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.OR, parser.parseInfixExpression)
+	parser.registerInfixParseFunction(token.RANGE, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.LEFT_BRACKET, parser.parseIndexExpression)
 	parser.registerInfixParseFunction(token.LEFT_PARENTHESIS, parser.parseCallExpression)
+
 
 	return parser
 }
