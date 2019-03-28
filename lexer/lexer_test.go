@@ -287,6 +287,20 @@ func TestSkipComment(t *testing.T) {
 	})
 }
 
+func TestRange(t *testing.T) {
+	Convey("Range", t, func() {
+		source := `1..3;`
+
+		expectedTokens := []expectedToken{
+			{ token.INT, "1" },
+			{ token.RANGE, ".." },
+			{ token.INT, "3" },
+		}
+
+		testToken(NewLexer(source), expectedTokens)
+	})
+}
+
 // Sub method for test case
 func testToken(theLexer *Lexer, expectedTokens []expectedToken) {
 	for index, currentExpectedToken := range expectedTokens {

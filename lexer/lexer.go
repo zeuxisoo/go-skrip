@@ -156,6 +156,22 @@ func (l *Lexer) NextToken() token.Token {
 		}
 	case ':':
 		theToken = l.newToken(token.COLON)
+	case '.':
+		if l.nextChar() == '.' {
+			oldCurrentChar := l.currentChar
+
+			l.readChar()
+
+			theToken = token.Token{
+				Type   : token.RANGE,
+				Literal: string(oldCurrentChar) + string(l.currentChar),     // text: ..
+			}
+		}else{
+			theToken = token.Token{
+				Type   : token.DOT,
+				Literal: l.readString(),
+			}
+		}
 	case 0:
 		theToken.Literal = ""
 		theToken.Type    = token.EOF
@@ -268,6 +284,11 @@ func (l *Lexer) readNumber() string {
 	startPosition := l.currentPosition
 
 	for helper.IsDigit(l.currentChar) || helper.IsDot(l.currentChar) {
+		// When meet "." it may range "..", if range "..", return current read value
+		if l.currentChar == '.' && l.nextChar() == '.' {
+			return l.source[startPosition:l.currentPosition]
+		}
+
 		l.readChar()
 	}
 

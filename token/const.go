@@ -29,10 +29,14 @@ const (
 	AND     = "&&"
 	OR      = "||"
 
+	DOT     = "."
+	RANGE   = ".."
+
 	// Delimiters
 	COMMA     = ","
 	SEMICOLON = ";"
 	COLON     = ":"
+
 
 	LEFT_PARENTHESIS  = "("
 	RIGHT_PARENTHESIS = ")"
