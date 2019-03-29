@@ -492,11 +492,6 @@ func (p *Parser) parseForExpression() ast.Expression {
 		return p.parseForEverExpression(p.currentToken)
 	}
 
-	// When found "(", mean "for (condition) { ... }"
-	if p.peekTokenTypeIs(token.LEFT_PARENTHESIS) == true {
-		return p.parseForCStyleExpression(p.currentToken)
-	}
-
 	// Save current token for forEachHash and forEachArray
 	previousToken := p.currentToken
 
@@ -714,10 +709,6 @@ func (p *Parser) parseForEverExpression(currentToken token.Token) ast.Expression
 	forEverExpression.Block = p.parseBlockStatement()
 
 	return forEverExpression
-}
-
-func (p *Parser) parseForCStyleExpression(currentToken token.Token) ast.Expression {
-	return nil
 }
 
 func (p *Parser) parseForEacHashExpression(previousToken token.Token, currentToken token.Token) ast.Expression {
