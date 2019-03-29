@@ -49,6 +49,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.LEFT_BRACE, parser.parseHashLiteral)
 	parser.registerPrefixParseFunction(token.LEFT_PARENTHESIS, parser.parseGroupedExpression)
 	parser.registerPrefixParseFunction(token.IF, parser.parseIfExpression)
+	parser.registerPrefixParseFunction(token.FOR, parser.parseForExpression)
 
 	parser.infixParseFunctions = make(map[token.Type]infixParseFunction)
 	parser.registerInfixParseFunction(token.PLUS, parser.parseInfixExpression)
@@ -485,6 +486,35 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	return ifExpression
 }
 
+func (p *Parser) parseForExpression() ast.Expression {
+	// When found "{", mean "for { ... }"
+	if p.peekTokenTypeIs(token.LEFT_BRACE) == true {
+		return p.parseForEverExpression(p.currentToken)
+	}
+
+	// When found "(", mean "for (condition) { ... }"
+	if p.peekTokenTypeIs(token.LEFT_PARENTHESIS) == true {
+		return p.parseForCStyleExpression(p.currentToken)
+	}
+
+	// Save current token for forEachHash and forEachArray
+	previousToken := p.currentToken
+
+	// If next token is not identifier, stop it and return nil
+	// otherwise set current token to this
+	if p.expectPeekTokenTypeIs(token.IDENTIFIER) == false {
+		return nil
+	}
+
+	// When next token is ",", mean "for key, value in hash { ... }"
+	// otherwise mean "for value in array { ... }"
+	if p.peekTokenTypeIs(token.COMMA) == true {
+		return p.parseForEacHashExpression(previousToken, p.currentToken)
+	}else{
+		return p.parseForEachArrayExpression(previousToken, p.currentToken)
+	}
+}
+
 func (p *Parser) parseIdentifier() ast.Expression {
 	identifier := &ast.IdentifierExpression{
 		Token: p.currentToken,
@@ -669,6 +699,33 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	}
 
 	return blockStatement
+}
+
+// Helper function for parse for loop case
+func (p *Parser) parseForEverExpression(currentToken token.Token) ast.Expression {
+	forEverExpression := &ast.ForEverExpression{
+		Token: currentToken,
+	}
+
+	if p.expectPeekTokenTypeIs(token.LEFT_BRACE) == false {
+		return nil
+	}
+
+	forEverExpression.Block = p.parseBlockStatement()
+
+	return forEverExpression
+}
+
+func (p *Parser) parseForCStyleExpression(currentToken token.Token) ast.Expression {
+	return nil
+}
+
+func (p *Parser) parseForEacHashExpression(previousToken token.Token, currentToken token.Token) ast.Expression {
+	return nil
+}
+
+func (p *Parser) parseForEachArrayExpression(previousToken token.Token, currentToken token.Token) ast.Expression {
+	return nil
 }
 
 // Error handle functions
