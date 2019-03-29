@@ -1077,6 +1077,44 @@ func TestIfExpression(t *testing.T) {
 	})
 }
 
+func TestForEverExpression(t *testing.T) {
+	Convey("For ever expression test", t, func() {
+		source := `for { c }`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		forEverExpression, ok := statement.Expression.(*ast.ForEverExpression)
+		Convey("Can convert to for ever expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("For ever condition block length should equals 1", func() {
+			So(len(forEverExpression.Block.Statements), ShouldEqual, 1)
+		})
+
+		block, ok := forEverExpression.Block.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert for ever condition block to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Identifier should be named c", func() {
+			testIdentifierExpression(block.Expression, "c")
+		})
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
