@@ -492,8 +492,8 @@ func (p *Parser) parseForExpression() ast.Expression {
 		return p.parseForEverExpression(p.currentToken)
 	}
 
-	// Save current token for forEachHash and forEachArray
-	previousToken := p.currentToken
+	// Save current token (token.FOR) for forEachHash and forEachArray
+	tokenFor := p.currentToken
 
 	// If next token is not identifier, stop it and return nil
 	// otherwise set current token to this
@@ -504,10 +504,10 @@ func (p *Parser) parseForExpression() ast.Expression {
 	// When next token is ",", mean "for key, value in hash { ... }"
 	// otherwise mean "for value in array { ... }"
 	if p.peekTokenTypeIs(token.COMMA) == true {
-		return p.parseForEacHashExpression(previousToken, p.currentToken)
-	}else{
-		return p.parseForEachArrayExpression(previousToken, p.currentToken)
+		return p.parseForEachHashExpression(tokenFor, p.currentToken)
 	}
+
+	return p.parseForEachArrayExpression(tokenFor, p.currentToken)
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
@@ -711,11 +711,51 @@ func (p *Parser) parseForEverExpression(currentToken token.Token) ast.Expression
 	return forEverExpression
 }
 
-func (p *Parser) parseForEacHashExpression(previousToken token.Token, currentToken token.Token) ast.Expression {
-	return nil
+func (p *Parser) parseForEachHashExpression(tokenFor token.Token, currentToken token.Token) ast.Expression {
+	forEachHashExpression := &ast.ForEachHashExpression{
+		Token: tokenFor,
+		Key  : currentToken.Literal,
+	}
+
+	// If next token is ",", set current token to it
+	// otherwise, return nil and stop
+	if p.expectPeekTokenTypeIs(token.COMMA) == false {
+		return nil
+	}
+
+	// If next token is identifier, set current token to it
+	// otherwise, return nil and stop
+	if p.expectPeekTokenTypeIs(token.IDENTIFIER) == false {
+		return nil
+	}
+
+	// Set for loop value name
+	forEachHashExpression.Value = p.currentToken.Literal
+
+	// If next token is "in", set current token to it
+	// otherwise, return nil and stop
+	if p.expectPeekTokenTypeIs(token.IN) == false {
+		return nil
+	}
+
+	// Enter to loop data
+	p.nextToken()
+
+	// Parse the loop data
+	forEachHashExpression.Data = p.parseExpression(LOWEST)
+
+	// If next token is "{", set current token to it
+	// otherwise, return nil and stop
+	if p.expectPeekTokenTypeIs(token.LEFT_BRACE) == false {
+		return nil
+	}
+
+	forEachHashExpression.Block = p.parseBlockStatement()
+
+	return forEachHashExpression
 }
 
-func (p *Parser) parseForEachArrayExpression(previousToken token.Token, currentToken token.Token) ast.Expression {
+func (p *Parser) parseForEachArrayExpression(tokenFor token.Token, currentToken token.Token) ast.Expression {
 	return nil
 }
 
