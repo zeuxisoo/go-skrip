@@ -1166,6 +1166,74 @@ func TestForEverExpression(t *testing.T) {
 	})
 }
 
+func TestForEachHashExpression(t *testing.T) {
+	Convey("For each hash expression test", t, func() {
+		source   := `for k, v in { "a": 1, "b": 2 } { c }`
+		expected := map[string]int{
+			"a": 1,
+			"b": 2,
+		}
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		forEachHashExpression, ok := statement.Expression.(*ast.ForEachHashExpression)
+		Convey("Can convert to for each hash expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		//
+		Convey("For each key and value should equals x and y", func() {
+			So(forEachHashExpression.Key, ShouldEqual, "k")
+			So(forEachHashExpression.Value, ShouldEqual, "v")
+		})
+
+		//
+		data, ok := forEachHashExpression.Data.(*ast.HashLiteralExpression)
+		Convey("Can convert for each hash data to hash literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("For each hash data length should equlas 2", func() {
+			So(len(data.Pairs), ShouldEqual, 2)
+		})
+
+		Convey("For each hash data values should matched", func() {
+			for keyExpression, valueExpression := range data.Pairs {
+				keyString     := keyExpression.(*ast.StringLiteralExpression)
+				expectedValue := expected[keyString.String()]
+
+				testIntegerLiteralExpression(valueExpression, int64(expectedValue))
+			}
+		})
+
+		//
+		Convey("For each hash block length should equals 1", func() {
+			So(len(forEachHashExpression.Block.Statements), ShouldEqual, 1)
+		})
+
+		block, ok := forEachHashExpression.Block.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert for ever condition block to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Identifier should be named c", func() {
+			testIdentifierExpression(block.Expression, "c")
+		})
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
