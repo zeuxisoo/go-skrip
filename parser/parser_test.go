@@ -1077,6 +1077,57 @@ func TestIfExpression(t *testing.T) {
 	})
 }
 
+func TestIfExpressionWithElseBlock(t *testing.T) {
+	Convey("If expression else block test", t, func() {
+		source := `if (a < b) { c } else { d };`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		ifExpression, ok := statement.Expression.(*ast.IfExpression)
+		Convey("Can convert to if expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("If condition test", func() {
+			testInfixExpression(ifExpression.Condition, "a", "<", "b")
+		})
+
+		Convey("If condition block length should equals 1", func() {
+			So(len(ifExpression.Block.Statements), ShouldEqual, 1)
+		})
+
+		block, ok := ifExpression.Block.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert if condition block to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Identifier should be named c", func() {
+			testIdentifierExpression(block.Expression, "c")
+		})
+
+		alternativeBlock, ok := ifExpression.Alternative.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert if condition else block to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Identifier should be named d", func() {
+			testIdentifierExpression(alternativeBlock.Expression, "d")
+		})
+	})
+}
+
 func TestForEverExpression(t *testing.T) {
 	Convey("For ever expression test", t, func() {
 		source := `for { c }`
