@@ -1194,7 +1194,7 @@ func TestForEachHashExpression(t *testing.T) {
 		})
 
 		//
-		Convey("For each key and value should equals x and y", func() {
+		Convey("For each key and value should equals k and v", func() {
 			So(forEachHashExpression.Key, ShouldEqual, "k")
 			So(forEachHashExpression.Value, ShouldEqual, "v")
 		})
@@ -1224,6 +1224,69 @@ func TestForEachHashExpression(t *testing.T) {
 		})
 
 		block, ok := forEachHashExpression.Block.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert for ever condition block to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Identifier should be named c", func() {
+			testIdentifierExpression(block.Expression, "c")
+		})
+	})
+}
+
+func TestForEachArrayExpression(t *testing.T) {
+	Convey("For each array expression test", t, func() {
+		source   := `for v in [1,2,3] { c }`
+		expected := []int64{ 1, 2, 3 }
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		forEachArrayOrRangeExpression, ok := statement.Expression.(*ast.ForEachArrayOrRangeExpression)
+		Convey("Can convert to for each array or range expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		//
+		Convey("For each key and value should equals v", func() {
+			So(forEachArrayOrRangeExpression.Value, ShouldEqual, "v")
+		})
+
+		//
+		data, ok := forEachArrayOrRangeExpression.Iterable.(*ast.ArrayLiteralExpression)
+		Convey("Can convert for each hash iterable data to array literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("For each array data length should equlas 3", func() {
+			So(len(data.Elements), ShouldEqual, 3)
+		})
+
+		Convey("For each array data values should matched", func() {
+			for index, valueExpression := range data.Elements {
+				expectedValue := expected[index]
+
+				testIntegerLiteralExpression(valueExpression, int64(expectedValue))
+			}
+		})
+
+		//
+		Convey("For each array block length should equals 1", func() {
+			So(len(forEachArrayOrRangeExpression.Block.Statements), ShouldEqual, 1)
+		})
+
+		block, ok := forEachArrayOrRangeExpression.Block.Statements[0].(*ast.ExpressionStatement)
 		Convey("Can convert for ever condition block to expression statement", func() {
 			So(ok, ShouldBeTrue)
 		})
