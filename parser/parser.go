@@ -507,7 +507,7 @@ func (p *Parser) parseForExpression() ast.Expression {
 		return p.parseForEachHashExpression(tokenFor, p.currentToken)
 	}
 
-	return p.parseForEachArrayExpression(tokenFor, p.currentToken)
+	return p.parseForEachArrayOrRangeExpression(tokenFor, p.currentToken)
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
@@ -755,8 +755,8 @@ func (p *Parser) parseForEachHashExpression(tokenFor token.Token, currentToken t
 	return forEachHashExpression
 }
 
-func (p *Parser) parseForEachArrayExpression(tokenFor token.Token, currentToken token.Token) ast.Expression {
-	forEachArrayExpression := &ast.ForEachArrayExpression{
+func (p *Parser) parseForEachArrayOrRangeExpression(tokenFor token.Token, currentToken token.Token) ast.Expression {
+	forEachArrayOrRangeExpression := &ast.ForEachArrayOrRangeExpression{
 		Token: tokenFor,
 		Value: currentToken.Literal,
 	}
@@ -771,7 +771,7 @@ func (p *Parser) parseForEachArrayExpression(tokenFor token.Token, currentToken 
 	p.nextToken()
 
 	// Parse the loop data
-	forEachArrayExpression.Data = p.parseExpression(LOWEST)
+	forEachArrayOrRangeExpression.Data = p.parseExpression(LOWEST)
 
 	// If next token is "{", set current token to it
 	// otherwise, return nil and stop
@@ -779,9 +779,9 @@ func (p *Parser) parseForEachArrayExpression(tokenFor token.Token, currentToken 
 		return nil
 	}
 
-	forEachArrayExpression.Block = p.parseBlockStatement()
+	forEachArrayOrRangeExpression.Block = p.parseBlockStatement()
 
-	return forEachArrayExpression
+	return forEachArrayOrRangeExpression
 }
 
 // Error handle functions

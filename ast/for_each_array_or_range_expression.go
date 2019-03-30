@@ -6,22 +6,22 @@ import (
 	"github.com/zeuxisoo/go-skrip/token"
 )
 
-type ForEachArrayExpression struct {
+type ForEachArrayOrRangeExpression struct {
 	Token 		token.Token
 	Value 		string
 	Data	 	Expression
 	Block 		*BlockStatement
 }
 
-func (f *ForEachArrayExpression) expressionNode() {
+func (f *ForEachArrayOrRangeExpression) expressionNode() {
 }
 
 // Implement methods for Node interface
-func (f *ForEachArrayExpression) TokenLiteral() string {
+func (f *ForEachArrayOrRangeExpression) TokenLiteral() string {
 	return f.Token.Literal
 }
 
-func (f *ForEachArrayExpression) String() string {
+func (f *ForEachArrayOrRangeExpression) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("for")					// for
