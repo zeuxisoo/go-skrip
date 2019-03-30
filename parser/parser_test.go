@@ -1297,6 +1297,60 @@ func TestForEachArrayExpression(t *testing.T) {
 	})
 }
 
+func TestForEachRangeExpression(t *testing.T) {
+	Convey("For each range expression test", t, func() {
+		source   := `for v in 1..3 { c }`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		forEachArrayOrRangeExpression, ok := statement.Expression.(*ast.ForEachArrayOrRangeExpression)
+		Convey("Can convert to for each array or range expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		//
+		Convey("For each key and value should equals v", func() {
+			So(forEachArrayOrRangeExpression.Value, ShouldEqual, "v")
+		})
+
+		//
+		infix, ok := forEachArrayOrRangeExpression.Iterable.(*ast.InfixExpression)
+		Convey("Can convert for each hash iterable data to infix expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Infix should be 1..3", func() {
+			testInfixExpression(infix, 1, "..", 3)
+		})
+
+		//
+		Convey("For each range block length should equals 1", func() {
+			So(len(forEachArrayOrRangeExpression.Block.Statements), ShouldEqual, 1)
+		})
+
+		block, ok := forEachArrayOrRangeExpression.Block.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert for ever condition block to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Identifier should be named c", func() {
+			testIdentifierExpression(block.Expression, "c")
+		})
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
