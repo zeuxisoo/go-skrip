@@ -756,7 +756,32 @@ func (p *Parser) parseForEachHashExpression(tokenFor token.Token, currentToken t
 }
 
 func (p *Parser) parseForEachArrayExpression(tokenFor token.Token, currentToken token.Token) ast.Expression {
-	return nil
+	forEachArrayExpression := &ast.ForEachArrayExpression{
+		Token: tokenFor,
+		Value: currentToken.Literal,
+	}
+
+	// If next token is "in", set current token to it
+	// otherwise, return nil and stop
+	if p.expectPeekTokenTypeIs(token.IN) == false {
+		return nil
+	}
+
+	// Enter to loop data
+	p.nextToken()
+
+	// Parse the loop data
+	forEachArrayExpression.Data = p.parseExpression(LOWEST)
+
+	// If next token is "{", set current token to it
+	// otherwise, return nil and stop
+	if p.expectPeekTokenTypeIs(token.LEFT_BRACE) == false {
+		return nil
+	}
+
+	forEachArrayExpression.Block = p.parseBlockStatement()
+
+	return forEachArrayExpression
 }
 
 // Error handle functions
