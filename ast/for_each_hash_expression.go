@@ -10,7 +10,7 @@ type ForEachHashExpression struct {
 	Token 		token.Token
 	Key   		string
 	Value 		string
-	Data	 	Expression
+	Iterable 	Expression
 	Block 		*BlockStatement
 }
 
@@ -28,7 +28,7 @@ func (f *ForEachHashExpression) String() string {
 	out.WriteString("for")									// for
 	out.WriteString(" " + f.Key + ", " + f.Value + " ")		// 	key, value
 	out.WriteString("in")									// in
-	out.WriteString(" " + f.Data.String())					// 	{k: v, k: v}
+	out.WriteString(" " + f.Iterable.String())				// 	{k: v, k: v}
 	out.WriteString(" { ")									// {
 	out.WriteString(f.Block.String())						// 	...
 	out.WriteString(" } ")									// }

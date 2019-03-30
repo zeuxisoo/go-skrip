@@ -742,7 +742,7 @@ func (p *Parser) parseForEachHashExpression(tokenFor token.Token, currentToken t
 	p.nextToken()
 
 	// Parse the loop data
-	forEachHashExpression.Data = p.parseExpression(LOWEST)
+	forEachHashExpression.Iterable = p.parseExpression(LOWEST)
 
 	// If next token is "{", set current token to it
 	// otherwise, return nil and stop
@@ -771,7 +771,7 @@ func (p *Parser) parseForEachArrayOrRangeExpression(tokenFor token.Token, curren
 	p.nextToken()
 
 	// Parse the loop data
-	forEachArrayOrRangeExpression.Data = p.parseExpression(LOWEST)
+	forEachArrayOrRangeExpression.Iterable = p.parseExpression(LOWEST)
 
 	// If next token is "{", set current token to it
 	// otherwise, return nil and stop

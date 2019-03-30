@@ -1200,8 +1200,8 @@ func TestForEachHashExpression(t *testing.T) {
 		})
 
 		//
-		data, ok := forEachHashExpression.Data.(*ast.HashLiteralExpression)
-		Convey("Can convert for each hash data to hash literal expression", func() {
+		data, ok := forEachHashExpression.Iterable.(*ast.HashLiteralExpression)
+		Convey("Can convert for each hash iterable data to hash literal expression", func() {
 			So(ok, ShouldBeTrue)
 		})
 
