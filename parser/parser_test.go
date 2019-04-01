@@ -1054,21 +1054,22 @@ func TestIfExpression(t *testing.T) {
 			So(ok, ShouldBeTrue)
 		})
 
-		Convey("If condition test", func() {
-			testInfixExpression(ifExpression.Condition, "a", "<", "b")
+		scene := ifExpression.Scenes[0]
+		Convey("If scene condition test", func() {
+			testInfixExpression(scene.Condition, "a", "<", "b")
 		})
 
-		Convey("If condition block length should equals 1", func() {
-			So(len(ifExpression.Block.Statements), ShouldEqual, 1)
+		Convey("If scene condition block length should equals 1", func() {
+			So(len(scene.Block.Statements), ShouldEqual, 1)
 		})
 
-		block, ok := ifExpression.Block.Statements[0].(*ast.ExpressionStatement)
-		Convey("Can convert if condition block to expression statement", func() {
+		sceneBlock, ok := scene.Block.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert if scene condition block to expression statement", func() {
 			So(ok, ShouldBeTrue)
 		})
 
 		Convey("Identifier should be named c", func() {
-			testIdentifierExpression(block.Expression, "c")
+			testIdentifierExpression(sceneBlock.Expression, "c")
 		})
 
 		Convey("Else alternative block should be nil", func() {
@@ -1100,21 +1101,22 @@ func TestIfExpressionWithElseBlock(t *testing.T) {
 			So(ok, ShouldBeTrue)
 		})
 
-		Convey("If condition test", func() {
-			testInfixExpression(ifExpression.Condition, "a", "<", "b")
+		scene := ifExpression.Scenes[0]
+		Convey("If scene condition test", func() {
+			testInfixExpression(scene.Condition, "a", "<", "b")
 		})
 
-		Convey("If condition block length should equals 1", func() {
-			So(len(ifExpression.Block.Statements), ShouldEqual, 1)
+		Convey("If scene condition block length should equals 1", func() {
+			So(len(scene.Block.Statements), ShouldEqual, 1)
 		})
 
-		block, ok := ifExpression.Block.Statements[0].(*ast.ExpressionStatement)
-		Convey("Can convert if condition block to expression statement", func() {
+		sceneBlock, ok := scene.Block.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert if scene condition block to expression statement", func() {
 			So(ok, ShouldBeTrue)
 		})
 
 		Convey("Identifier should be named c", func() {
-			testIdentifierExpression(block.Expression, "c")
+			testIdentifierExpression(sceneBlock.Expression, "c")
 		})
 
 		alternativeBlock, ok := ifExpression.Alternative.Statements[0].(*ast.ExpressionStatement)
