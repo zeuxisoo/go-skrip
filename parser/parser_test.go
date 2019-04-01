@@ -1054,24 +1054,26 @@ func TestIfExpression(t *testing.T) {
 			So(ok, ShouldBeTrue)
 		})
 
-		scene := ifExpression.Scenes[0]
+		// If
+		sceneIf := ifExpression.Scenes[0]
 		Convey("If scene condition test", func() {
-			testInfixExpression(scene.Condition, "a", "<", "b")
+			testInfixExpression(sceneIf.Condition, "a", "<", "b")
 		})
 
 		Convey("If scene condition block length should equals 1", func() {
-			So(len(scene.Block.Statements), ShouldEqual, 1)
+			So(len(sceneIf.Block.Statements), ShouldEqual, 1)
 		})
 
-		sceneBlock, ok := scene.Block.Statements[0].(*ast.ExpressionStatement)
+		sceneIfBlock, ok := sceneIf.Block.Statements[0].(*ast.ExpressionStatement)
 		Convey("Can convert if scene condition block to expression statement", func() {
 			So(ok, ShouldBeTrue)
 		})
 
 		Convey("Identifier should be named c", func() {
-			testIdentifierExpression(sceneBlock.Expression, "c")
+			testIdentifierExpression(sceneIfBlock.Expression, "c")
 		})
 
+		// No else
 		Convey("Else alternative block should be nil", func() {
 			So(ifExpression.Alternative, ShouldBeNil)
 		})
@@ -1101,31 +1103,121 @@ func TestIfExpressionWithElseBlock(t *testing.T) {
 			So(ok, ShouldBeTrue)
 		})
 
-		scene := ifExpression.Scenes[0]
+		// If
+		sceneIf := ifExpression.Scenes[0]
 		Convey("If scene condition test", func() {
-			testInfixExpression(scene.Condition, "a", "<", "b")
+			testInfixExpression(sceneIf.Condition, "a", "<", "b")
 		})
 
 		Convey("If scene condition block length should equals 1", func() {
-			So(len(scene.Block.Statements), ShouldEqual, 1)
+			So(len(sceneIf.Block.Statements), ShouldEqual, 1)
 		})
 
-		sceneBlock, ok := scene.Block.Statements[0].(*ast.ExpressionStatement)
+		sceneIfBlock, ok := sceneIf.Block.Statements[0].(*ast.ExpressionStatement)
 		Convey("Can convert if scene condition block to expression statement", func() {
 			So(ok, ShouldBeTrue)
 		})
 
-		Convey("Identifier should be named c", func() {
-			testIdentifierExpression(sceneBlock.Expression, "c")
+		Convey("If scene condition block identifier should be named c", func() {
+			testIdentifierExpression(sceneIfBlock.Expression, "c")
 		})
 
+		// Else
 		alternativeBlock, ok := ifExpression.Alternative.Statements[0].(*ast.ExpressionStatement)
 		Convey("Can convert if condition else block to expression statement", func() {
 			So(ok, ShouldBeTrue)
 		})
 
-		Convey("Identifier should be named d", func() {
+		Convey("Else block identifier should be named d", func() {
 			testIdentifierExpression(alternativeBlock.Expression, "d")
+		})
+	})
+}
+
+func TestIfExpressionWithElseIfBlockAndElseBlock(t *testing.T) {
+	Convey("If expression else if block and else block test", t, func() {
+		source := `
+			if (a < b) {
+				c
+			} else if (a > b) {
+				d
+			} else {
+				e
+			};
+		`
+		expectedIfBlocks := []struct{
+			leftValue 	string
+			operator  	string
+			rightValue 	string
+			blockValue	string
+		}{
+			{ "a", "<", "b", "c" },
+			{ "a", ">", "b", "d" },
+		}
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		ifExpression, ok := statement.Expression.(*ast.IfExpression)
+		Convey("Can convert to if expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		// If and else if
+		for index, expectedIfBlock := range expectedIfBlocks {
+			message := runMessage(
+				"Running: %d, Expected If (%s %s %s) { %s }",
+				index,
+				expectedIfBlock.leftValue, expectedIfBlock.operator, expectedIfBlock.rightValue, expectedIfBlock.blockValue,
+			)
+
+			Convey(message, func() {
+				sceneIf := ifExpression.Scenes[index]
+
+				Convey("Condition test", func() {
+					testInfixExpression(
+						sceneIf.Condition,
+						expectedIfBlock.leftValue, expectedIfBlock.operator, expectedIfBlock.rightValue,
+					)
+				})
+
+				Convey("Block length should equals 1", func() {
+					So(len(sceneIf.Block.Statements), ShouldEqual, 1)
+				})
+
+				sceneIfBlock, ok := sceneIf.Block.Statements[0].(*ast.ExpressionStatement)
+				Convey("Can convert block to expression statement", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				Convey(runMessage(
+					"Condition block identifier should be named %s",
+					expectedIfBlock.blockValue,
+				), func() {
+					testIdentifierExpression(sceneIfBlock.Expression, expectedIfBlock.blockValue)
+				})
+			})
+		}
+
+		// Else
+		alternativeBlock, ok := ifExpression.Alternative.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert if condition else block to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Else block identifier should be named d", func() {
+			testIdentifierExpression(alternativeBlock.Expression, "e")
 		})
 	})
 }
