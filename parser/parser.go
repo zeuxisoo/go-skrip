@@ -456,7 +456,9 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	p.nextToken()
 
 	// Parse the first if condition
-	ifScene := &ast.IfScene{}
+	var ifScene *ast.IfScene
+
+	ifScene = &ast.IfScene{}
 	ifScene.Condition = p.parseExpression(LOWEST)
 
 	// If next token is ")", set current token to this
@@ -491,6 +493,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 				p.nextToken()
 
 				// Parse current else if condition
+				ifScene = &ast.IfScene{}
 				ifScene.Condition = p.parseExpression(LOWEST)
 
 				// Next token must be ")", otherwise return nil
