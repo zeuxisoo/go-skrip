@@ -6,10 +6,14 @@ import (
 	"github.com/zeuxisoo/go-skrip/token"
 )
 
+type IfScene struct {
+	Condition Expression
+	Block     *BlockStatement
+}
+
 type IfExpression struct {
 	Token 		token.Token
-	Condition	Expression
-	Block		*BlockStatement
+	Scenes		[]*IfScene
 	Alternative *BlockStatement
 }
 
@@ -24,11 +28,21 @@ func (i *IfExpression) TokenLiteral() string {
 func (i *IfExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString("if ")
-	out.WriteString(i.Condition.String())
-	out.WriteString(" { ")
-	out.WriteString(i.Block.String())
-	out.WriteString(" } ")
+	for index, scene := range i.Scenes {
+		if index == 0 {
+			out.WriteString("if ")
+			out.WriteString(scene.Condition.String())
+			out.WriteString(" { ")
+			out.WriteString(scene.Block.String())
+			out.WriteString(" } ")
+		}else{
+			out.WriteString("else if ")
+			out.WriteString(scene.Condition.String())
+			out.WriteString(" { ")
+			out.WriteString(scene.Block.String())
+			out.WriteString(" } ")
+		}
+	}
 
 	if i.Alternative != nil {
 		out.WriteString("else")

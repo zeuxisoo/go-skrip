@@ -444,6 +444,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	ifExpression := &ast.IfExpression{
 		Token: p.currentToken,
 	}
+	ifScenes := []*ast.IfScene{}
 
 	// If next token is "(", set current token to this,
 	// otherwise, return nil
@@ -451,11 +452,12 @@ func (p *Parser) parseIfExpression() ast.Expression {
 		return nil
 	}
 
-	// Move current token to if condition
+	// Move current token to first if condition
 	p.nextToken()
 
-	// Parse the condition between "(" and ")"
-	ifExpression.Condition = p.parseExpression(LOWEST)
+	// Parse the first if condition
+	ifScene := &ast.IfScene{}
+	ifScene.Condition = p.parseExpression(LOWEST)
 
 	// If next token is ")", set current token to this
 	// otherwise, return nil
@@ -470,18 +472,53 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	}
 
 	// Parse the block after if condition
-	ifExpression.Block = p.parseBlockStatement()
+	ifScene.Block = p.parseBlockStatement()
 
-	// When found else after if condition block, parse the else block
-	if p.peekTokenTypeIs(token.ELSE) == true {
-		p.nextToken()
+	// Add the first if scene (condition + block) to scene slice
+	ifScenes = append(ifScenes, ifScene)
 
-		if p.expectPeekTokenTypeIs(token.LEFT_BRACE) == false {
-			return nil
+	// Loop until found "else" token
+	for p.peekTokenTypeIs(token.ELSE) == true {
+		p.nextToken()	// should be point to else
+		p.nextToken()	// should be point to "if" or "{"
+
+		if p.currentTokenTypeIs(token.IF) == true {
+			// Next token must be "(", otherwise return nil
+			if p.expectPeekTokenTypeIs(token.LEFT_PARENTHESIS) == false {
+				return nil
+			}else{
+				// Enter to else if condition
+				p.nextToken()
+
+				// Parse current else if condition
+				ifScene.Condition = p.parseExpression(LOWEST)
+
+				// Next token must be ")", otherwise return nil
+				if p.expectPeekTokenTypeIs(token.RIGHT_PARENTHESIS) == false {
+					return nil
+				}
+
+				// Next token must be "{", otherwise return nil
+				if p.expectPeekTokenTypeIs(token.LEFT_BRACE) == false {
+					return nil
+				}
+
+				// Parse else if block
+				ifScene.Block = p.parseBlockStatement()
+
+				// Add to scene slice
+				ifScenes = append(ifScenes, ifScene)
+			}
 		}
 
-		ifExpression.Alternative = p.parseBlockStatement()
+		// When meet "{" not "if", it should be else block
+		if p.currentTokenTypeIs(token.LEFT_BRACE) == true {
+			ifExpression.Alternative = p.parseBlockStatement()
+		}
 	}
+
+	// Set the scene slice to if expression
+	ifExpression.Scenes = ifScenes
 
 	return ifExpression
 }
