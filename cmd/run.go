@@ -10,6 +10,8 @@ import (
 	"github.com/zeuxisoo/go-skrip/pkg/logger"
 	"github.com/zeuxisoo/go-skrip/lexer"
 	"github.com/zeuxisoo/go-skrip/parser"
+	"github.com/zeuxisoo/go-skrip/evaluator"
+	"github.com/zeuxisoo/go-skrip/object"
 )
 
 // Run command for run the script file
@@ -42,7 +44,14 @@ func runRun(c *cli.Context) error {
 			logger.Error(message)
 		}
 	}else{
-		fmt.Println(theProgram.Statements)
+		theEnvironment  := object.NewEnvironment()
+		theEvaluator    := evaluator.Eval(theProgram, theEnvironment)
+
+		if theEvaluator != nil {
+			fmt.Println("OK!")
+		}else{
+			fmt.Println("Error!")
+		}
 	}
 
 	return nil
