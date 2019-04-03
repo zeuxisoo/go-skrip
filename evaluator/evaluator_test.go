@@ -15,16 +15,19 @@ func TestReturnStatement(t *testing.T) {
 	Convey("Return statement test", t, func() {
 		expecteds := []struct{
 			source string
-			result int64
+			result interface{}
 		}{
-			{"return 10", 10},
+			{ "return 10", 10 },
+			{ "return 15.5", 15.5 },
 		}
 
 		for index, expected := range expecteds {
-			Convey(runMessage("Running: %d, source: %s", index, expected.source), func() {
+			Convey(runMessage("Running: %d, ", index), func() {
 				evaluated := testEval(expected.source)
 
-				testDecimalObject(evaluated, expected.result)
+				Convey(runMessage("Source: %s", expected.source), func() {
+					testDecimalObject(evaluated, expected.result)
+				})
 			})
 		}
 	})
@@ -42,8 +45,12 @@ func testEval(source string) object.Object {
 
 func testDecimalObject(obj object.Object, expected interface{}) {
 	switch expected := expected.(type) {
+	case int:
+		testIntegerObject(obj, int64(expected))
 	case int64:
 		testIntegerObject(obj, expected)
+	case float32:
+		testFloatObject(obj, float64(expected))
 	case float64:
 		testFloatObject(obj, expected)
 	}
@@ -62,7 +69,15 @@ func testIntegerObject(obj object.Object, expected int64) {
 }
 
 func testFloatObject(obj object.Object, expected float64) {
+	result, ok := obj.(*object.Float)
 
+	Convey("Can convert to object (float)", func() {
+		So(ok, ShouldBeTrue)
+	})
+
+	Convey(runMessage("Object result should be equals %f", expected), func() {
+		So(result.Value, ShouldEqual, expected)
+	})
 }
 
 // Helper functions for common

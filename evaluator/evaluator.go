@@ -19,6 +19,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	// Expressions
 	case *ast.IntegerLiteralExpression:
 		return evalIntegerLiteralExpression(node, env)
+	case *ast.FloatLiteralExpression:
+		return evalFloatLiteralExpression(node, env)
 	}
 
 	return NIL
@@ -55,6 +57,12 @@ func evalReturnStatement(ret *ast.ReturnStatement, env *object.Environment) obje
 func evalIntegerLiteralExpression(integer *ast.IntegerLiteralExpression, env *object.Environment) object.Object {
 	return &object.Integer{
 		Value: integer.Value,
+	}
+}
+
+func evalFloatLiteralExpression(float *ast.FloatLiteralExpression, env *object.Environment) object.Object {
+	return &object.Float{
+		Value: float.Value,
 	}
 }
 
