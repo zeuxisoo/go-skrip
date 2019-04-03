@@ -5,7 +5,7 @@ type ReturnValue struct {
 }
 
 func (r *ReturnValue) Type() ObjectType {
-	return RETURN_VALUE_OBJ
+	return RETURN_VALUE_OBJECT
 }
 
 func (r *ReturnValue) Inspect() string {
