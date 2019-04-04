@@ -16,6 +16,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	// Statements
 	case *ast.ReturnStatement:
 		return evalReturnStatement(node, env)
+	case *ast.ExpressionStatement:
+		return Eval(node.Expression, env)
 	// Expressions
 	case *ast.IntegerLiteralExpression:
 		return evalIntegerLiteralExpression(node, env)
