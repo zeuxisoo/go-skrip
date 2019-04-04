@@ -36,6 +36,12 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	return NIL
 }
 
+func RegisterBuiltIn(name string, function object.BuiltInFunction) {
+	builtIns[name] = &object.BuiltIn{
+		Function: function,
+	}
+}
+
 // Eval function
 func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 	var result object.Object
