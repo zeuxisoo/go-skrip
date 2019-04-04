@@ -1,6 +1,8 @@
 package evaluator
 
 import (
+	"fmt"
+
 	"github.com/zeuxisoo/go-skrip/ast"
 	"github.com/zeuxisoo/go-skrip/object"
 )
@@ -8,6 +10,8 @@ import (
 var (
 	NIL = &object.Nil{}
 )
+
+var builtIns = map[string]*object.BuiltIn{}
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
@@ -25,6 +29,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalFloatLiteralExpression(node, env)
 	case *ast.StringLiteralExpression:
 		return evalStringLiteralExpression(node, env)
+	case *ast.IdentifierExpression:
+		return evalIdentifierExpression(node, env)
 	}
 
 	return NIL
@@ -76,6 +82,18 @@ func evalStringLiteralExpression(str *ast.StringLiteralExpression, env *object.E
 	}
 }
 
+func evalIdentifierExpression(identifer *ast.IdentifierExpression, env *object.Environment) object.Object {
+	if value, ok := env.Get(identifer.Value); ok {
+		return value
+	}
+
+	if builtIn, ok := builtIns[identifer.Value]; ok {
+		return builtIn
+	}
+
+	return newError("Identifier not found: " + identifer.Value)
+}
+
 // Helper functions
 func isError(obj object.Object) bool {
 	if obj != nil {
@@ -83,4 +101,10 @@ func isError(obj object.Object) bool {
 	}
 
 	return false
+}
+
+func newError(format string, values ...interface{}) *object.Error {
+	return &object.Error{
+		Message: fmt.Sprintf(format, values...),
+	}
 }
