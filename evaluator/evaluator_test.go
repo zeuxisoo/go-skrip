@@ -55,6 +55,28 @@ func TestFloatLiteralExpression(t *testing.T) {
 	})
 }
 
+func TestStringLiteralExpression(t *testing.T) {
+	Convey("String literal expression eval test", t, func() {
+		expecteds := []struct{
+			source string
+			result string
+		}{
+			{ `"foo"`,    "foo" },
+			{ `"foobar"`, "foobar" },
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, ", index), func() {
+				evaluated := testEval(expected.source)
+
+				Convey(runMessage("Source: %s", expected.source), func() {
+					testStringObject(evaluated, expected.result)
+				})
+			})
+		}
+	})
+}
+
 func TestReturnStatement(t *testing.T) {
 	Convey("Return statement test", t, func() {
 		expecteds := []struct{
@@ -120,6 +142,18 @@ func testFloatObject(obj object.Object, expected float64) {
 	})
 
 	Convey(runMessage("Object result should be equals %f", expected), func() {
+		So(result.Value, ShouldEqual, expected)
+	})
+}
+
+func testStringObject(obj object.Object, expected string) {
+	result, ok := obj.(*object.String)
+
+	Convey("Can convert to object (string)", func() {
+		So(ok, ShouldBeTrue)
+	})
+
+	Convey(runMessage("Object result should be equals %s", expected), func() {
 		So(result.Value, ShouldEqual, expected)
 	})
 }
