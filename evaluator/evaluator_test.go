@@ -11,6 +11,28 @@ import (
 	"github.com/zeuxisoo/go-skrip/object"
 )
 
+func TestIntegerLiteralExpression(t *testing.T) {
+	Convey("Integer expression test", t, func() {
+		expecteds := []struct{
+			source string
+			result int64
+		}{
+			{ "5",  5 },
+			{ "10", 10 },
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, ", index), func() {
+				evaluated := testEval(expected.source)
+
+				Convey(runMessage("Source: %s", expected.source), func() {
+					testIntegerObject(evaluated, expected.result)
+				})
+			})
+		}
+	})
+}
+
 func TestReturnStatement(t *testing.T) {
 	Convey("Return statement test", t, func() {
 		expecteds := []struct{
