@@ -12,7 +12,7 @@ import (
 )
 
 func TestIntegerLiteralExpression(t *testing.T) {
-	Convey("Integer expression test", t, func() {
+	Convey("Integer literal expression eval test", t, func() {
 		expecteds := []struct{
 			source string
 			result int64
@@ -27,6 +27,28 @@ func TestIntegerLiteralExpression(t *testing.T) {
 
 				Convey(runMessage("Source: %s", expected.source), func() {
 					testIntegerObject(evaluated, expected.result)
+				})
+			})
+		}
+	})
+}
+
+func TestFloatLiteralExpression(t *testing.T) {
+	Convey("Float literal expression eval test", t, func() {
+		expecteds := []struct{
+			source string
+			result float64
+		}{
+			{ "5.0",  5.0 },
+			{ "10.3", 10.3 },
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, ", index), func() {
+				evaluated := testEval(expected.source)
+
+				Convey(runMessage("Source: %s", expected.source), func() {
+					testFloatObject(evaluated, expected.result)
 				})
 			})
 		}
