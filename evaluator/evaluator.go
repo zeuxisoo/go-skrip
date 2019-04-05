@@ -8,7 +8,9 @@ import (
 )
 
 var (
-	NIL = &object.Nil{}
+	NIL   = &object.Nil{}
+	TRUE  = &object.Boolean{ Value: true }
+	FALSE = &object.Boolean{ Value: false }
 )
 
 var builtIns = map[string]*object.BuiltIn{}
@@ -31,6 +33,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalStringLiteralExpression(node, env)
 	case *ast.IdentifierExpression:
 		return evalIdentifierExpression(node, env)
+	case *ast.BooleanExpression:
+		return nativeBoolToBooleanObject(node.Value)
 	}
 
 	return NIL
@@ -98,6 +102,14 @@ func evalIdentifierExpression(identifer *ast.IdentifierExpression, env *object.E
 	}
 
 	return newError("Identifier not found: " + identifer.Value)
+}
+
+func nativeBoolToBooleanObject(value bool) object.Object {
+	if value == true {
+		return TRUE
+	}
+
+	return FALSE
 }
 
 // Helper functions
