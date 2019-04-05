@@ -140,6 +140,28 @@ func TestIdentifierExpression(t *testing.T) {
 	})
 }
 
+func TestBooleanExpression(t *testing.T) {
+	Convey("Boolean expression test", t, func() {
+		expecteds := []struct{
+			source string
+			result bool
+		}{
+			{ "true",  true },
+			{ "false", false },
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, ", index), func() {
+				evaluated := testEval(expected.source)
+
+				Convey(runMessage("Source: %s", expected.source), func() {
+					testLiteralObject(evaluated, expected.result)
+				})
+			})
+		}
+	})
+}
+
 func TestReturnStatement(t *testing.T) {
 	Convey("Return statement test", t, func() {
 		expecteds := []struct{
@@ -183,6 +205,8 @@ func testLiteralObject(obj object.Object, expected interface{}) {
 		testIntegerObject(obj, expected)
 	case string:
 		testStringObject(obj, expected)
+	case bool:
+		testBooleanObject(obj, expected)
 	case float32:
 		testFloatObject(obj, float64(expected))
 	case float64:
@@ -226,6 +250,18 @@ func testStringObject(obj object.Object, expected string) {
 	})
 
 	Convey(runMessage("Object result should be equals %s", expected), func() {
+		So(result.Value, ShouldEqual, expected)
+	})
+}
+
+func testBooleanObject(obj object.Object, expected bool) {
+	result, ok := obj.(*object.Boolean)
+
+	Convey("Can convert to object (boolean)", func() {
+		So(ok, ShouldBeTrue)
+	})
+
+	Convey(runMessage("Object result should be equals %t", expected), func() {
 		So(result.Value, ShouldEqual, expected)
 	})
 }
