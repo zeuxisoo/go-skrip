@@ -10,6 +10,7 @@ const (
 	STRING_OBJECT		= "STRING_OBJECT"
 	BUILTIN_OBJECT      = "BUILTIN_OBJECT"
 	BOOLEAN_OBJECT      = "BOOLEAN_OBJECT"
+	HASH_OBJECT			= "HASH_OBJECT"
 )
 
 //
@@ -19,4 +20,8 @@ type ObjectType string
 type Object interface {
 	Type() ObjectType
 	Inspect() string
+}
+
+type Hashable interface {
+	HashKey() HashKey
 }

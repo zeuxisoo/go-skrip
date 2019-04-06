@@ -2,6 +2,7 @@ package object
 
 import (
 	"strconv"
+	"hash/fnv"
 )
 
 type Float struct {
@@ -14,4 +15,14 @@ func (f *Float) Type() ObjectType {
 
 func (f *Float) Inspect() string {
 	return strconv.FormatFloat(f.Value, 'f', -1, 64)
+}
+
+func (f *Float) HashKey() HashKey {
+	h := fnv.New64a()
+	h.Write([]byte(f.Inspect()))
+
+	return HashKey{
+		Type: f.Type(),
+		Value: h.Sum64(),
+	}
 }

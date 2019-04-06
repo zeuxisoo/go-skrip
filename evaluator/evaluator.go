@@ -35,6 +35,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIdentifierExpression(node, env)
 	case *ast.BooleanExpression:
 		return nativeBoolToBooleanObject(node.Value)
+	case *ast.HashLiteralExpression:
+		return evalHashLiteralExpression(node, env)
 	}
 
 	return NIL
@@ -65,7 +67,7 @@ func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 func evalReturnStatement(ret *ast.ReturnStatement, env *object.Environment) object.Object {
 	obj := Eval(ret.ReturnValue, env)
 
-	if isError(obj) {
+	if isError(obj) == true {
 		return obj
 	}
 
@@ -104,6 +106,43 @@ func evalIdentifierExpression(identifer *ast.IdentifierExpression, env *object.E
 	return newError("Identifier not found: " + identifer.Value)
 }
 
+func evalHashLiteralExpression(hash *ast.HashLiteralExpression, env *object.Environment) object.Object {
+	pairs := map[object.HashKey]object.HashPair{}
+
+	for keyNode, valueNode := range hash.Pairs {
+		//
+		key := Eval(keyNode, env)
+		if isError(key) == true {
+			return key
+		}
+
+		//
+		value := Eval(valueNode, env)
+		if isError(value) == true {
+			return value
+		}
+
+		//
+		hashKey, ok := key.(object.Hashable)
+		if ok == false {
+			return newError("Cannot use %s as hash key", key.Type())
+		}
+
+		//
+		hashed := hashKey.HashKey()
+
+		pairs[hashed] = object.HashPair{
+			Key  : key,
+			Value: value,
+		}
+	}
+
+	return &object.Hash{
+		Pairs: pairs,
+	}
+}
+
+//
 func nativeBoolToBooleanObject(value bool) object.Object {
 	if value == true {
 		return TRUE
