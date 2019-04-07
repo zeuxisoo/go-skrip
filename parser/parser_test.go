@@ -936,6 +936,63 @@ func TestEmptyHashLiteralExpression(t *testing.T) {
 	})
 }
 
+func TestHashLiteralExpressionKeysOrder(t *testing.T) {
+	Convey("Hash literal expression keys order test", t, func() {
+		source := `{
+			"c": 1,
+			"b": 2,
+			"a": 3,
+
+			3: "a",
+			2: "b",
+			1: "c",
+
+			3.1: "a",
+			2.2: "b",
+			1.3: "c",
+		};`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		hashLiteralExpression, ok := statement.Expression.(*ast.HashLiteralExpression)
+		Convey("Can convert to hash literal expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Hash keys length should equals 9", func() {
+			So(len(hashLiteralExpression.Keys), ShouldEqual, 9)
+		})
+
+		Convey("Hash keys should equals the c, b, a, 3, 2, 1, 3.1, 2.2, 1.3 order", func() {
+			testStringLiteralExpression(hashLiteralExpression.Keys[0], "c")
+			testStringLiteralExpression(hashLiteralExpression.Keys[1], "b")
+			testStringLiteralExpression(hashLiteralExpression.Keys[2], "a")
+
+			// testIntegerLiteralExpression
+			testLiteralExpression(hashLiteralExpression.Keys[3], 3)
+			testLiteralExpression(hashLiteralExpression.Keys[4], 2)
+			testLiteralExpression(hashLiteralExpression.Keys[5], 1)
+
+			// testFloatLiteralExpression
+			testLiteralExpression(hashLiteralExpression.Keys[6], 3.1)
+			testLiteralExpression(hashLiteralExpression.Keys[7], 2.2)
+			testLiteralExpression(hashLiteralExpression.Keys[8], 1.3)
+		})
+	})
+}
+
 func TestIndexExpression(t *testing.T) {
 	Convey("Index expression test", t, func() {
 		source := `myArray[1+2];`
@@ -1573,7 +1630,7 @@ func testIntegerLiteralExpression(expression ast.Expression, value int64) {
 
 	Convey(
 		runMessage(
-			"Integer test, Value: %d, TokenLiteral: %s, Expected: %d",
+			"Integer literal test, Value: %d, TokenLiteral: %s, Expected: %d",
 			integerValue, integerTokenLiteral, value,
 		),
 		func() {
@@ -1622,6 +1679,22 @@ func testInfixExpression(expression ast.Expression, leftValue interface{}, opera
 	Convey("Right expression", func() {
 		testLiteralExpression(infixExpression.Right, rightValue)
 	})
+}
+
+func testStringLiteralExpression(expression ast.Expression, value string) {
+	str, ok := expression.(*ast.StringLiteralExpression)
+
+	Convey(
+		runMessage(
+			"String literal test, Value: %s, TokenLiteral: %s, Expected: %s",
+			str.Value, str.TokenLiteral(), value,
+		),
+		func() {
+			So(ok, ShouldBeTrue)
+			So(str.Value, ShouldEqual, value)
+			So(str.TokenLiteral(), ShouldEqual, value)
+		},
+	)
 }
 
 // Helper functions for common
