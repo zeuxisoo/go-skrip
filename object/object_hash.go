@@ -18,7 +18,7 @@ type HashPair struct {
 }
 
 type Hash struct {
-	Keys  []HashKey
+	Order  []HashKey
 	Pairs map[HashKey]HashPair
 }
 
@@ -30,7 +30,7 @@ func (h *Hash) Inspect() string {
 	var out bytes.Buffer
 	var pairs []string
 
-	for _, key := range h.Keys {
+	for _, key := range h.Order {
 		pair := h.Pairs[key]
 
 		pairs = append(

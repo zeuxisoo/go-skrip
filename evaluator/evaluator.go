@@ -107,7 +107,7 @@ func evalIdentifierExpression(identifer *ast.IdentifierExpression, env *object.E
 }
 
 func evalHashLiteralExpression(hash *ast.HashLiteralExpression, env *object.Environment) object.Object {
-	keys  := []object.HashKey{}
+	order := []object.HashKey{}
 	pairs := map[object.HashKey]object.HashPair{}
 
 	for keyNode, valueNode := range hash.Pairs {
@@ -134,7 +134,7 @@ func evalHashLiteralExpression(hash *ast.HashLiteralExpression, env *object.Envi
 
 		_, exists := pairs[hashedKey]
 		if exists == false {
-			keys = append(keys, hashedKey)
+			order = append(order, hashedKey)
 		}
 
 		pairs[hashedKey] = object.HashPair{
@@ -144,7 +144,7 @@ func evalHashLiteralExpression(hash *ast.HashLiteralExpression, env *object.Envi
 	}
 
 	return &object.Hash{
-		Keys : keys,
+		Order: order,
 		Pairs: pairs,
 	}
 }

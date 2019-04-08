@@ -971,24 +971,24 @@ func TestHashLiteralExpressionKeysOrder(t *testing.T) {
 			So(ok, ShouldBeTrue)
 		})
 
-		Convey("Hash keys length should equals 9", func() {
-			So(len(hashLiteralExpression.Keys), ShouldEqual, 9)
+		Convey("Hash order (keys) length should equals 9", func() {
+			So(len(hashLiteralExpression.Order), ShouldEqual, 9)
 		})
 
-		Convey("Hash keys should equals the c, b, a, 3, 2, 1, 3.1, 2.2, 1.3 order", func() {
-			testStringLiteralExpression(hashLiteralExpression.Keys[0], "c")
-			testStringLiteralExpression(hashLiteralExpression.Keys[1], "b")
-			testStringLiteralExpression(hashLiteralExpression.Keys[2], "a")
+		Convey("Hash order (keys) should equals the c, b, a, 3, 2, 1, 3.1, 2.2, 1.3 order", func() {
+			testStringLiteralExpression(hashLiteralExpression.Order[0], "c")
+			testStringLiteralExpression(hashLiteralExpression.Order[1], "b")
+			testStringLiteralExpression(hashLiteralExpression.Order[2], "a")
 
 			// testIntegerLiteralExpression
-			testLiteralExpression(hashLiteralExpression.Keys[3], 3)
-			testLiteralExpression(hashLiteralExpression.Keys[4], 2)
-			testLiteralExpression(hashLiteralExpression.Keys[5], 1)
+			testLiteralExpression(hashLiteralExpression.Order[3], 3)
+			testLiteralExpression(hashLiteralExpression.Order[4], 2)
+			testLiteralExpression(hashLiteralExpression.Order[5], 1)
 
 			// testFloatLiteralExpression
-			testLiteralExpression(hashLiteralExpression.Keys[6], 3.1)
-			testLiteralExpression(hashLiteralExpression.Keys[7], 2.2)
-			testLiteralExpression(hashLiteralExpression.Keys[8], 1.3)
+			testLiteralExpression(hashLiteralExpression.Order[6], 3.1)
+			testLiteralExpression(hashLiteralExpression.Order[7], 2.2)
+			testLiteralExpression(hashLiteralExpression.Order[8], 1.3)
 		})
 	})
 }

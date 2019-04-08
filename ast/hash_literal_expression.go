@@ -9,7 +9,7 @@ import (
 
 type HashLiteralExpression struct {
 	Token token.Token
-	Keys  []Expression
+	Order []Expression
 	Pairs map[Expression]Expression
 }
 

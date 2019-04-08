@@ -384,7 +384,7 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 func (p *Parser) parseHashLiteral() ast.Expression {
 	hashLiteralExpression := &ast.HashLiteralExpression{
 		Token: p.currentToken,
-		Keys : []ast.Expression{},
+		Order: []ast.Expression{},
 	}
 
 	hashLiteralExpression.Pairs = make(map[ast.Expression]ast.Expression)
@@ -410,7 +410,7 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 
 		// Update the pairs map data
 		hashLiteralExpression.Pairs[key] = value
-		hashLiteralExpression.Keys = append(hashLiteralExpression.Keys, key)
+		hashLiteralExpression.Order = append(hashLiteralExpression.Order, key)
 
 		// If next token is not "}" and it will expect next token it is "," and update the current token to this
 		// otherwise return nil to break the loop

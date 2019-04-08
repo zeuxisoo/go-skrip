@@ -166,11 +166,11 @@ func TestHashLiteralExpression(t *testing.T) {
 	Convey("Hash literal expression test", t, func() {
 		expecteds := []struct{
 			source string
-			keys   []string
+			order  []string
 		}{
-			{ `{ "foo": 1, "bar": 2 }`, []string{ "foo:1", "bar:2" } },
-			{ `{ 1: "foo", 2: "bar" }`, []string{ "1:foo", "2:bar" } },
-			{ `{ 5.5: "foo", 6.6: "bar" }`, []string{ "5.5:foo", "6.6:bar" } },
+			{ `{ "foo": 1, "bar": 2 }`,        []string{ "foo:1", "bar:2" } },
+			{ `{ 1: "foo", 2: "bar" }`,        []string{ "1:foo", "2:bar" } },
+			{ `{ 5.5: "foo", 6.6: "bar" }`,    []string{ "5.5:foo", "6.6:bar" } },
 			{ `{ true: "foo", false: "bar" }`, []string{ "true:foo", "false:bar" } },
 		}
 
@@ -183,21 +183,21 @@ func TestHashLiteralExpression(t *testing.T) {
 					So(ok, ShouldBeTrue)
 				})
 
-				Convey("Keys length should equals 2", func() {
-					So(len(hash.Keys), ShouldEqual, 2)
+				Convey("Order (keys) length should equals 2", func() {
+					So(len(hash.Order), ShouldEqual, 2)
 				})
 
 				Convey("Pairs length should equals 2", func() {
 					So(len(hash.Pairs), ShouldEqual, 2)
 				})
 
-				for _, key := range hash.Keys {
+				for _, key := range hash.Order {
 					pair := hash.Pairs[key]
 
 					pairValue := fmt.Sprintf("%s:%s", pair.Key.Inspect(), pair.Value.Inspect())
 
-					Convey(runMessage(`Pair "%s" should be in %s`, pairValue, expected.keys), func() {
-						So(pairValue, ShouldBeIn, expected.keys)
+					Convey(runMessage(`Pair "%s" should be in %s`, pairValue, expected.order), func() {
+						So(pairValue, ShouldBeIn, expected.order)
 					})
 				}
 			})
