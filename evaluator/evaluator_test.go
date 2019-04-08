@@ -162,6 +162,49 @@ func TestBooleanExpression(t *testing.T) {
 	})
 }
 
+func TestHashLiteralExpression(t *testing.T) {
+	Convey("Hash literal expression test", t, func() {
+		expecteds := []struct{
+			source string
+			keys   []string
+		}{
+			{ `{ "foo": 1, "bar": 2 }`, []string{ "foo:1", "bar:2" } },
+			{ `{ 1: "foo", 2: "bar" }`, []string{ "1:foo", "2:bar" } },
+			{ `{ 5.5: "foo", 6.6: "bar" }`, []string{ "5.5:foo", "6.6:bar" } },
+			{ `{ true: "foo", false: "bar" }`, []string{ "true:foo", "false:bar" } },
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+				evaluated := testEval(expected.source)
+
+				hash, ok := evaluated.(*object.Hash)
+				Convey("Can convert to object (hash)", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				Convey("Keys length should equals 2", func() {
+					So(len(hash.Keys), ShouldEqual, 2)
+				})
+
+				Convey("Pairs length should equals 2", func() {
+					So(len(hash.Pairs), ShouldEqual, 2)
+				})
+
+				for _, key := range hash.Keys {
+					pair := hash.Pairs[key]
+
+					pairValue := fmt.Sprintf("%s:%s", pair.Key.Inspect(), pair.Value.Inspect())
+
+					Convey(runMessage(`Pair "%s" should be in %s`, pairValue, expected.keys), func() {
+						So(pairValue, ShouldBeIn, expected.keys)
+					})
+				}
+			})
+		}
+	})
+}
+
 func TestReturnStatement(t *testing.T) {
 	Convey("Return statement test", t, func() {
 		expecteds := []struct{
