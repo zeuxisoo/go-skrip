@@ -112,26 +112,30 @@ func evalHashLiteralExpression(hash *ast.HashLiteralExpression, env *object.Envi
 		Pairs: make(map[object.HashKey]object.HashPair),
 	}
 
-	for keyNode, valueNode := range hash.Pairs {
-		// Get key
-		key := Eval(keyNode, env)
+	// Loop by hash order (keys) expressions
+	for _, orderKey := range hash.Order {
+		// Get key object from evaluated hash order (key) expression
+		key := Eval(orderKey, env)
 		if isError(key) == true {
 			return key
 		}
 
-		// Ensure the key must be hashable
+		// Ensure the key object must be hashable
 		hashableKey, ok := key.(object.Hashable)
 		if ok == false {
 			return newError("Cannot use %s as hash key", key.Type())
 		}
 
-		// Get value
-		value := Eval(valueNode, env)
+		// Get hash pair value from hash literal expression pairs by hash order (key) expression
+		pairValue, _ := hash.Pairs[orderKey]
+
+		// Get value object from evaluated hash pair value expression
+		value := Eval(pairValue, env)
 		if isError(value) == true {
 			return value
 		}
 
-		// If hashable key object is not exists in order slice, add it for iterable
+		// If hashable key object is not exists in hash object order slice, add it (for ordered iterable)
 		hashedKey := hashableKey.HashKey()
 
 		_, exists := hashObject.Pairs[hashedKey]
@@ -139,7 +143,7 @@ func evalHashLiteralExpression(hash *ast.HashLiteralExpression, env *object.Envi
 			hashObject.Order = append(hashObject.Order, hashedKey)
 		}
 
-		// Add pair to hash object
+		// Create pair and add to hash object pairs
 		hashObject.Pairs[hashedKey] = object.HashPair{
 			Key  : key,
 			Value: value,

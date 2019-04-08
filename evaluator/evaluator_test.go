@@ -166,12 +166,17 @@ func TestHashLiteralExpression(t *testing.T) {
 	Convey("Hash literal expression test", t, func() {
 		expecteds := []struct{
 			source string
+			length int
 			order  []string
 		}{
-			{ `{ "foo": 1, "bar": 2 }`,        []string{ "foo:1", "bar:2" } },
-			{ `{ 1: "foo", 2: "bar" }`,        []string{ "1:foo", "2:bar" } },
-			{ `{ 5.5: "foo", 6.6: "bar" }`,    []string{ "5.5:foo", "6.6:bar" } },
-			{ `{ true: "foo", false: "bar" }`, []string{ "true:foo", "false:bar" } },
+			{ `{ "foo": 1, "bar": 2 }`,        2, []string{ "foo:1", "bar:2" } },
+			{ `{ 1: "foo", 2: "bar" }`,        2, []string{ "1:foo", "2:bar" } },
+			{ `{ 5.5: "foo", 6.6: "bar" }`,    2, []string{ "5.5:foo", "6.6:bar" } },
+			{ `{ true: "foo", false: "bar" }`, 2, []string{ "true:foo", "false:bar" } },
+
+			{ `{ "z": 10, "d": 20, "a": 1 }`,           3, []string{ "z:10", "d:20", "a:1" } },
+			{ `{ 20: "c", 10: "h", 30: "e", 12: "d" }`, 4, []string{ "20:c", "10:h", "30:e", "12:d" } },
+			{ `{ "k": 1, 2.2: "g", 1: "5", "e": "9" }`, 4, []string{ "k:1", "2.2:g", "1:5", "e:9" } },
 		}
 
 		for index, expected := range expecteds {
@@ -183,23 +188,30 @@ func TestHashLiteralExpression(t *testing.T) {
 					So(ok, ShouldBeTrue)
 				})
 
-				Convey("Order (keys) length should equals 2", func() {
-					So(len(hash.Order), ShouldEqual, 2)
+				Convey(runMessage("Order (keys) length should equals %d", expected.length), func() {
+					So(len(hash.Order), ShouldEqual, expected.length)
 				})
 
-				Convey("Pairs length should equals 2", func() {
-					So(len(hash.Pairs), ShouldEqual, 2)
+				Convey(runMessage("Pairs length should equals %d", expected.length), func() {
+					So(len(hash.Pairs), ShouldEqual, expected.length)
 				})
 
+				//
+				compareOrders := make([]string, 0)
 				for _, key := range hash.Order {
 					pair := hash.Pairs[key]
 
 					pairValue := fmt.Sprintf("%s:%s", pair.Key.Inspect(), pair.Value.Inspect())
-
 					Convey(runMessage(`Pair "%s" should be in %s`, pairValue, expected.order), func() {
 						So(pairValue, ShouldBeIn, expected.order)
 					})
+
+					compareOrders = append(compareOrders, pairValue)
 				}
+
+				Convey(runMessage(`Order should equals %s`, expected.order), func() {
+					So(compareOrders, ShouldResemble, expected.order)
+				})
 			})
 		}
 	})
