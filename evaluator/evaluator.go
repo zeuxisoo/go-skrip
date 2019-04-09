@@ -35,6 +35,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIdentifierExpression(node, env)
 	case *ast.BooleanExpression:
 		return nativeBoolToBooleanObject(node.Value)
+	case *ast.ArrayLiteralExpression:
+		return evalArrayLiteralExpression(node, env)
 	case *ast.HashLiteralExpression:
 		return evalHashLiteralExpression(node, env)
 	}
@@ -106,6 +108,18 @@ func evalIdentifierExpression(identifer *ast.IdentifierExpression, env *object.E
 	return newError("Identifier not found: " + identifer.Value)
 }
 
+func evalArrayLiteralExpression(array *ast.ArrayLiteralExpression, env *object.Environment) object.Object {
+	elements := evalExpressions(array.Elements, env)
+
+	if len(elements) == 1 && isError(elements[0]) == true {
+		return elements[0]
+	}
+
+	return &object.Array{
+		Elements: elements,
+	}
+}
+
 func evalHashLiteralExpression(hash *ast.HashLiteralExpression, env *object.Environment) object.Object {
 	hashObject := &object.Hash{
 		Order: []object.HashKey{},
@@ -160,6 +174,21 @@ func nativeBoolToBooleanObject(value bool) object.Object {
 	}
 
 	return FALSE
+}
+
+func evalExpressions(expressions []ast.Expression, env *object.Environment) []object.Object {
+	var objects []object.Object
+
+	for _, expression := range expressions {
+		evaluated := Eval(expression, env)
+		if isError(evaluated) == true {
+			return []object.Object{ evaluated }
+		}
+
+		objects = append(objects, evaluated)
+	}
+
+	return objects
 }
 
 // Helper functions
