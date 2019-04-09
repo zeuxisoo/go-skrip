@@ -162,6 +162,46 @@ func TestBooleanExpression(t *testing.T) {
 	})
 }
 
+func TestArrayLiteralExpression(t *testing.T) {
+	Convey("Array literal expression test", t, func() {
+		expecteds := []struct{
+			source   string
+			length   int
+			elements []string
+		}{
+			{ `[1, 2, 3]`,         3, []string{ "1", "2", "3" } },
+			{ `[5.1, 6.2, 7.3]`,   3, []string{ "5.1", "6.2", "7.3" } },
+			{ `["a", "b", "c"]`,   3, []string{ "a", "b", "c" } },
+			{ `[5.1, "a", 2, 1]`,  4, []string{ "5.1", "a", "2", "1" } },
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+				evaluated := testEval(expected.source)
+
+				array, ok := evaluated.(*object.Array)
+				Convey("Can convert to object (array)", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				Convey(runMessage("Elements length should equals %d", expected.length), func() {
+					So(len(array.Elements), ShouldEqual, expected.length)
+				})
+
+				//
+				compareElements := []string{}
+				for _, element := range array.Elements {
+					compareElements = append(compareElements, element.Inspect())
+				}
+
+				Convey(runMessage(`Elements should equals %s`, expected.elements), func() {
+					So(compareElements, ShouldResemble, expected.elements)
+				})
+			})
+		}
+	})
+}
+
 func TestHashLiteralExpression(t *testing.T) {
 	Convey("Hash literal expression test", t, func() {
 		expecteds := []struct{
