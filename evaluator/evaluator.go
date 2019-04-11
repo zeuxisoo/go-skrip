@@ -39,6 +39,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalArrayLiteralExpression(node, env)
 	case *ast.HashLiteralExpression:
 		return evalHashLiteralExpression(node, env)
+	case *ast.FunctionLiteralExpression:
+		return evalFunctionLiteralExpression(node, env)
 	}
 
 	return NIL
@@ -165,6 +167,14 @@ func evalHashLiteralExpression(hash *ast.HashLiteralExpression, env *object.Envi
 	}
 
 	return hashObject
+}
+
+func evalFunctionLiteralExpression(function *ast.FunctionLiteralExpression, env *object.Environment) object.Object {
+	return &object.Function{
+		Parameters : function.Parameters,
+		Block      : function.Block,
+		Environment: env,
+	}
 }
 
 //
