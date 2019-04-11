@@ -20,6 +20,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.Program:
 		return evalProgram(node, env)
 	// Statements
+	case *ast.LetStatement:
+		return evalLetStatement(node, env)
 	case *ast.ReturnStatement:
 		return evalReturnStatement(node, env)
 	case *ast.FunctionStatement:
@@ -68,6 +70,17 @@ func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 	}
 
 	return result
+}
+
+func evalLetStatement(let *ast.LetStatement, env *object.Environment) object.Object {
+	obj := Eval(let.Value, env)
+	if isError(obj) == true {
+		return obj
+	}
+
+	env.Set(let.Name.Value, obj)
+
+	return obj
 }
 
 func evalFunctionStatement(function *ast.FunctionStatement, env *object.Environment) object.Object {
