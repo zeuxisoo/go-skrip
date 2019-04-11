@@ -11,6 +11,14 @@ import (
 	"github.com/zeuxisoo/go-skrip/object"
 )
 
+//
+type expectedFunctions struct {
+	source          string
+	parameterLength int
+	blockLength     int
+}
+
+//
 func TestIntegerLiteralExpression(t *testing.T) {
 	Convey("Integer literal expression eval test", t, func() {
 		expecteds := []struct{
@@ -272,18 +280,7 @@ func TestFunctionLiteralExpression(t *testing.T) {
 			Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
 				evaluated := testEval(expected.source)
 
-				function, ok := evaluated.(*object.Function)
-				Convey("Can convert to object (function)", func() {
-					So(ok, ShouldBeTrue)
-				})
-
-				Convey(runMessage("Function parameters length should be equals %d", expected.parameterLength), func() {
-					So(len(function.Parameters), ShouldEqual, expected.parameterLength)
-				})
-
-				Convey(runMessage("Function block should be equals %d", expected.blockLength), func() {
-					So(len(function.Block.Statements), ShouldEqual, expected.blockLength)
-				})
+				testFunctionObject(evaluated, expected)
 			})
 		}
 	})
@@ -306,6 +303,23 @@ func TestReturnStatement(t *testing.T) {
 				Convey(runMessage("Source: %s", expected.source), func() {
 					testDecimalObject(evaluated, expected.result)
 				})
+			})
+		}
+	})
+}
+
+func TestFunctionStatement(t *testing.T) {
+	Convey("Function statement test", t, func() {
+		expecteds := []expectedFunctions{
+			{ "func myFunc1(a, b, c) { d }", 3, 1 },
+			{ "func myFunc2(a, b) { c; d }", 2, 2 },
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+				evaluated := testEval(expected.source)
+
+				testFunctionObject(evaluated, expected)
 			})
 		}
 	})
@@ -401,6 +415,21 @@ func testBuiltInObject(obj object.Object, expected string) {
 	})
 
 	testLiteralObject(result.Function(object.NewEnvironment()), expected)
+}
+
+func testFunctionObject(obj object.Object, expected expectedFunctions) {
+	function, ok := obj.(*object.Function)
+	Convey("Can convert to object (function)", func() {
+		So(ok, ShouldBeTrue)
+	})
+
+	Convey(runMessage("Function parameters length should be equals %d", expected.parameterLength), func() {
+		So(len(function.Parameters), ShouldEqual, expected.parameterLength)
+	})
+
+	Convey(runMessage("Function block should be equals %d", expected.blockLength), func() {
+		So(len(function.Block.Statements), ShouldEqual, expected.blockLength)
+	})
 }
 
 func testErrorObject(obj object.Object, expected string) {
