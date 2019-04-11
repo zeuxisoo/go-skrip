@@ -22,6 +22,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	// Statements
 	case *ast.ReturnStatement:
 		return evalReturnStatement(node, env)
+	case *ast.FunctionStatement:
+		return evalFunctionStatement(node, env)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
 	// Expressions
@@ -66,6 +68,14 @@ func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 	}
 
 	return result
+}
+
+func evalFunctionStatement(function *ast.FunctionStatement, env *object.Environment) object.Object {
+	obj := evalFunctionLiteralExpression(function.Function, env)
+
+	functionObject := obj.(*object.Function)
+
+	return functionObject
 }
 
 func evalReturnStatement(ret *ast.ReturnStatement, env *object.Environment) object.Object {
