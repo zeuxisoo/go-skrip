@@ -360,6 +360,35 @@ func TestFunctionStatement(t *testing.T) {
 	})
 }
 
+func TestBlockStatement(t *testing.T) {
+	Convey("Block statement test", t, func() {
+		expecteds := []struct{
+			source      string
+			returnValue interface{}
+		}{
+			{ "let a = 1;",            1 },
+			{ "let a = 1; let b = 2;", 2 },
+
+			{ "let a = 1.1;",              1.1 },
+			{ "let a = 1.1; let b = 2.2;", 2.2 },
+
+			{ `let a = "foo";`,               "foo" },
+			{ `let a = "foo"; let b = "bar"`, "bar" },
+
+			{ `let a = "";`,                  ""},
+			{ `let a = "foobar"; return a;`,  "foobar" },
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+				evaluated := testEval(expected.source)
+
+				testLiteralObject(evaluated, expected.returnValue)
+			})
+		}
+	})
+}
+
 //
 func testEval(source string) object.Object {
 	return testEvalWithEnv(source, object.NewEnvironment())
