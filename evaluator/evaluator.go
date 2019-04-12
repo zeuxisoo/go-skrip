@@ -28,6 +28,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalFunctionStatement(node, env)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
+	case *ast.BlockStatement:
+		return evalBlockStatement(node, env)
 	// Expressions
 	case *ast.IntegerLiteralExpression:
 		return evalIntegerLiteralExpression(node, env)
@@ -101,6 +103,23 @@ func evalReturnStatement(ret *ast.ReturnStatement, env *object.Environment) obje
 	return &object.ReturnValue{
 		Value: obj,
 	}
+}
+
+func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) object.Object {
+	var obj object.Object
+
+	for _, statement := range block.Statements {
+		obj := Eval(statement, env)
+		if obj != nil {
+			objectType := obj.Type()
+
+			if objectType == object.RETURN_VALUE_OBJECT || objectType == object.ERROR_OBJECT {
+				return obj
+			}
+		}
+	}
+
+	return obj
 }
 
 func evalIntegerLiteralExpression(integer *ast.IntegerLiteralExpression, env *object.Environment) object.Object {
