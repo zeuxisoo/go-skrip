@@ -90,6 +90,10 @@ func evalLetStatement(let *ast.LetStatement, env *object.Environment) object.Obj
 func evalFunctionStatement(function *ast.FunctionStatement, env *object.Environment) object.Object {
 	obj := evalFunctionLiteralExpression(function.Function, env)
 
+	// Set function name to environment like let a = func() {}, a will be variable
+	env.Set(function.Name.Value, obj)
+
+	// Cast object.Object to object.Function
 	functionObject := obj.(*object.Function)
 
 	return functionObject
