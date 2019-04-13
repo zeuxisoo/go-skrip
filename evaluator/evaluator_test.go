@@ -286,6 +286,33 @@ func TestFunctionLiteralExpression(t *testing.T) {
 	})
 }
 
+func TestCallExpression(t *testing.T) {
+	Convey("Call expression test", t, func() {
+		expecteds := []struct{
+			source string
+			result interface{}
+		}{
+			{ `func a() { return 123; }; a();`,   123 },
+			{ `func a() { return 12.3; }; a();`,  12.3 },
+			{ `func a() { return "123"; }; a();`, "123" },
+
+			{ `func a(b) { return b; }; a("foo");`, "foo" },
+			{ `func a(b, c, d) { return d; }; a("foo", 123, 4.5);`, 4.5 },
+
+			{ `func a() { let b = "foo"; return b; }; a();`, "foo" },
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+				evaluated := testEval(expected.source)
+
+				testLiteralObject(evaluated, expected.result)
+			})
+		}
+	})
+}
+
+// Statements
 func TestLetStatement(t *testing.T) {
 	Convey("Let statement test", t, func() {
 		expecteds := []struct{
