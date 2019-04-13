@@ -12,6 +12,13 @@ func NewEnvironment() *Environment {
 	}
 }
 
+func NewEnclosedEnvironment(parent *Environment) *Environment {
+	environment := NewEnvironment()
+	environment.parent = parent
+
+	return environment
+}
+
 func (env *Environment) Get(name string) (Object, bool) {
 	obj, ok := env.store[name]
 

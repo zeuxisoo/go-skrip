@@ -47,6 +47,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalHashLiteralExpression(node, env)
 	case *ast.FunctionLiteralExpression:
 		return evalFunctionLiteralExpression(node, env)
+	case *ast.CallExpression:
+		return evalCallExpression(node, env)
 	}
 
 	return NIL
@@ -219,6 +221,30 @@ func evalFunctionLiteralExpression(function *ast.FunctionLiteralExpression, env 
 	}
 }
 
+func evalCallExpression(call *ast.CallExpression, env *object.Environment) object.Object {
+	// E.g. myFunction(argument1, argument2, ...)
+
+	// Evaluate call myFunction
+	function := Eval(call.Function, env)
+	if isError(function) == true {
+		return function
+	}
+
+	// Evaluate call argument1, argument2
+	arguments := evalExpressions(call.Arguments, env)
+	if len(arguments) == 1 && isError(arguments[0]) == true {
+		return arguments[0]
+	}
+
+	// Apply to call arguments to function
+	result := applyFunction(env, function, arguments)
+	if isError(result) == true {
+		return newError("Error calling %s: %s", call.Function, result.Inspect())
+	}
+
+	return result
+}
+
 //
 func nativeBoolToBooleanObject(value bool) object.Object {
 	if value == true {
@@ -241,6 +267,54 @@ func evalExpressions(expressions []ast.Expression, env *object.Environment) []ob
 	}
 
 	return objects
+}
+
+func applyFunction(env *object.Environment, function object.Object, arguments []object.Object) object.Object {
+	switch fn := function.(type) {
+	// custom function
+	case *object.Function:
+		extendEnvironment, err := extendFunctionEnvironment(fn, arguments)
+		if err != nil {
+			return err
+		}
+
+		evaluated := Eval(fn.Block, extendEnvironment)
+
+		return unwrapReturnValue(evaluated)
+	// built-in function
+	case *object.BuiltIn:
+		return fn.Function(env, arguments...)
+	default:
+		return newError("%s is not a function", fn.Type())
+	}
+}
+
+func extendFunctionEnvironment(function *object.Function, arguments []object.Object) (*object.Environment, *object.Error) {
+	// Create scoped environment for current function
+	environment := object.NewEnclosedEnvironment(function.Environment)
+
+	if len(arguments) != len(function.Parameters) {
+		return nil, newError(
+			"not enough arguments for %s function, Got: %s, Expected: %s",
+			function.Inspect(), arguments, function.Parameters,
+		)
+	}
+
+	// Setup variable by parameter is the name, arguments is the value
+	for index, parameter := range function.Parameters {
+		environment.Set(parameter.Value, arguments[index])
+	}
+
+	return environment, nil
+}
+
+func unwrapReturnValue(obj object.Object) object.Object {
+	// Return value only if current object is return value object
+	if returnValue, ok := obj.(*object.ReturnValue); ok {
+		return returnValue
+	}
+
+	return obj
 }
 
 // Helper functions
