@@ -49,6 +49,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalFunctionLiteralExpression(node, env)
 	case *ast.CallExpression:
 		return evalCallExpression(node, env)
+	case *ast.IndexExpression:
+		return evalIndexExpression(node, env)
 	}
 
 	return NIL
@@ -249,7 +251,33 @@ func evalCallExpression(call *ast.CallExpression, env *object.Environment) objec
 	return result
 }
 
-//
+func evalIndexExpression(index *ast.IndexExpression, env *object.Environment) object.Object {
+	left := Eval(index.Left, env)
+	if isError(left) == true {
+		return left
+	}
+
+	idx := Eval(index.Index, env)
+	if isError(idx) == true {
+		return idx
+	}
+
+	switch {
+	// array[integer]
+	case left.Type() == object.ARRAY_OBJECT && idx.Type() == object.INTEGER_OBJECT:
+		return evalArrayIndexExpression(left, idx)
+	// hash["string"]
+	case left.Type() == object.HASH_OBJECT && idx.Type() == object.STRING_OBJECT:
+		return evalHashIndexExpression(left, idx)
+	// string[integer]
+	case left.Type() == object.STRING_OBJECT && idx.Type() == object.INTEGER_OBJECT:
+		return evalStringIndexExpression(left, idx)
+	default:
+		return newError("Index operator not support for %s on %s", idx.Inspect(), left.Type())
+	}
+}
+
+// For boolean expression
 func nativeBoolToBooleanObject(value bool) object.Object {
 	if value == true {
 		return TRUE
@@ -258,21 +286,7 @@ func nativeBoolToBooleanObject(value bool) object.Object {
 	return FALSE
 }
 
-func evalExpressions(expressions []ast.Expression, env *object.Environment) []object.Object {
-	var objects []object.Object
-
-	for _, expression := range expressions {
-		evaluated := Eval(expression, env)
-		if isError(evaluated) == true {
-			return []object.Object{ evaluated }
-		}
-
-		objects = append(objects, evaluated)
-	}
-
-	return objects
-}
-
+// For call expression
 func applyFunction(env *object.Environment, function object.Object, arguments []object.Object) object.Object {
 	switch fn := function.(type) {
 	// custom function
@@ -321,7 +335,45 @@ func unwrapReturnValue(obj object.Object) object.Object {
 	return obj
 }
 
+// For index expression
+func evalArrayIndexExpression(left object.Object, index object.Object) object.Object {
+	arrayObject := left.(*object.Array)
+	indexObject := index.(*object.Integer)
+
+	indexValue := indexObject.Value
+	maxLength  := int64(len(arrayObject.Elements) - 1)
+
+	if indexValue < 0 || indexValue > maxLength {
+		return NIL
+	}
+
+	return arrayObject.Elements[indexValue]
+}
+
+func evalHashIndexExpression(left object.Object, index object.Object) object.Object {
+	return NIL
+}
+
+func evalStringIndexExpression(left object.Object, index object.Object) object.Object {
+	return NIL
+}
+
 // Helper functions
+func evalExpressions(expressions []ast.Expression, env *object.Environment) []object.Object {
+	var objects []object.Object
+
+	for _, expression := range expressions {
+		evaluated := Eval(expression, env)
+		if isError(evaluated) == true {
+			return []object.Object{ evaluated }
+		}
+
+		objects = append(objects, evaluated)
+	}
+
+	return objects
+}
+
 func isError(obj object.Object) bool {
 	if obj != nil {
 		return obj.Type() == object.ERROR_OBJECT
