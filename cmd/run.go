@@ -48,6 +48,7 @@ func runRun(c *cli.Context) error {
 		theEvaluator    := evaluator.Eval(theProgram, theEnvironment)
 
 		if theEvaluator != nil {
+			fmt.Println(theEvaluator)
 			fmt.Println("OK!")
 		}else{
 			fmt.Println("Error!")
