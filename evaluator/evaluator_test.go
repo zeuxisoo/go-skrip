@@ -332,6 +332,25 @@ func TestIndexExpression(t *testing.T) {
 				})
 			}
 		})
+
+		Convey("For hash object", func() {
+			expecteds := []struct{
+				source string
+				result interface{}
+			}{
+				{ `{ 1: "a", "2": 7.2, 3.1: 50 }[1]`,   "a"},
+				{ `{ 1: "a", "2": 7.2, 3.1: 50 }["2"]`, 7.2},
+				{ `{ 1: "a", "2": 7.2, 3.1: 50 }[3.1]`, 50},
+			}
+
+			for index, expected := range expecteds {
+				Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+					evaluated := testEval(expected.source)
+
+					testLiteralObject(evaluated, expected.result)
+				})
+			}
+		})
 	})
 }
 
