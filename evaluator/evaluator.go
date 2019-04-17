@@ -370,7 +370,22 @@ func evalHashIndexExpression(left object.Object, index object.Object) object.Obj
 }
 
 func evalStringIndexExpression(left object.Object, index object.Object) object.Object {
-	return NIL
+	// for string[integer]
+	stringObject := left.(*object.String)
+	indexObject  := index.(*object.Integer)
+
+	stringValue := stringObject.Value
+	indexValue  := indexObject.Value
+
+	maxLength   := int64(len(stringValue) - 1)
+
+	if indexValue < 0 || indexValue > maxLength {
+		return NIL
+	}
+
+	return &object.String{
+		Value: string(stringObject.Value[indexValue]),
+	}
 }
 
 // Helper functions
