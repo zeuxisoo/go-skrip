@@ -266,8 +266,8 @@ func evalIndexExpression(index *ast.IndexExpression, env *object.Environment) ob
 	// array[integer]
 	case left.Type() == object.ARRAY_OBJECT && idx.Type() == object.INTEGER_OBJECT:
 		return evalArrayIndexExpression(left, idx)
-	// hash["string"]
-	case left.Type() == object.HASH_OBJECT && idx.Type() == object.STRING_OBJECT:
+	// hash[hashable]
+	case left.Type() == object.HASH_OBJECT:
 		return evalHashIndexExpression(left, idx)
 	// string[integer]
 	case left.Type() == object.STRING_OBJECT && idx.Type() == object.INTEGER_OBJECT:
@@ -337,6 +337,7 @@ func unwrapReturnValue(obj object.Object) object.Object {
 
 // For index expression
 func evalArrayIndexExpression(left object.Object, index object.Object) object.Object {
+	// for array[integer]
 	arrayObject := left.(*object.Array)
 	indexObject := index.(*object.Integer)
 
@@ -351,7 +352,21 @@ func evalArrayIndexExpression(left object.Object, index object.Object) object.Ob
 }
 
 func evalHashIndexExpression(left object.Object, index object.Object) object.Object {
-	return NIL
+	// for hash[hashable]
+	hashObject := left.(*object.Hash)
+
+	// Make sure the string object is hashable and call HashKey method to get hash key
+	key, ok := index.(object.Hashable)
+	if ok == false {
+		return newError("Cannot use %s as hash key", index.Type())
+	}
+
+	pair, ok := hashObject.Pairs[key.HashKey()]
+	if ok == false {
+		return NIL
+	}
+
+	return pair.Value
 }
 
 func evalStringIndexExpression(left object.Object, index object.Object) object.Object {
