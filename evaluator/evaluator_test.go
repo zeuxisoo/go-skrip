@@ -351,6 +351,25 @@ func TestIndexExpression(t *testing.T) {
 				})
 			}
 		})
+
+		Convey("For string object", func() {
+			expecteds := []struct{
+				source string
+				result interface{}
+			}{
+				{ `"foobar"[0]`, "f" },
+				{ `"foobar"[3]`, "b" },
+				{ `"foobar"[5]`, "r" },
+			}
+
+			for index, expected := range expecteds {
+				Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+					evaluated := testEval(expected.source)
+
+					testLiteralObject(evaluated, expected.result)
+				})
+			}
+		})
 	})
 }
 
@@ -572,7 +591,7 @@ func testErrorObject(obj object.Object, expected string) {
 		So(ok, ShouldBeTrue)
 	})
 
-	Convey(runMessage("Object result should be equals %s", expected), func() {
+	Convey("Error message was matched", func() {
 		So(result.Message, ShouldEqual, expected)
 	})
 }
