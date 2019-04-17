@@ -312,6 +312,29 @@ func TestCallExpression(t *testing.T) {
 	})
 }
 
+func TestIndexExpression(t *testing.T) {
+	Convey("Index expression test", t, func() {
+		Convey("For array object", func() {
+			expecteds := []struct{
+				source string
+				result interface{}
+			}{
+				{ "[1, 2, 3][2]",       3 },
+				{ `[1.1, 2.2, 3.3][0]`, 1.1 },
+				{ `["a", "b", "c"][1]`, "b" },
+			}
+
+			for index, expected := range expecteds {
+				Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+					evaluated := testEval(expected.source)
+
+					testLiteralObject(evaluated, expected.result)
+				})
+			}
+		})
+	})
+}
+
 // Statements
 func TestLetStatement(t *testing.T) {
 	Convey("Let statement test", t, func() {
