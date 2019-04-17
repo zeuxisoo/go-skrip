@@ -370,6 +370,24 @@ func TestIndexExpression(t *testing.T) {
 				})
 			}
 		})
+
+		Convey("For error when index type incorrect", func() {
+			expecteds := []struct{
+				source string
+				result string
+			}{
+				{ `[1, 2]["10"]`,   "Index operator not support for 10 on ARRAY_OBJECT" },
+				{ `"foobar"["10"]`, "Index operator not support for 10 on STRING_OBJECT" },
+			}
+
+			for index, expected := range expecteds {
+				Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+					evaluated := testEval(expected.source)
+
+					testErrorObject(evaluated, expected.result)
+				})
+			}
+		})
 	})
 }
 
