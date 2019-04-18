@@ -51,6 +51,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalCallExpression(node, env)
 	case *ast.IndexExpression:
 		return evalIndexExpression(node, env)
+	case *ast.PrefixExpression:
+		return evalPrefixExpression(node, env)
 	}
 
 	return NIL
@@ -277,6 +279,20 @@ func evalIndexExpression(index *ast.IndexExpression, env *object.Environment) ob
 	}
 }
 
+func evalPrefixExpression(prefix *ast.PrefixExpression, env *object.Environment) object.Object {
+	right := Eval(prefix.Right, env)
+	if isError(right) == true {
+		return right
+	}
+
+	switch prefix.Operator {
+	case "!":
+		return evalBangOperatorExpression(right)
+	default:
+		return newError("Unknow operator %s with %s", prefix.Operator, right.Type())
+	}
+}
+
 // For boolean expression
 func nativeBoolToBooleanObject(value bool) object.Object {
 	if value == true {
@@ -385,6 +401,48 @@ func evalStringIndexExpression(left object.Object, index object.Object) object.O
 
 	return &object.String{
 		Value: string(stringObject.Value[indexValue]),
+	}
+}
+
+// For prefix expression
+func evalBangOperatorExpression(right object.Object) object.Object {
+	switch right {
+	case TRUE:
+		return FALSE
+	case FALSE:
+		return TRUE
+	case NIL:
+		return TRUE
+	default:
+		switch obj := right.(type) {
+		case *object.Integer:
+			if obj.Value == 0 {
+				return TRUE
+			}
+			return FALSE
+		case *object.Float:
+			if obj.Value == 0.0 {
+				return TRUE
+			}
+			return FALSE
+		case *object.String:
+			if len(obj.Value) == 0 {
+				return TRUE
+			}
+			return FALSE
+		case *object.Array:
+			if len(obj.Elements) == 0 {
+				return TRUE
+			}
+			return FALSE
+		case *object.Hash:
+			if len(obj.Pairs) == 0 {
+				return TRUE
+			}
+			return FALSE
+		default:
+			return FALSE
+		}
 	}
 }
 
