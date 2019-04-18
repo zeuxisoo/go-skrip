@@ -391,6 +391,47 @@ func TestIndexExpression(t *testing.T) {
 	})
 }
 
+func TestPrefixExpression(t *testing.T) {
+	Convey("Prefix expression test", t, func() {
+		Convey("Bang operator", func() {
+			expecteds := []struct{
+				source string
+				result bool
+			}{
+				{ `!1`, false },
+				{ `!0`, true },
+
+				{ `!1.1`, false },
+				{ `!0.0`, true },
+
+				{ `!"foo"`, false },
+				{ `!""`,    true },
+
+				{ `![1,2]`, false },
+				{ `![]`,    true },
+
+				{ `!{1:"a", 2:"b"}`, false },
+				{ `!{}`,             true },
+
+				{ `!!""`,   false },
+				{ `!!!""`,  true },
+				{ `!!0`,    false },
+				{ `!!!1`,   false },
+				{ `!!0.0`,  false },
+				{ `!!!1.1`, false },
+			}
+
+			for index, expected := range expecteds {
+				Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+					evaluated := testEval(expected.source)
+
+					testLiteralObject(evaluated, expected.result)
+				})
+			}
+		})
+	})
+}
+
 // Statements
 func TestLetStatement(t *testing.T) {
 	Convey("Let statement test", t, func() {
