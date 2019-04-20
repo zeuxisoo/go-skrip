@@ -429,6 +429,27 @@ func TestPrefixExpression(t *testing.T) {
 				})
 			}
 		})
+
+		Convey("Minus operator", func() {
+			expecteds := []struct{
+				source string
+				result interface{}
+			}{
+				{ "-5",  -5 },
+				{ "-10", -10 },
+
+				{ "-5.5",   -5.5 },
+				{ "-10.10", -10.10 },
+			}
+
+			for index, expected := range expecteds {
+				Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+					evaluated := testEval(expected.source)
+
+					testLiteralObject(evaluated, expected.result)
+				})
+			}
+		})
 	})
 }
 
