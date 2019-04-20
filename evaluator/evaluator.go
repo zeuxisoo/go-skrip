@@ -288,8 +288,10 @@ func evalPrefixExpression(prefix *ast.PrefixExpression, env *object.Environment)
 	switch prefix.Operator {
 	case "!":
 		return evalBangOperatorExpression(right)
+	case "-":
+		return evalMinusPrefixOperatorExpression(right)
 	default:
-		return newError("Unknow operator %s with %s", prefix.Operator, right.Type())
+		return newError("Unknown operator %s with %s", prefix.Operator, right.Type())
 	}
 }
 
@@ -443,6 +445,21 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 		default:
 			return FALSE
 		}
+	}
+}
+
+func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
+	switch obj := right.(type) {
+	case *object.Integer:
+		return &object.Integer{
+			Value: -obj.Value,
+		}
+	case *object.Float:
+		return &object.Float{
+			Value: -obj.Value,
+		}
+	default:
+		return newError("Unnown operator - with %s", right.Type())
 	}
 }
 
