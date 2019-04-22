@@ -290,6 +290,8 @@ func evalPrefixExpression(prefix *ast.PrefixExpression, env *object.Environment)
 		return evalBangOperatorExpression(right)
 	case "-":
 		return evalMinusPrefixOperatorExpression(right)
+	case "+":
+		return evalPlusPrefixOperatorExpression(right)
 	default:
 		return newError("Unknown operator %s with %s", prefix.Operator, right.Type())
 	}
@@ -461,6 +463,10 @@ func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 	default:
 		return newError("Unnown operator - with %s", right.Type())
 	}
+}
+
+func evalPlusPrefixOperatorExpression(right object.Object) object.Object {
+	return right
 }
 
 // Helper functions
