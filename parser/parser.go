@@ -45,6 +45,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.FALSE, parser.parseBoolean)
 	parser.registerPrefixParseFunction(token.BANG, parser.parsePrefixExpression)
 	parser.registerPrefixParseFunction(token.MINUS, parser.parsePrefixExpression)
+	parser.registerPrefixParseFunction(token.PLUS, parser.parsePrefixExpression)
 	parser.registerPrefixParseFunction(token.LEFT_BRACKET, parser.parseArrayLiteral)
 	parser.registerPrefixParseFunction(token.LEFT_BRACE, parser.parseHashLiteral)
 	parser.registerPrefixParseFunction(token.LEFT_PARENTHESIS, parser.parseGroupedExpression)

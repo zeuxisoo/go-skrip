@@ -492,8 +492,10 @@ func TestPrefixExpression(t *testing.T) {
 		}{
 			{ "!5", 	 "!", 	5 },
 			{ "-10", 	 "-", 	10 },
+			{ "+15",     "+",   15 },
 			{ "!foobar", "!",	"foobar" },
 			{ "-foobar", "-", 	"foobar"} ,
+			{ "+foobar", "+",   "foobar" },
 			{ "!true",	 "!",	true },
 			{ "!false",  "!",   false },
 		}
