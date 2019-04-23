@@ -65,7 +65,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerInfixParseFunction(token.NOT_EQ, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.AND, parser.parseInfixExpression)
 	parser.registerInfixParseFunction(token.OR, parser.parseInfixExpression)
-	parser.registerInfixParseFunction(token.RANGE, parser.parseInfixExpression)
+	parser.registerInfixParseFunction(token.RANGE, parser.parseRangeExpression)
 	parser.registerInfixParseFunction(token.LEFT_BRACKET, parser.parseIndexExpression)
 	parser.registerInfixParseFunction(token.LEFT_PARENTHESIS, parser.parseCallExpression)
 
@@ -598,6 +598,19 @@ func (p *Parser) parseInfixExpression(leftExpression ast.Expression) ast.Express
 	infix.Right = p.parseExpression(precedence)
 
 	return infix
+}
+
+func (p *Parser) parseRangeExpression(leftExpression ast.Expression) ast.Expression {
+	rng := &ast.RangeExpression{
+		Token: p.currentToken,
+		Start: leftExpression,
+	}
+
+	p.nextToken()
+
+	rng.End = p.parseExpression(LOWEST)
+
+	return rng
 }
 
 func (p *Parser) parseIndexExpression(leftExpression ast.Expression) ast.Expression {

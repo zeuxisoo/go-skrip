@@ -570,10 +570,6 @@ func TestInfixExpression(t *testing.T) {
 			{ "foo || bar", 	"foo",	"||",	"bar" },
 			{ "true && true",  	true,	"&&",	true},
 			{ "true && false", 	true,	"&&",	false },
-
-			{ "1..3", 			1,		"..",	3 },
-			{ "foo..bar",		"foo",	"..",	"bar" },
-			{ "true..false",	true,	"..",	false },
 		}
 
 		for index, expression := range expectedExpressions {
@@ -992,6 +988,55 @@ func TestHashLiteralExpressionKeysOrder(t *testing.T) {
 			testLiteralExpression(hashLiteralExpression.Order[7], 2.2)
 			testLiteralExpression(hashLiteralExpression.Order[8], 1.3)
 		})
+	})
+}
+
+func TestRangeExpression(t *testing.T) {
+	Convey("Range expression test", t, func() {
+		expectedExpressions := []struct{
+			source string
+			start  interface{}
+			end    interface{}
+		}{
+			{ `1..3`, 	  1,   3 },
+			{ `1.1..3.3`, 1.1, 3.3 },
+			{ `"a".."b"`, "a", "b", },
+		}
+
+		for index, expression := range expectedExpressions {
+			message := runMessage("Running %d, Source: %s", index, expression.source)
+
+			theLexer   := lexer.NewLexer(expression.source)
+			theParser  := NewParser(theLexer)
+			theProgram := theParser.Parse()
+
+			Convey(message, func() {
+				Convey("Parse program check", func() {
+					testParserError(theParser)
+					testParserProgramLength(theProgram, 1)
+				})
+
+				statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+				Convey("Can convert to expression statement", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				rangeExpression, ok := statement.Expression.(*ast.RangeExpression)
+				Convey("Can convert to index expression", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				Convey("Range start and end should be equals", func() {
+					if _ ,ok := rangeExpression.Start.(*ast.StringLiteralExpression); ok {
+						testStringLiteralExpression(rangeExpression.Start, expression.start.(string))
+						testStringLiteralExpression(rangeExpression.End, expression.end.(string))
+					}else{
+						testLiteralExpression(rangeExpression.Start, expression.start)
+						testLiteralExpression(rangeExpression.End, expression.end)
+					}
+				})
+			})
+		}
 	})
 }
 
@@ -1479,16 +1524,16 @@ func TestForEachRangeExpression(t *testing.T) {
 		})
 
 		//
-		infix, ok := forEachArrayOrRangeExpression.Iterable.(*ast.InfixExpression)
+		rng, ok := forEachArrayOrRangeExpression.Iterable.(*ast.RangeExpression)
 		Convey("Can convert for each hash iterable data to infix expression", func() {
 			So(ok, ShouldBeTrue)
 		})
 
-		Convey("Infix should be 1..3", func() {
-			testInfixExpression(infix, 1, "..", 3)
+		Convey("For each range should be start 1 and end 3", func() {
+			testLiteralExpression(rng.Start, 1)
+			testLiteralExpression(rng.End, 3)
 		})
-
-		//
+		// //
 		Convey("For each range block length should equals 1", func() {
 			So(len(forEachArrayOrRangeExpression.Block.Statements), ShouldEqual, 1)
 		})
