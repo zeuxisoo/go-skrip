@@ -47,6 +47,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalHashLiteralExpression(node, env)
 	case *ast.FunctionLiteralExpression:
 		return evalFunctionLiteralExpression(node, env)
+	case *ast.RangeExpression:
+		return evalRangeExpression(node, env)
 	case *ast.CallExpression:
 		return evalCallExpression(node, env)
 	case *ast.IndexExpression:
@@ -229,6 +231,35 @@ func evalFunctionLiteralExpression(function *ast.FunctionLiteralExpression, env 
 	}
 }
 
+func evalRangeExpression(rng *ast.RangeExpression, env *object.Environment) object.Object {
+	start := Eval(rng.Start, env)
+	if isError(start) == true {
+		return start
+	}
+
+	end := Eval(rng.End, env)
+	if isError(end) == true {
+		return end
+	}
+
+	switch {
+	// int..int
+	case start.Type() == object.INTEGER_OBJECT && end.Type() == object.INTEGER_OBJECT:
+		return evalRangeIntegerExpression(start, end)
+	// float..float
+	case start.Type() == object.FLOAT_OBJECT && end.Type() == object.FLOAT_OBJECT:
+		return evalRangeFloatExpression(start, end)
+	// string..string
+	case start.Type() == object.STRING_OBJECT && end.Type() == object.STRING_OBJECT:
+		return evalRangeStringExpression(start, end)
+	default:
+		return newError(
+			"Range operator not support for %s (%s) to %s (%s)",
+			start.Inspect(), start.Type(), end.Inspect(), end.Type(),
+		)
+	}
+}
+
 func evalCallExpression(call *ast.CallExpression, env *object.Environment) object.Object {
 	// E.g. myFunction(argument1, argument2, ...)
 
@@ -353,6 +384,77 @@ func unwrapReturnValue(obj object.Object) object.Object {
 	}
 
 	return obj
+}
+
+// For range expression
+func evalRangeIntegerExpression(start object.Object, end object.Object) object.Object {
+	startObject := start.(*object.Integer)
+	endObject   := end.(*object.Integer)
+
+	elements := make([]object.Object, 0)
+	for i := startObject.Value; i < endObject.Value; i++ {
+		elements = append(elements, &object.Integer{
+			Value: i,
+		})
+	}
+
+	return &object.Array{
+		Elements: elements,
+	}
+}
+
+func evalRangeFloatExpression(start object.Object, end object.Object) object.Object {
+	startObject := start.(*object.Float)
+	endObject   := end.(*object.Float)
+
+	elements := make([]object.Object, 0)
+	for i := startObject.Value; i < endObject.Value; i += 0.1 {
+		elements = append(elements, &object.Float{
+			Value: i,
+		})
+	}
+
+	return &object.Array{
+		Elements: elements,
+	}
+}
+
+func evalRangeStringExpression(start object.Object, end object.Object) object.Object {
+	startObject := start.(*object.String)
+	endObject   := end.(*object.String)
+
+	if len(startObject.Value) > 1 {
+		return newError("Range start value must be char only")
+	}
+
+	if len(endObject.Value) > 1 {
+		return newError("Range end value must be char only")
+	}
+
+	elements := make([]object.Object, 0)
+
+	startByte := int32([]rune(startObject.Value)[0])
+	endByte   := int32([]rune(endObject.Value)[0])
+
+	if startByte >= endByte {
+		// E.g. z -> a
+		for i := startByte; i > endByte; i-- {
+			elements = append(elements, &object.String{
+				Value: string(string(i)),
+			})
+		}
+	}else{
+		// E.g. a -> z
+		for i := startByte; i < endByte; i++ {
+			elements = append(elements, &object.String{
+				Value: string(string(i)),
+			})
+		}
+	}
+
+	return &object.Array{
+		Elements: elements,
+	}
 }
 
 // For index expression
