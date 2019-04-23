@@ -1,7 +1,9 @@
 package evaluator
 
 import (
+	"strconv"
 	"fmt"
+	"strings"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -281,6 +283,54 @@ func TestFunctionLiteralExpression(t *testing.T) {
 				evaluated := testEval(expected.source)
 
 				testFunctionObject(evaluated, expected)
+			})
+		}
+	})
+}
+
+func TestRangeExpression(t *testing.T) {
+	Convey("Range expression test", t, func() {
+		expecteds := []struct{
+			source   string
+			length   int
+			elements []string
+		}{
+			{ `1..5`,     4, []string{ "1", "2", "3", "4" } },
+			{ `3.1..3.6`, 5, []string{ "3.1", "3.2", "3.3", "3.4", "3.5" } },
+			{ `"a".."c"`, 2, []string{ "a", "b" } },
+			{ `"f".."a"`, 5, []string{ "f", "e", "d", "c", "b" } },
+			{ `"z".."v"`, 4, []string{ "z", "y", "x", "w" } },
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+				evaluated := testEval(expected.source)
+
+				array, ok := evaluated.(*object.Array)
+				Convey("Can convert to object (array)", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				Convey(runMessage("Elements length should equals %d", expected.length), func() {
+					So(len(array.Elements), ShouldEqual, expected.length)
+				})
+
+				//
+				compareElements := []string{}
+				for _, element := range array.Elements {
+					// Format float value to 1 decimal places
+					if strings.Contains(element.Inspect(), ".") {
+						floatValue, _ := strconv.ParseFloat(element.Inspect(), 64)
+
+						compareElements = append(compareElements, fmt.Sprintf("%0.1f", floatValue))
+					}else{
+						compareElements = append(compareElements, element.Inspect())
+					}
+				}
+
+				Convey(runMessage(`Elements should equals %s`, expected.elements), func() {
+					So(compareElements, ShouldResemble, expected.elements)
+				})
 			})
 		}
 	})
