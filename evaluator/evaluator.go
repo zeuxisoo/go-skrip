@@ -346,7 +346,7 @@ func evalInfixExpression(infix *ast.InfixExpression, env *object.Environment)  o
 	switch {
 	// TODO: and
 	case operator == "&&":
-		return nil
+		return nativeBoolToBooleanObject(objectToNativeBoolean(left) && objectToNativeBoolean(right))
 	// TODO: or
 	case operator == "||":
 		return nil
@@ -641,6 +641,43 @@ func evalExpressions(expressions []ast.Expression, env *object.Environment) []ob
 	}
 
 	return objects
+}
+
+func objectToNativeBoolean(obj object.Object) bool {
+	if ret, ok := obj.(*object.ReturnValue); ok {
+		obj = ret.Value
+	}
+
+	switch o := obj.(type) {
+	case *object.Boolean:
+		return o.Value
+	case *object.Nil:
+		return false
+	case *object.String:
+		return len(o.Value) != 0
+	case *object.Integer:
+		if o.Value == 0 {
+			return false
+		}
+		return true
+	case *object.Float:
+		if o.Value == 0.0 {
+			return false
+		}
+		return true
+	case *object.Array:
+		if len(o.Elements) == 0 {
+			return false
+		}
+		return true
+	case *object.Hash:
+		if len(o.Pairs) == 0 {
+			return false
+		}
+		return true
+	default:
+		return true
+	}
 }
 
 func isError(obj object.Object) bool {
