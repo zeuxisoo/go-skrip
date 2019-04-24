@@ -55,6 +55,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIndexExpression(node, env)
 	case *ast.PrefixExpression:
 		return evalPrefixExpression(node, env)
+	case *ast.InfixExpression:
+		return evalInfixExpression(node, env)
 	}
 
 	return NIL
@@ -325,6 +327,60 @@ func evalPrefixExpression(prefix *ast.PrefixExpression, env *object.Environment)
 		return evalPlusPrefixOperatorExpression(right)
 	default:
 		return newError("Unknown operator %s with %s", prefix.Operator, right.Type())
+	}
+}
+
+func evalInfixExpression(infix *ast.InfixExpression, env *object.Environment)  object.Object {
+	left := Eval(infix.Left, env)
+	if isError(left) == true {
+		return left
+	}
+
+	right := Eval(infix.Right, env)
+	if isError(right) == true {
+		return right
+	}
+
+	operator := infix.Operator
+
+	switch {
+	// TODO: and
+	case operator == "&&":
+		return nil
+	// TODO: or
+	case operator == "||":
+		return nil
+	// TODO: int operator int
+	case left.Type() == object.INTEGER_OBJECT && right.Type() == object.INTEGER_OBJECT:
+		return nil
+	// TODO: int operator float
+	case left.Type() == object.INTEGER_OBJECT && right.Type() == object.FLOAT_OBJECT:
+		return nil
+	// TODO: float operator float
+	case left.Type() == object.FLOAT_OBJECT && right.Type() == object.FLOAT_OBJECT:
+		return nil
+	// TODO: float operator int
+	case left.Type() == object.FLOAT_OBJECT && right.Type() == object.INTEGER_OBJECT:
+		return nil
+	// TODO: string operator string
+	case left.Type() == object.STRING_OBJECT && right.Type() == object.STRING_OBJECT:
+		return nil
+	// TODO: array operator array
+	case left.Type() == object.ARRAY_OBJECT && right.Type() == object.ARRAY_OBJECT:
+		return nil
+	// TODO: hash operator hash
+	case left.Type() == object.HASH_OBJECT && right.Type() == object.HASH_OBJECT:
+		return nil
+	// TODO: equals
+	case operator == "==":
+		return nil
+	// TODO: not equals
+	case operator == "!=":
+		return nil
+	case left.Type() != right.Type():
+		return newError("Type mismatch %s %s %s", left.Type(), operator, right.Type())
+	default:
+		return newError("Unknown operator %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
