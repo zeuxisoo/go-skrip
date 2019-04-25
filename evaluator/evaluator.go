@@ -349,7 +349,7 @@ func evalInfixExpression(infix *ast.InfixExpression, env *object.Environment)  o
 		return nativeBoolToBooleanObject(objectToNativeBoolean(left) && objectToNativeBoolean(right))
 	// TODO: or
 	case operator == "||":
-		return nil
+		return nativeBoolToBooleanObject(objectToNativeBoolean(left) || objectToNativeBoolean(right))
 	// TODO: int operator int
 	case left.Type() == object.INTEGER_OBJECT && right.Type() == object.INTEGER_OBJECT:
 		return nil

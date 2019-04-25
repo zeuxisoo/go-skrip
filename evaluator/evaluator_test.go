@@ -553,6 +553,34 @@ func TestInfixExpression(t *testing.T) {
 				})
 			}
 		})
+
+		Convey("|| operator test", func() {
+			expecteds := []struct{
+				source string
+				result interface{}
+			}{
+				{ `1 || 2`,         true },
+				{ `3.3 || 4.4`,     true },
+
+				{ `"foo" || "bar"`, true },
+
+				{ `[] || []`,         false },
+				{ `[1, 2] || []`,     true },
+				{ `[1, 2] || [3, 4]`, true },
+
+				{ `{} || {}`,             false },
+				{ `{1: "a"} || {}`,       true },
+				{ `{1: "a"} || {"b": 2}`, true },
+			}
+
+			for index, expected := range expecteds {
+				Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+					evaluated := testEval(expected.source)
+
+					testLiteralObject(evaluated, expected.result)
+				})
+			}
+		})
 	})
 }
 
