@@ -635,6 +635,33 @@ func TestInfixExpression(t *testing.T) {
 				})
 			}
 		})
+
+		Convey("Float with float operator test", func() {
+			expecteds := []struct{
+				source string
+				result interface{}
+			}{
+				{ `1.1 + 2.2`, 3.3 },
+				{ `1.3 - 2.3`, -1.0 },
+				{ `3.3 * 2.3`, 7.59 },
+				{ `6.8 / 2.5`, 2.72 },
+
+				{ `1.3 < 2.2`,   true },
+				{ `1.5 > 2.3`,   false },
+				{ `1.7 >= 0.4`,  true },
+				{ `2.5 <= 1.5`,  false },
+				{ `3.3 == 3.3`,  true },
+				{ `10.5 != 2.7`, true },
+			}
+
+			for index, expected := range expecteds {
+				Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+					evaluated := testEval(expected.source)
+
+					testLiteralObject(evaluated, expected.result)
+				})
+			}
+		})
 	})
 }
 
