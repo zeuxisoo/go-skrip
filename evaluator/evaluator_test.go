@@ -662,6 +662,33 @@ func TestInfixExpression(t *testing.T) {
 				})
 			}
 		})
+
+		Convey("Float with integer operator test", func() {
+			expecteds := []struct{
+				source string
+				result interface{}
+			}{
+				{ `2.2 + 1`, 3.2 },
+				{ `2.3 - 1`, 1.3 },
+				{ `2.3 * 3`, 6.9 },
+				{ `8.4 / 2`, 4.2 },
+
+				{ `2.2 < 1`,  false },
+				{ `2.3 > 1`,  true },
+				{ `0.4 >= 1`, false },
+				{ `1.5 <= 1`, false },
+				{ `1.0 == 1`, true },
+				{ `2.7 != 1`, true },
+			}
+
+			for index, expected := range expecteds {
+				Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+					evaluated := testEval(expected.source)
+
+					testLiteralObject(evaluated, expected.result)
+				})
+			}
+		})
 	})
 }
 

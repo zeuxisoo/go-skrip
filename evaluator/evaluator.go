@@ -360,9 +360,9 @@ func evalInfixExpression(infix *ast.InfixExpression, env *object.Environment)  o
 	// float operator float
 	case left.Type() == object.FLOAT_OBJECT && right.Type() == object.FLOAT_OBJECT:
 		return evalFloatFloatInfixExpression(left, operator, right)
-	// TODO: float operator int
+	// float operator int
 	case left.Type() == object.FLOAT_OBJECT && right.Type() == object.INTEGER_OBJECT:
-		return nil
+		return evalFloatIntegerInfixExpression(left, operator, right)
 	// TODO: string operator string
 	case left.Type() == object.STRING_OBJECT && right.Type() == object.STRING_OBJECT:
 		return nil
@@ -701,6 +701,39 @@ func evalFloatFloatInfixExpression(left object.Object, operator string, right ob
 
 	leftValue  := leftFloat.Value
 	rightValue := rightFloat.Value
+
+	switch operator {
+	case "+":
+		return &object.Float{ Value: humanFloat(leftValue + rightValue) }
+	case "-":
+		return &object.Float{ Value: humanFloat(leftValue - rightValue) }
+	case "*":
+		return &object.Float{ Value: humanFloat(leftValue * rightValue) }
+	case "/":
+		return &object.Float{ Value: humanFloat(leftValue / rightValue) }
+	case "<":
+		return nativeBoolToBooleanObject(leftValue < rightValue)
+	case ">":
+		return nativeBoolToBooleanObject(leftValue > rightValue)
+	case "<=":
+		return nativeBoolToBooleanObject(leftValue <= rightValue)
+	case ">=":
+		return nativeBoolToBooleanObject(leftValue >= rightValue)
+	case "==":
+		return nativeBoolToBooleanObject(leftValue == rightValue)
+	case "!=":
+		return nativeBoolToBooleanObject(leftValue != rightValue)
+	default:
+		return newError("Unknown operator %s %s %s", left.Type(), operator, right.Type())
+	}
+}
+
+func evalFloatIntegerInfixExpression(left object.Object, operator string, right object.Object) object.Object {
+	leftFloat    := left.(*object.Float)
+	rightInteger := right.(*object.Integer)
+
+	leftValue  := leftFloat.Value
+	rightValue := float64(rightInteger.Value)
 
 	switch operator {
 	case "+":
