@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/zeuxisoo/go-skrip/ast"
 	"github.com/zeuxisoo/go-skrip/object"
@@ -353,9 +354,9 @@ func evalInfixExpression(infix *ast.InfixExpression, env *object.Environment)  o
 	// int operator int
 	case left.Type() == object.INTEGER_OBJECT && right.Type() == object.INTEGER_OBJECT:
 		return evalIntegerIntegerInfixExpression(left, operator, right)
-	// TODO: int operator float
+	// int operator float
 	case left.Type() == object.INTEGER_OBJECT && right.Type() == object.FLOAT_OBJECT:
-		return nil
+		return evalIntegerFloatInfixExpression(left, operator, right)
 	// TODO: float operator float
 	case left.Type() == object.FLOAT_OBJECT && right.Type() == object.FLOAT_OBJECT:
 		return nil
@@ -661,6 +662,39 @@ func evalIntegerIntegerInfixExpression(left object.Object, operator string, righ
 	}
 }
 
+func evalIntegerFloatInfixExpression(left object.Object, operator string, right object.Object) object.Object {
+	leftInteger := left.(*object.Integer)
+	rightFloat  := right.(*object.Float)
+
+	leftValue  := float64(leftInteger.Value)
+	rightValue := rightFloat.Value
+
+	switch operator {
+	case "+":
+		return &object.Float{ Value: humanFloat(leftValue + rightValue) }
+	case "-":
+		return &object.Float{ Value: humanFloat(leftValue - rightValue) }
+	case "*":
+		return &object.Float{ Value: humanFloat(leftValue * rightValue) }
+	case "/":
+		return &object.Float{ Value: humanFloat(leftValue / rightValue) }
+	case "<":
+		return nativeBoolToBooleanObject(leftValue < rightValue)
+	case ">":
+		return nativeBoolToBooleanObject(leftValue > rightValue)
+	case "<=":
+		return nativeBoolToBooleanObject(leftValue <= rightValue)
+	case ">=":
+		return nativeBoolToBooleanObject(leftValue >= rightValue)
+	case "==":
+		return nativeBoolToBooleanObject(leftValue == rightValue)
+	case "!=":
+		return nativeBoolToBooleanObject(leftValue != rightValue)
+	default:
+		return newError("Unknown operator %s %s %s", left.Type(), operator, right.Type())
+	}
+}
+
 // Helper functions
 func evalExpressions(expressions []ast.Expression, env *object.Environment) []object.Object {
 	var objects []object.Object
@@ -712,6 +746,23 @@ func objectToNativeBoolean(obj object.Object) bool {
 	default:
 		return true
 	}
+}
+
+// Try to make the floating point more humanized
+// E.g.
+// In standard.
+// - 3 * 2.3 will be 6.8999999999999995
+// - 1 - 2.3 will be -1.2999999999999998
+// In human.
+// - 3 * 2.3 will be 6.9
+// - 1 - 2.3 will be -1.3
+// More information
+// - https://stackoverflow.com/questions/588004/is-floating-point-math-broken
+func humanFloat(value float64) float64 {
+	humanFloat := fmt.Sprintf("%f", value)
+	realFloat, _ := strconv.ParseFloat(humanFloat, 64)
+
+	return realFloat
 }
 
 func isError(obj object.Object) bool {
