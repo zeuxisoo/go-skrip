@@ -581,6 +581,33 @@ func TestInfixExpression(t *testing.T) {
 				})
 			}
 		})
+
+		Convey("Integer with integer operator test", func() {
+			expecteds := []struct{
+				source string
+				result interface{}
+			}{
+				{ `1 + 2`,  3 },
+				{ `1 - 2`, -1 },
+				{ `3 * 2`, 6 },
+				{ `6 / 2`, 3 },
+
+				{ `1 < 2`,  true },
+				{ `1 > 2`,  false },
+				{ `1 >= 2`, false },
+				{ `1 <= 2`, true },
+				{ `1 == 1`, true },
+				{ `1 != 2`, true },
+			}
+
+			for index, expected := range expecteds {
+				Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+					evaluated := testEval(expected.source)
+
+					testLiteralObject(evaluated, expected.result)
+				})
+			}
+		})
 	})
 }
 

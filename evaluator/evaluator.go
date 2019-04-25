@@ -344,15 +344,15 @@ func evalInfixExpression(infix *ast.InfixExpression, env *object.Environment)  o
 	operator := infix.Operator
 
 	switch {
-	// TODO: and
+	// and
 	case operator == "&&":
 		return nativeBoolToBooleanObject(objectToNativeBoolean(left) && objectToNativeBoolean(right))
-	// TODO: or
+	// or
 	case operator == "||":
 		return nativeBoolToBooleanObject(objectToNativeBoolean(left) || objectToNativeBoolean(right))
-	// TODO: int operator int
+	// int operator int
 	case left.Type() == object.INTEGER_OBJECT && right.Type() == object.INTEGER_OBJECT:
-		return nil
+		return evalIntegerIntegerInfixExpression(left, operator, right)
 	// TODO: int operator float
 	case left.Type() == object.INTEGER_OBJECT && right.Type() == object.FLOAT_OBJECT:
 		return nil
@@ -625,6 +625,40 @@ func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 
 func evalPlusPrefixOperatorExpression(right object.Object) object.Object {
 	return right
+}
+
+// For infix expression
+func evalIntegerIntegerInfixExpression(left object.Object, operator string, right object.Object) object.Object {
+	leftInteger  := left.(*object.Integer)
+	rightInteger := right.(*object.Integer)
+
+	leftValue := leftInteger.Value
+	rightValue := rightInteger.Value
+
+	switch operator {
+	case "+":
+		return &object.Integer{ Value: leftValue + rightValue }
+	case "-":
+		return &object.Integer{ Value: leftValue - rightValue }
+	case "*":
+		return &object.Integer{ Value: leftValue * rightValue }
+	case "/":
+		return &object.Integer{ Value: leftValue / rightValue }
+	case "<":
+		return nativeBoolToBooleanObject(leftValue < rightValue)
+	case ">":
+		return nativeBoolToBooleanObject(leftValue > rightValue)
+	case "<=":
+		return nativeBoolToBooleanObject(leftValue <= rightValue)
+	case ">=":
+		return nativeBoolToBooleanObject(leftValue >= rightValue)
+	case "==":
+		return nativeBoolToBooleanObject(leftValue == rightValue)
+	case "!=":
+		return nativeBoolToBooleanObject(leftValue != rightValue)
+	default:
+		return newError("Unknown operator %s %s %s", left.Type(), operator, right.Type())
+	}
 }
 
 // Helper functions
