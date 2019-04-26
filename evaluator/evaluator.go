@@ -57,7 +57,17 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.PrefixExpression:
 		return evalPrefixExpression(node, env)
 	case *ast.InfixExpression:
-		return evalInfixExpression(node, env)
+		left := Eval(node.Left, env)
+		if isError(left) == true {
+			return left
+		}
+
+		right := Eval(node.Right, env)
+		if isError(right) == true {
+			return right
+		}
+
+		return evalInfixExpression(left, node.Operator, right, env)
 	}
 
 	return NIL
@@ -331,19 +341,7 @@ func evalPrefixExpression(prefix *ast.PrefixExpression, env *object.Environment)
 	}
 }
 
-func evalInfixExpression(infix *ast.InfixExpression, env *object.Environment)  object.Object {
-	left := Eval(infix.Left, env)
-	if isError(left) == true {
-		return left
-	}
-
-	right := Eval(infix.Right, env)
-	if isError(right) == true {
-		return right
-	}
-
-	operator := infix.Operator
-
+func evalInfixExpression(left object.Object, operator string, right object.Object, env *object.Environment)  object.Object {
 	switch {
 	// and
 	case operator == "&&":
@@ -366,13 +364,13 @@ func evalInfixExpression(infix *ast.InfixExpression, env *object.Environment)  o
 	// string operator string
 	case left.Type() == object.STRING_OBJECT && right.Type() == object.STRING_OBJECT:
 		return evalStringStringInfixExpression(left, operator, right)
-	// TODO: array operator array
+	// array operator array
 	case left.Type() == object.ARRAY_OBJECT && right.Type() == object.ARRAY_OBJECT:
-		return nil
+		return evalArrayArrayInfixExpression(left, operator, right, env)
 	// TODO: hash operator hash
 	case left.Type() == object.HASH_OBJECT && right.Type() == object.HASH_OBJECT:
 		return nil
-	// TODO: equals
+	// TODO: equals when left data type and right data type are different
 	case operator == "==":
 		return nil
 	// TODO: not equals
@@ -783,6 +781,41 @@ func evalStringStringInfixExpression(left object.Object, operator string, right 
 		return nativeBoolToBooleanObject(leftValue == rightValue)
 	case "!=":
 		return nativeBoolToBooleanObject(leftValue != rightValue)
+	default:
+		return newError("Unknown operator %s %s %s", left.Type(), operator, right.Type())
+	}
+}
+
+func evalArrayArrayInfixExpression(left object.Object, operator string, right object.Object, env *object.Environment) object.Object {
+	leftArray  := left.(*object.Array)
+	rightArray := right.(*object.Array)
+
+	leftElements  := leftArray.Elements
+	rightElements := rightArray.Elements
+
+	switch operator {
+	case "+":
+		return &object.Array{ Elements: append(leftElements, rightElements...) }
+	case "==":
+		if len(leftElements) != len(rightElements) {
+			return FALSE
+		}
+
+		for i := range leftElements {
+			compareResult := evalInfixExpression(leftElements[i], "==", rightElements[i], env)
+
+			if objectToNativeBoolean(compareResult) != true {
+				return FALSE
+			}
+		}
+
+		return TRUE
+	case "!=":
+		if evalArrayArrayInfixExpression(left, "==", right, env) == TRUE {
+			return FALSE
+		}
+
+		return TRUE
 	default:
 		return newError("Unknown operator %s %s %s", left.Type(), operator, right.Type())
 	}

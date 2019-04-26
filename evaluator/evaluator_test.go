@@ -712,6 +712,85 @@ func TestInfixExpression(t *testing.T) {
 				})
 			}
 		})
+
+		Convey("Array with array operator test", func() {
+			Convey("+ operator test", func() {
+				source   := `[1, 2.2] + ["foo", "bar"]`
+				expected := struct{
+					length   int
+					elements []string
+				}{
+					4,
+					[]string{ "1", "2.2", "foo", "bar" },
+				}
+
+				//
+				evaluated := testEval(source)
+
+				//
+				array, ok := evaluated.(*object.Array)
+				Convey("Can convert to object (array)", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				Convey(runMessage("Elements length should equals %d", expected.length), func() {
+					So(len(array.Elements), ShouldEqual, expected.length)
+				})
+
+				//
+				compareElements := []string{}
+				for _, element := range array.Elements {
+					compareElements = append(compareElements, element.Inspect())
+				}
+
+				Convey(runMessage(`Elements should equals %s`, expected.elements), func() {
+					So(compareElements, ShouldResemble, expected.elements)
+				})
+			})
+
+			Convey("compare operator test", func() {
+				expecteds := []struct{
+					source string
+					result interface{}
+				}{
+					//
+					{ `[1, 2] == [1, 2, 3]`, false },
+					{ `[1, 2] == [1, 2]`,    true },
+					{ `[1, 2] == [3, 2]`,    false },
+					{ `[1, 2] == [1, 3]`,    false },
+
+					{ `[1, 2.2, "foo"] == [1, 2.2, "foo"]`, true },
+
+					{ `[0.1] == [0.1]`, true },
+					{ `[0.1] == [0.2]`, false },
+
+					{ `["foo"] == ["foo"]`, true },
+					{ `["foo"] == ["bar"]`, false },
+
+					//
+					{ `[1, 2] != [1, 2, 3]`, true },
+					{ `[1, 2] != [1, 2]`, false },
+					{ `[1, 2] != [3, 2]`, true },
+					{ `[1, 2] != [1, 3]`, true },
+
+					{ `[1, 2.2, "foo"] != [1, 2.2, "foo"]`, false },
+
+					{ `[0.1] != [0.1]`, false },
+					{ `[0.1] != [0.2]`, true },
+
+					{ `["foo"] != ["foo"]`, false },
+					{ `["foo"] != ["bar"]`, true },
+				}
+
+				for index, expected := range expecteds {
+					Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+						evaluated := testEval(expected.source)
+
+						testLiteralObject(evaluated, expected.result)
+					})
+				}
+			})
+		})
 	})
 }
 
