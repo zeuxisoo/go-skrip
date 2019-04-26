@@ -363,9 +363,9 @@ func evalInfixExpression(infix *ast.InfixExpression, env *object.Environment)  o
 	// float operator int
 	case left.Type() == object.FLOAT_OBJECT && right.Type() == object.INTEGER_OBJECT:
 		return evalFloatIntegerInfixExpression(left, operator, right)
-	// TODO: string operator string
+	// string operator string
 	case left.Type() == object.STRING_OBJECT && right.Type() == object.STRING_OBJECT:
-		return nil
+		return evalStringStringInfixExpression(left, operator, right)
 	// TODO: array operator array
 	case left.Type() == object.ARRAY_OBJECT && right.Type() == object.ARRAY_OBJECT:
 		return nil
@@ -744,6 +744,33 @@ func evalFloatIntegerInfixExpression(left object.Object, operator string, right 
 		return &object.Float{ Value: humanFloat(leftValue * rightValue) }
 	case "/":
 		return &object.Float{ Value: humanFloat(leftValue / rightValue) }
+	case "<":
+		return nativeBoolToBooleanObject(leftValue < rightValue)
+	case ">":
+		return nativeBoolToBooleanObject(leftValue > rightValue)
+	case "<=":
+		return nativeBoolToBooleanObject(leftValue <= rightValue)
+	case ">=":
+		return nativeBoolToBooleanObject(leftValue >= rightValue)
+	case "==":
+		return nativeBoolToBooleanObject(leftValue == rightValue)
+	case "!=":
+		return nativeBoolToBooleanObject(leftValue != rightValue)
+	default:
+		return newError("Unknown operator %s %s %s", left.Type(), operator, right.Type())
+	}
+}
+
+func evalStringStringInfixExpression(left object.Object, operator string, right object.Object) object.Object {
+	leftString  := left.(*object.String)
+	rightString := right.(*object.String)
+
+	leftValue  := leftString.Value
+	rightValue := rightString.Value
+
+	switch operator {
+	case "+":
+		return &object.String{ Value: leftValue + rightValue }
 	case "<":
 		return nativeBoolToBooleanObject(leftValue < rightValue)
 	case ">":
