@@ -367,9 +367,9 @@ func evalInfixExpression(left object.Object, operator string, right object.Objec
 	// array operator array
 	case left.Type() == object.ARRAY_OBJECT && right.Type() == object.ARRAY_OBJECT:
 		return evalArrayArrayInfixExpression(left, operator, right, env)
-	// TODO: hash operator hash
+	// hash operator hash
 	case left.Type() == object.HASH_OBJECT && right.Type() == object.HASH_OBJECT:
-		return nil
+		return evalHashHashInfixExpression(left, operator, right)
 	// TODO: equals when left data type and right data type are different
 	case operator == "==":
 		return nil
@@ -812,6 +812,72 @@ func evalArrayArrayInfixExpression(left object.Object, operator string, right ob
 		return TRUE
 	case "!=":
 		if evalArrayArrayInfixExpression(left, "==", right, env) == TRUE {
+			return FALSE
+		}
+
+		return TRUE
+	default:
+		return newError("Unknown operator %s %s %s", left.Type(), operator, right.Type())
+	}
+}
+
+func evalHashHashInfixExpression(left object.Object, operator string, right object.Object) object.Object {
+	leftHash  := left.(*object.Hash)
+	rightHash := right.(*object.Hash)
+
+	leftPairs  := leftHash.Pairs
+	rightPairs := rightHash.Pairs
+
+	switch operator {
+	case "+":
+		for _, hashKey := range rightHash.Order {
+			pair, _ := rightPairs[hashKey]
+
+			if hashable, ok := pair.Key.(object.Hashable); ok {
+				hashKey := hashable.HashKey()
+
+				// Add the hash key into hash order if the hash key is not exists in hash order
+				_, exists := leftPairs[hashKey]
+				if exists == false {
+					leftHash.Order = append(leftHash.Order, hashKey)
+				}
+
+				leftPairs[hashKey] = object.HashPair{
+					Key  : pair.Key,
+					Value: pair.Value,
+				}
+			}else{
+				return newError("Cannot use %s as hash key", pair.Key.Type())
+			}
+		}
+
+		return &object.Hash{
+			Order: leftHash.Order,
+			Pairs: leftPairs,
+		}
+	case "==":
+		if len(leftPairs) != len(rightPairs) {
+			return FALSE
+		}
+
+		matchCount := 0
+		for leftPairKey, leftPair := range leftPairs {
+			for rightPairKey, rightPair := range rightPairs {
+				if leftPairKey.Value == rightPairKey.Value &&
+					leftPair.Key.Inspect() == rightPair.Key.Inspect() &&
+					leftPair.Value.Inspect() == rightPair.Value.Inspect() {
+						matchCount = matchCount + 1
+					}
+			}
+		}
+
+		if matchCount == len(leftPairs) {
+			return TRUE
+		}
+
+		return FALSE
+	case "!=":
+		if evalHashHashInfixExpression(left, "==", right) == TRUE {
 			return FALSE
 		}
 

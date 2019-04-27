@@ -791,6 +791,82 @@ func TestInfixExpression(t *testing.T) {
 				}
 			})
 		})
+
+		Convey("Hash with hash operator test", func() {
+			Convey("+ operator test", func() {
+				source   := `{ 1: 2, 3: 4 } + { 5.5: 6.6, "foo": "bar" }`
+				expected := struct{
+					length int
+					order  []string
+				}{
+					4,
+					[]string{ "1:2", "3:4", "5.5:6.6", "foo:bar" },
+				}
+
+				//
+				evaluated := testEval(source)
+
+				//
+				hash, ok := evaluated.(*object.Hash)
+				Convey("Can convert to object (hash)", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				Convey(runMessage("Order (keys) length should equals %d", expected.length), func() {
+					So(len(hash.Order), ShouldEqual, expected.length)
+				})
+
+				Convey(runMessage("Pairs length should equals %d", expected.length), func() {
+					So(len(hash.Pairs), ShouldEqual, expected.length)
+				})
+
+				//
+				compareOrders := make([]string, 0)
+				for _, key := range hash.Order {
+					pair := hash.Pairs[key]
+
+					pairValue := fmt.Sprintf("%s:%s", pair.Key.Inspect(), pair.Value.Inspect())
+					Convey(runMessage(`Pair "%s" should be in %s`, pairValue, expected.order), func() {
+						So(pairValue, ShouldBeIn, expected.order)
+					})
+
+					compareOrders = append(compareOrders, pairValue)
+				}
+
+				Convey(runMessage(`Order should equals %s`, expected.order), func() {
+					So(compareOrders, ShouldResemble, expected.order)
+				})
+			})
+
+			Convey("compare operator test", func() {
+				expecteds := []struct{
+					source string
+					result interface{}
+				}{
+					//
+					{ `{ 1: 2, 3.3: 4.4, "foo": "bar" } == { 1: 2, 3.3: 4.4 }`, false },
+
+					{ `{ 1: 2, 3.3: 4.4, "foo": "bar" } == { 1: 2, 3.3: 4.4, "foo": "bar" }`, true },
+					{ `{ 1: 2, 3.3: 4.4, "foo": "bar" } == { 99: 2, 3.3: 4.4, "foo": "bar" }`, false },
+					{ `{ 1: 2, 3.3: 4.4, "foo": "bar" } == { 1: 99, 3.3: 4.4, "foo": "bar" }`, false },
+
+					//
+					{ `{ 1: 2, 3.3: 4.4, "foo": "bar" } != { 1: 2, 3.3: 4.4 }`, true },
+
+					{ `{ 1: 2, 3.3: 4.4, "foo": "bar" } != { 1: 2, 3.3: 4.4, "foo": "bar" }`, false },
+					{ `{ 1: 2, 3.3: 4.4, "foo": "bar" } != { 99: 2, 3.3: 4.4, "foo": "bar" }`, true },
+					{ `{ 1: 2, 3.3: 4.4, "foo": "bar" } != { 1: 99, 3.3: 4.4, "foo": "bar" }`, true },
+				}
+
+				for index, expected := range expecteds {
+					Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+						evaluated := testEval(expected.source)
+
+						testLiteralObject(evaluated, expected.result)
+					})
+				}
+			})
+		})
 	})
 }
 
