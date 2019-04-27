@@ -14,10 +14,16 @@ import (
 )
 
 //
-type expectedFunctions struct {
+type expectedFunction struct {
 	source          string
 	parameterLength int
 	blockLength     int
+}
+
+type expectedHash struct {
+	source string
+	length int
+	order  []string
 }
 
 //
@@ -214,11 +220,7 @@ func TestArrayLiteralExpression(t *testing.T) {
 
 func TestHashLiteralExpression(t *testing.T) {
 	Convey("Hash literal expression test", t, func() {
-		expecteds := []struct{
-			source string
-			length int
-			order  []string
-		}{
+		expecteds := []expectedHash{
 			{ `{ "foo": 1, "bar": 2 }`,        2, []string{ "foo:1", "bar:2" } },
 			{ `{ 1: "foo", 2: "bar" }`,        2, []string{ "1:foo", "2:bar" } },
 			{ `{ 5.5: "foo", 6.6: "bar" }`,    2, []string{ "5.5:foo", "6.6:bar" } },
@@ -233,35 +235,7 @@ func TestHashLiteralExpression(t *testing.T) {
 			Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
 				evaluated := testEval(expected.source)
 
-				hash, ok := evaluated.(*object.Hash)
-				Convey("Can convert to object (hash)", func() {
-					So(ok, ShouldBeTrue)
-				})
-
-				Convey(runMessage("Order (keys) length should equals %d", expected.length), func() {
-					So(len(hash.Order), ShouldEqual, expected.length)
-				})
-
-				Convey(runMessage("Pairs length should equals %d", expected.length), func() {
-					So(len(hash.Pairs), ShouldEqual, expected.length)
-				})
-
-				//
-				compareOrders := make([]string, 0)
-				for _, key := range hash.Order {
-					pair := hash.Pairs[key]
-
-					pairValue := fmt.Sprintf("%s:%s", pair.Key.Inspect(), pair.Value.Inspect())
-					Convey(runMessage(`Pair "%s" should be in %s`, pairValue, expected.order), func() {
-						So(pairValue, ShouldBeIn, expected.order)
-					})
-
-					compareOrders = append(compareOrders, pairValue)
-				}
-
-				Convey(runMessage(`Order should equals %s`, expected.order), func() {
-					So(compareOrders, ShouldResemble, expected.order)
-				})
+				testHashObject(evaluated, expected)
 			})
 		}
 	})
@@ -794,48 +768,15 @@ func TestInfixExpression(t *testing.T) {
 
 		Convey("Hash with hash operator test", func() {
 			Convey("+ operator test", func() {
-				source   := `{ 1: 2, 3: 4 } + { 5.5: 6.6, "foo": "bar" }`
-				expected := struct{
-					length int
-					order  []string
-				}{
-					4,
-					[]string{ "1:2", "3:4", "5.5:6.6", "foo:bar" },
+				expected := expectedHash{
+					source: `{ 1: 2, 3: 4 } + { 5.5: 6.6, "foo": "bar" }`,
+					length: 4,
+					order : []string{ "1:2", "3:4", "5.5:6.6", "foo:bar" },
 				}
 
-				//
-				evaluated := testEval(source)
+				evaluated := testEval(expected.source)
 
-				//
-				hash, ok := evaluated.(*object.Hash)
-				Convey("Can convert to object (hash)", func() {
-					So(ok, ShouldBeTrue)
-				})
-
-				Convey(runMessage("Order (keys) length should equals %d", expected.length), func() {
-					So(len(hash.Order), ShouldEqual, expected.length)
-				})
-
-				Convey(runMessage("Pairs length should equals %d", expected.length), func() {
-					So(len(hash.Pairs), ShouldEqual, expected.length)
-				})
-
-				//
-				compareOrders := make([]string, 0)
-				for _, key := range hash.Order {
-					pair := hash.Pairs[key]
-
-					pairValue := fmt.Sprintf("%s:%s", pair.Key.Inspect(), pair.Value.Inspect())
-					Convey(runMessage(`Pair "%s" should be in %s`, pairValue, expected.order), func() {
-						So(pairValue, ShouldBeIn, expected.order)
-					})
-
-					compareOrders = append(compareOrders, pairValue)
-				}
-
-				Convey(runMessage(`Order should equals %s`, expected.order), func() {
-					So(compareOrders, ShouldResemble, expected.order)
-				})
+				testHashObject(evaluated, expected)
 			})
 
 			Convey("compare operator test", func() {
@@ -899,7 +840,7 @@ func TestLetStatementWithFunctionLiteralExpression(t *testing.T) {
 		// Should be return function object
 		evaluated := testEval(source)
 
-		testFunctionObject(evaluated, expectedFunctions{
+		testFunctionObject(evaluated, expectedFunction{
 			parameterLength: 2,
 			blockLength    : 1,
 		})
@@ -930,7 +871,7 @@ func TestReturnStatement(t *testing.T) {
 
 func TestFunctionStatement(t *testing.T) {
 	Convey("Function statement test", t, func() {
-		expecteds := []expectedFunctions{
+		expecteds := []expectedFunction{
 			{ "func myFunc1(a, b, c) { d }", 3, 1 },
 			{ "func myFunc2(a, b) { c; d }", 2, 2 },
 		}
@@ -1066,7 +1007,7 @@ func testBuiltInObject(obj object.Object, expected string) {
 	testLiteralObject(result.Function(object.NewEnvironment()), expected)
 }
 
-func testFunctionObject(obj object.Object, expected expectedFunctions) {
+func testFunctionObject(obj object.Object, expected expectedFunction) {
 	function, ok := obj.(*object.Function)
 	Convey("Can convert to object (function)", func() {
 		So(ok, ShouldBeTrue)
@@ -1090,6 +1031,38 @@ func testErrorObject(obj object.Object, expected string) {
 
 	Convey("Error message was matched", func() {
 		So(result.Message, ShouldEqual, expected)
+	})
+}
+
+func testHashObject(obj object.Object, expected expectedHash) {
+	hash, ok := obj.(*object.Hash)
+	Convey("Can convert to object (hash)", func() {
+		So(ok, ShouldBeTrue)
+	})
+
+	Convey(runMessage("Order (keys) length should equals %d", expected.length), func() {
+		So(len(hash.Order), ShouldEqual, expected.length)
+	})
+
+	Convey(runMessage("Pairs length should equals %d", expected.length), func() {
+		So(len(hash.Pairs), ShouldEqual, expected.length)
+	})
+
+	//
+	compareOrders := make([]string, 0)
+	for _, key := range hash.Order {
+		pair := hash.Pairs[key]
+
+		pairValue := fmt.Sprintf("%s:%s", pair.Key.Inspect(), pair.Value.Inspect())
+		Convey(runMessage(`Pair "%s" should be in %s`, pairValue, expected.order), func() {
+			So(pairValue, ShouldBeIn, expected.order)
+		})
+
+		compareOrders = append(compareOrders, pairValue)
+	}
+
+	Convey(runMessage(`Order should equals %s`, expected.order), func() {
+		So(compareOrders, ShouldResemble, expected.order)
 	})
 }
 
