@@ -20,6 +20,12 @@ type expectedFunction struct {
 	blockLength     int
 }
 
+type expectedArray struct {
+	source   string
+	length   int
+	elements []string
+}
+
 type expectedHash struct {
 	source string
 	length int
@@ -180,11 +186,7 @@ func TestBooleanExpression(t *testing.T) {
 
 func TestArrayLiteralExpression(t *testing.T) {
 	Convey("Array literal expression test", t, func() {
-		expecteds := []struct{
-			source   string
-			length   int
-			elements []string
-		}{
+		expecteds := []expectedArray{
 			{ `[1, 2, 3]`,         3, []string{ "1", "2", "3" } },
 			{ `[5.1, 6.2, 7.3]`,   3, []string{ "5.1", "6.2", "7.3" } },
 			{ `["a", "b", "c"]`,   3, []string{ "a", "b", "c" } },
@@ -195,24 +197,7 @@ func TestArrayLiteralExpression(t *testing.T) {
 			Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
 				evaluated := testEval(expected.source)
 
-				array, ok := evaluated.(*object.Array)
-				Convey("Can convert to object (array)", func() {
-					So(ok, ShouldBeTrue)
-				})
-
-				Convey(runMessage("Elements length should equals %d", expected.length), func() {
-					So(len(array.Elements), ShouldEqual, expected.length)
-				})
-
-				//
-				compareElements := []string{}
-				for _, element := range array.Elements {
-					compareElements = append(compareElements, element.Inspect())
-				}
-
-				Convey(runMessage(`Elements should equals %s`, expected.elements), func() {
-					So(compareElements, ShouldResemble, expected.elements)
-				})
+				testArrayObject(evaluated, expected)
 			})
 		}
 	})
@@ -689,37 +674,15 @@ func TestInfixExpression(t *testing.T) {
 
 		Convey("Array with array operator test", func() {
 			Convey("+ operator test", func() {
-				source   := `[1, 2.2] + ["foo", "bar"]`
-				expected := struct{
-					length   int
-					elements []string
-				}{
-					4,
-					[]string{ "1", "2.2", "foo", "bar" },
+				expected := expectedArray{
+					source  : `[1, 2.2] + ["foo", "bar"]`,
+					length  : 4,
+					elements: []string{ "1", "2.2", "foo", "bar" },
 				}
 
-				//
-				evaluated := testEval(source)
+				evaluated := testEval(expected.source)
 
-				//
-				array, ok := evaluated.(*object.Array)
-				Convey("Can convert to object (array)", func() {
-					So(ok, ShouldBeTrue)
-				})
-
-				Convey(runMessage("Elements length should equals %d", expected.length), func() {
-					So(len(array.Elements), ShouldEqual, expected.length)
-				})
-
-				//
-				compareElements := []string{}
-				for _, element := range array.Elements {
-					compareElements = append(compareElements, element.Inspect())
-				}
-
-				Convey(runMessage(`Elements should equals %s`, expected.elements), func() {
-					So(compareElements, ShouldResemble, expected.elements)
-				})
+				testArrayObject(evaluated, expected)
 			})
 
 			Convey("compare operator test", func() {
@@ -1031,6 +994,27 @@ func testErrorObject(obj object.Object, expected string) {
 
 	Convey("Error message was matched", func() {
 		So(result.Message, ShouldEqual, expected)
+	})
+}
+
+func testArrayObject(obj object.Object, expected expectedArray) {
+	array, ok := obj.(*object.Array)
+	Convey("Can convert to object (array)", func() {
+		So(ok, ShouldBeTrue)
+	})
+
+	Convey(runMessage("Elements length should equals %d", expected.length), func() {
+		So(len(array.Elements), ShouldEqual, expected.length)
+	})
+
+	//
+	compareElements := []string{}
+	for _, element := range array.Elements {
+		compareElements = append(compareElements, element.Inspect())
+	}
+
+	Convey(runMessage(`Elements should equals %s`, expected.elements), func() {
+		So(compareElements, ShouldResemble, expected.elements)
 	})
 }
 
