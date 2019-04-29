@@ -770,6 +770,32 @@ func TestInfixExpression(t *testing.T) {
 					})
 				}
 			})
+
+			Convey("== operator test", func() {
+				expecteds := []struct{
+					source string
+					result interface{}
+				}{
+					{ `true == true`,   true },
+					{ `false == false`, true },
+
+					{ `true == false`,  false },
+
+					{ `(5 > 10) == false`, true },
+					{ `(5 < 10) == true`,  true },
+
+					{ `1 == "1"`, false },
+					{ `[] == {}`, false },
+				}
+
+				for index, expected := range expecteds {
+					Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+						evaluated := testEval(expected.source)
+
+						testLiteralObject(evaluated, expected.result)
+					})
+				}
+			})
 		})
 	})
 }

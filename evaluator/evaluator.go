@@ -370,9 +370,9 @@ func evalInfixExpression(left object.Object, operator string, right object.Objec
 	// hash operator hash
 	case left.Type() == object.HASH_OBJECT && right.Type() == object.HASH_OBJECT:
 		return evalHashHashInfixExpression(left, operator, right)
-	// TODO: equals when left data type and right data type are different
+	// compare object like left data type and right data type are different
 	case operator == "==":
-		return nil
+		return nativeBoolToBooleanObject(left == right)
 	// TODO: not equals
 	case operator == "!=":
 		return nil
