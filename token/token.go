@@ -20,6 +20,7 @@ var keywords = map[string]Type{
 	"return": RETURN,
 	"for":	  FOR,
 	"in":     IN,
+	"nil":    NIL,
 }
 
 // FindKeywordType will return keyword type

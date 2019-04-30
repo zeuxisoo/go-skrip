@@ -197,6 +197,35 @@ func TestStringLiteralExpression(t *testing.T) {
 	})
 }
 
+func TestNilLiteralExpression(t *testing.T) {
+	Convey("Nil expression test", t, func() {
+		source := `nil;`;
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		nilLiteralExpression, ok := statement.Expression.(*ast.NilLiteralExpression)
+		Convey("can convert to identifer expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey(`nil literal expression value should be equal "nil"`, func() {
+			So(nilLiteralExpression.TokenLiteral(), ShouldEqual, "nil")
+		})
+	})
+}
+
 func TestLetStatementFunctionLiteralExpression(t *testing.T) {
 	Convey("Let statement function literal expression test", t, func() {
 		source := `let foo = func(x, y) { x + y; }`

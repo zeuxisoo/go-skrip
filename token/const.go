@@ -55,4 +55,5 @@ const (
 	RETURN   = "RETURN"
 	FOR      = "FOR"
 	IN       = "IN"
+	NIL      = "NIL"
 )
