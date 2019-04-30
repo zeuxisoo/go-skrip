@@ -99,6 +99,21 @@ func TestStringLiteralExpression(t *testing.T) {
 	})
 }
 
+func TestNilLiteralExpression(t *testing.T) {
+	Convey("Nil literal expression test", t, func() {
+		expected := struct{
+			source string
+			result string
+		}{
+			`nil`, "nil",
+		}
+
+		evaluated := testEval(expected.source)
+
+		testNilObject(evaluated, expected.result)
+	})
+}
+
 func TestIdentifierExpression(t *testing.T) {
 	Convey("Identifier expression test", t, func() {
 		Convey("Error handling test", func() {
@@ -1034,6 +1049,17 @@ func testFunctionObject(obj object.Object, expected expectedFunction) {
 
 	Convey(runMessage("Function block should be equals %d", expected.blockLength), func() {
 		So(len(function.Block.Statements), ShouldEqual, expected.blockLength)
+	})
+}
+
+func testNilObject(obj object.Object, expected string) {
+	result, ok := obj.(*object.Nil)
+	Convey("Can convert object (nil)", func() {
+		So(ok, ShouldBeTrue)
+	})
+
+	Convey("Nil was matched", func() {
+		So(result.Inspect(), ShouldEqual, expected)
 	})
 }
 
