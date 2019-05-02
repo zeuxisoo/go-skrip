@@ -841,6 +841,27 @@ func TestInfixExpression(t *testing.T) {
 	})
 }
 
+func TestIfExpression(t *testing.T) {
+	Convey("If expression test", t, func() {
+		expecteds := []struct{
+			source string
+			result interface{}
+		}{
+			{ `if (5 < 10) { return true }`, true },
+			{ `if (5 > 10) { return true } else { return false }`, false },
+			{ `if (5 > 10) { return "Y" } else if (5 == 5) { return "=="; }else{ return "N" }`, "==" },
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, Source: %s", index, expected.source), func() {
+				evaluated := testEval(expected.source)
+
+				testLiteralObject(evaluated, expected.result)
+			})
+		}
+	})
+}
+
 // Statements
 func TestLetStatement(t *testing.T) {
 	Convey("Let statement test", t, func() {
