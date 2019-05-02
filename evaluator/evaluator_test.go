@@ -34,7 +34,7 @@ type expectedHash struct {
 
 //
 func TestIntegerLiteralExpression(t *testing.T) {
-	Convey("Integer literal expression eval test", t, func() {
+	Convey("Integer literal expression test", t, func() {
 		expecteds := []struct{
 			source string
 			result int64
@@ -56,7 +56,7 @@ func TestIntegerLiteralExpression(t *testing.T) {
 }
 
 func TestFloatLiteralExpression(t *testing.T) {
-	Convey("Float literal expression eval test", t, func() {
+	Convey("Float literal expression test", t, func() {
 		expecteds := []struct{
 			source string
 			result float64
@@ -78,7 +78,7 @@ func TestFloatLiteralExpression(t *testing.T) {
 }
 
 func TestStringLiteralExpression(t *testing.T) {
-	Convey("String literal expression eval test", t, func() {
+	Convey("String literal expression test", t, func() {
 		expecteds := []struct{
 			source string
 			result string
