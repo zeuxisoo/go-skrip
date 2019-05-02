@@ -70,6 +70,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 		return evalInfixExpression(left, node.Operator, right, env)
+	// Expression Flows
+	case *ast.IfExpression:
+		return evalIfExpression(node, env)
 	}
 
 	return NIL
@@ -386,6 +389,25 @@ func evalInfixExpression(left object.Object, operator string, right object.Objec
 	default:
 		return newError("Unknown operator %s %s %s", left.Type(), operator, right.Type())
 	}
+}
+
+func evalIfExpression(ifExp *ast.IfExpression, env *object.Environment) object.Object {
+	for _, scene := range ifExp.Scenes {
+		condition := Eval(scene.Condition, env)
+		if isError(condition) == true {
+			return condition
+		}
+
+		if isTruthy(condition) == true {
+			return Eval(scene.Block, env)
+		}
+	}
+
+	if ifExp.Alternative != nil {
+		return Eval(ifExp.Alternative, env)
+	}
+
+	return NIL
 }
 
 // For boolean expression
@@ -940,6 +962,27 @@ func objectToNativeBoolean(obj object.Object) bool {
 			return false
 		}
 		return true
+	default:
+		return true
+	}
+}
+
+func isTruthy(obj object.Object) bool {
+	switch o := obj.(type) {
+	case *object.Boolean:
+		return o.Value
+	case *object.Nil:
+		return false
+	case *object.String:
+		return len(o.Value) != 0
+	case *object.Integer:
+		return o.Value != 0
+	case *object.Float:
+		return o.Value != 0.0
+	case *object.Array:
+		return len(o.Elements) != 0
+	case *object.Hash:
+		return len(o.Pairs) != 0
 	default:
 		return true
 	}
