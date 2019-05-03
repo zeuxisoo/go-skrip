@@ -1578,6 +1578,36 @@ func TestForEachRangeExpression(t *testing.T) {
 	})
 }
 
+func TestBreakExpression(t *testing.T) {
+	Convey("Break expression test", t, func() {
+		source   := `break;`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		breakExpression, ok := statement.Expression.(*ast.BreakExpression)
+		Convey("Can convert to break expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Break expression token literal should be break", func() {
+			So(breakExpression.TokenLiteral(), ShouldEqual, "break")
+			So(breakExpression.String(), ShouldEqual, "break")
+		})
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {

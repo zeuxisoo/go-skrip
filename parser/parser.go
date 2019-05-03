@@ -52,6 +52,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerPrefixParseFunction(token.LEFT_PARENTHESIS, parser.parseGroupedExpression)
 	parser.registerPrefixParseFunction(token.IF, parser.parseIfExpression)
 	parser.registerPrefixParseFunction(token.FOR, parser.parseForExpression)
+	parser.registerPrefixParseFunction(token.BREAK, parser.parseBreakExpression)
 
 	parser.infixParseFunctions = make(map[token.Type]infixParseFunction)
 	parser.registerInfixParseFunction(token.PLUS, parser.parseInfixExpression)
@@ -558,6 +559,12 @@ func (p *Parser) parseForExpression() ast.Expression {
 	}
 
 	return p.parseForEachArrayOrRangeExpression(tokenFor, p.currentToken)
+}
+
+func (p *Parser) parseBreakExpression() ast.Expression {
+	return &ast.BreakExpression{
+		Token: p.currentToken,
+	}
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {

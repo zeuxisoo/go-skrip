@@ -56,4 +56,5 @@ const (
 	FOR      = "FOR"
 	IN       = "IN"
 	NIL      = "NIL"
+	BREAK    = "BREAK"
 )
