@@ -841,6 +841,21 @@ func TestInfixExpression(t *testing.T) {
 	})
 }
 
+func TestBreakExpression(t *testing.T) {
+	Convey("Break expression test", t, func() {
+		expected := struct{
+			source string
+			result string
+		}{
+			`break`, "break",
+		}
+
+		evaluated := testEval(expected.source)
+
+		testBreakObject(evaluated, expected.result)
+	})
+}
+
 func TestIfExpression(t *testing.T) {
 	Convey("If expression test", t, func() {
 		expecteds := []struct{
@@ -1146,6 +1161,17 @@ func testHashObject(obj object.Object, expected expectedHash) {
 
 	Convey(runMessage(`Order should equals %s`, expected.order), func() {
 		So(compareOrders, ShouldResemble, expected.order)
+	})
+}
+
+func testBreakObject(obj object.Object, expected string) {
+	result, ok := obj.(*object.Break)
+	Convey("Can convert object (break)", func() {
+		So(ok, ShouldBeTrue)
+	})
+
+	Convey("Break was matched", func() {
+		So(result.Inspect(), ShouldEqual, expected)
 	})
 }
 
