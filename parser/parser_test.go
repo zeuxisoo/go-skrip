@@ -1608,6 +1608,36 @@ func TestBreakExpression(t *testing.T) {
 	})
 }
 
+func TestContinueExpression(t *testing.T) {
+	Convey("Continue expression test", t, func() {
+		source   := `continue;`
+
+		theLexer   := lexer.NewLexer(source)
+		theParser  := NewParser(theLexer)
+		theProgram := theParser.Parse()
+
+		Convey("Parse program check", func() {
+			testParserError(theParser)
+			testParserProgramLength(theProgram, 1)
+		})
+
+		statement, ok := theProgram.Statements[0].(*ast.ExpressionStatement)
+		Convey("Can convert to expression statement", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		continueExpression, ok := statement.Expression.(*ast.ContinueExpression)
+		Convey("Can convert to continue expression", func() {
+			So(ok, ShouldBeTrue)
+		})
+
+		Convey("Continue expression token literal should be continue", func() {
+			So(continueExpression.TokenLiteral(), ShouldEqual, "continue")
+			So(continueExpression.String(), ShouldEqual, "continue")
+		})
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {

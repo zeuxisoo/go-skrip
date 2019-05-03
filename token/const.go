@@ -57,4 +57,5 @@ const (
 	IN       = "IN"
 	NIL      = "NIL"
 	BREAK    = "BREAK"
+	CONTINUE = "CONTINUE"
 )
