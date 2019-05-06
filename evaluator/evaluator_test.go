@@ -856,6 +856,21 @@ func TestBreakExpression(t *testing.T) {
 	})
 }
 
+func TestContinueExpression(t *testing.T) {
+	Convey("Continue expression test", t, func() {
+		expected := struct{
+			source string
+			result string
+		}{
+			`continue`, "continue",
+		}
+
+		evaluated := testEval(expected.source)
+
+		testContinueObject(evaluated, expected.result)
+	})
+}
+
 func TestIfExpression(t *testing.T) {
 	Convey("If expression test", t, func() {
 		expecteds := []struct{
@@ -1171,6 +1186,17 @@ func testBreakObject(obj object.Object, expected string) {
 	})
 
 	Convey("Break was matched", func() {
+		So(result.Inspect(), ShouldEqual, expected)
+	})
+}
+
+func testContinueObject(obj object.Object, expected string) {
+	result, ok := obj.(*object.Continue)
+	Convey("Can convert object (continue)", func() {
+		So(ok, ShouldBeTrue)
+	})
+
+	Convey("Continue was matched", func() {
 		So(result.Inspect(), ShouldEqual, expected)
 	})
 }
