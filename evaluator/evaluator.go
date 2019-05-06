@@ -9,10 +9,11 @@ import (
 )
 
 var (
-	NIL   = &object.Nil{}
-	TRUE  = &object.Boolean{ Value: true }
-	FALSE = &object.Boolean{ Value: false }
-	BREAK = &object.Break{}
+	NIL      = &object.Nil{}
+	TRUE     = &object.Boolean{ Value: true }
+	FALSE    = &object.Boolean{ Value: false }
+	BREAK    = &object.Break{}
+	CONTINUE = &object.Continue{}
 )
 
 var builtIns = map[string]*object.BuiltIn{}
@@ -73,6 +74,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalInfixExpression(left, node.Operator, right, env)
 	case *ast.BreakExpression:
 		return BREAK
+	case *ast.ContinueExpression:
+		return CONTINUE
 	// Expression Flows
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
