@@ -1,11 +1,13 @@
 package ast
 
 import (
-    "github.com/zeuxisoo/go-skrip/token"
+	"bytes"
+
+	"github.com/zeuxisoo/go-skrip/token"
 )
 
 type ContinueExpression struct {
-    Token token.Token
+	Token token.Token
 }
 
 func (c *ContinueExpression) expressionNode() {
@@ -13,9 +15,14 @@ func (c *ContinueExpression) expressionNode() {
 
 // Implement methods for Node interface
 func (c *ContinueExpression) TokenLiteral() string {
-    return c.Token.Literal
+	return c.Token.Literal
 }
 
 func (c *ContinueExpression) String() string {
-    return c.Token.Literal
+	var out bytes.Buffer
+
+	out.WriteString(c.Token.Literal)
+	out.WriteString("; ")
+
+	return out.String()
 }

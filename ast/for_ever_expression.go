@@ -25,7 +25,7 @@ func (f *ForEverExpression) String() string {
 	out.WriteString("for")
 	out.WriteString(" { ")
 	out.WriteString(f.Block.String())
-	out.WriteString(" } ")
+	out.WriteString("} ")
 
 	return out.String()
 }
