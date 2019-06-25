@@ -2,24 +2,24 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 	"io/ioutil"
+	"strings"
 
 	"github.com/urfave/cli"
 
-	"github.com/zeuxisoo/go-skrip/pkg/logger"
-	"github.com/zeuxisoo/go-skrip/lexer"
-	"github.com/zeuxisoo/go-skrip/parser"
 	"github.com/zeuxisoo/go-skrip/evaluator"
+	"github.com/zeuxisoo/go-skrip/lexer"
 	"github.com/zeuxisoo/go-skrip/object"
+	"github.com/zeuxisoo/go-skrip/parser"
+	"github.com/zeuxisoo/go-skrip/pkg/logger"
 )
 
 // Run command for run the script file
 var Run = cli.Command{
-	Name: "run",
-	Usage: "Run the script",
+	Name:        "run",
+	Usage:       "Run the script",
 	Description: "Run the provided script file",
-	Action: runRun,
+	Action:      runRun,
 }
 
 func runRun(c *cli.Context) error {
@@ -35,24 +35,29 @@ func runRun(c *cli.Context) error {
 		logger.Fatal("%v", err)
 	}
 
-	theLexer   := lexer.NewLexer(string(contentBytes))
-	theParser  := parser.NewParser(theLexer)
+	theLexer := lexer.NewLexer(string(contentBytes))
+	theParser := parser.NewParser(theLexer)
 	theProgram := theParser.Parse()
 
 	if len(theParser.Errors()) > 0 {
 		for _, message := range theParser.Errors() {
 			logger.Error(message)
 		}
-	}else{
-		theEnvironment  := object.NewEnvironment()
-		theEvaluator    := evaluator.Eval(theProgram, theEnvironment)
+	} else {
+		fmt.Println("AST:")
+		fmt.Println(theProgram.String())
+		fmt.Println()
+
+		theEnvironment := object.NewEnvironment()
+		theEvaluator := evaluator.Eval(theProgram, theEnvironment)
+
+		fmt.Println("Result:")
 
 		if theEvaluator != nil {
-			fmt.Println(theProgram.String())
 			fmt.Println(theEvaluator)
-			fmt.Println("OK!")
-		}else{
-			fmt.Println("Error!")
+			fmt.Println("\nOK!")
+		} else {
+			fmt.Println("\n\nError!")
 		}
 	}
 
