@@ -10,8 +10,8 @@ import (
 
 var (
 	NIL      = &object.Nil{}
-	TRUE     = &object.Boolean{ Value: true }
-	FALSE    = &object.Boolean{ Value: false }
+	TRUE     = &object.Boolean{Value: true}
+	FALSE    = &object.Boolean{Value: false}
 	BREAK    = &object.Break{}
 	CONTINUE = &object.Continue{}
 )
@@ -79,6 +79,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	// Expression Flows
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
+	case *ast.ForEverExpression:
+		return evalForEverExpression(node, env)
 	}
 
 	return NIL
@@ -149,7 +151,10 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 		if obj != nil {
 			objectType := obj.Type()
 
-			if objectType == object.RETURN_VALUE_OBJECT || objectType == object.ERROR_OBJECT {
+			if objectType == object.RETURN_VALUE_OBJECT ||
+				objectType == object.ERROR_OBJECT ||
+				objectType == object.BREAK_OBJECT ||
+				objectType == object.CONTINUE_OBJECT {
 				return obj
 			}
 		}
@@ -243,7 +248,7 @@ func evalHashLiteralExpression(hash *ast.HashLiteralExpression, env *object.Envi
 
 		// Create pair and add to hash object pairs
 		hashObject.Pairs[hashedKey] = object.HashPair{
-			Key  : key,
+			Key:   key,
 			Value: value,
 		}
 	}
@@ -253,8 +258,8 @@ func evalHashLiteralExpression(hash *ast.HashLiteralExpression, env *object.Envi
 
 func evalFunctionLiteralExpression(function *ast.FunctionLiteralExpression, env *object.Environment) object.Object {
 	return &object.Function{
-		Parameters : function.Parameters,
-		Block      : function.Block,
+		Parameters:  function.Parameters,
+		Block:       function.Block,
 		Environment: env,
 	}
 }
@@ -356,7 +361,7 @@ func evalPrefixExpression(prefix *ast.PrefixExpression, env *object.Environment)
 	}
 }
 
-func evalInfixExpression(left object.Object, operator string, right object.Object, env *object.Environment)  object.Object {
+func evalInfixExpression(left object.Object, operator string, right object.Object, env *object.Environment) object.Object {
 	switch {
 	// and
 	case operator == "&&":
@@ -411,6 +416,34 @@ func evalIfExpression(ifExp *ast.IfExpression, env *object.Environment) object.O
 
 	if ifExp.Alternative != nil {
 		return Eval(ifExp.Alternative, env)
+	}
+
+	return NIL
+}
+
+func evalForEverExpression(forever *ast.ForEverExpression, env *object.Environment) object.Object {
+	for {
+		block := Eval(forever.Block, env)
+
+		if isError(block) == true {
+			return block
+		}
+
+		if _, ok := block.(*object.Break); ok {
+			break
+		}
+
+		if _, ok := block.(*object.Continue); ok {
+			continue
+		}
+
+		if returnValue, ok := block.(*object.ReturnValue); ok {
+			if returnValue.Value != nil {
+				return returnValue
+			}
+
+			break
+		}
 	}
 
 	return NIL
@@ -477,7 +510,7 @@ func unwrapReturnValue(obj object.Object) object.Object {
 // For range expression
 func evalRangeIntegerExpression(start object.Object, end object.Object) object.Object {
 	startObject := start.(*object.Integer)
-	endObject   := end.(*object.Integer)
+	endObject := end.(*object.Integer)
 
 	elements := make([]object.Object, 0)
 	for i := startObject.Value; i < endObject.Value; i++ {
@@ -493,7 +526,7 @@ func evalRangeIntegerExpression(start object.Object, end object.Object) object.O
 
 func evalRangeFloatExpression(start object.Object, end object.Object) object.Object {
 	startObject := start.(*object.Float)
-	endObject   := end.(*object.Float)
+	endObject := end.(*object.Float)
 
 	elements := make([]object.Object, 0)
 	for i := startObject.Value; i < endObject.Value; i += 0.1 {
@@ -509,7 +542,7 @@ func evalRangeFloatExpression(start object.Object, end object.Object) object.Obj
 
 func evalRangeStringExpression(start object.Object, end object.Object) object.Object {
 	startObject := start.(*object.String)
-	endObject   := end.(*object.String)
+	endObject := end.(*object.String)
 
 	if len(startObject.Value) > 1 {
 		return newError("Range start value must be char only")
@@ -522,7 +555,7 @@ func evalRangeStringExpression(start object.Object, end object.Object) object.Ob
 	elements := make([]object.Object, 0)
 
 	startByte := int32([]rune(startObject.Value)[0])
-	endByte   := int32([]rune(endObject.Value)[0])
+	endByte := int32([]rune(endObject.Value)[0])
 
 	if startByte >= endByte {
 		// E.g. z -> a
@@ -531,7 +564,7 @@ func evalRangeStringExpression(start object.Object, end object.Object) object.Ob
 				Value: string(string(i)),
 			})
 		}
-	}else{
+	} else {
 		// E.g. a -> z
 		for i := startByte; i < endByte; i++ {
 			elements = append(elements, &object.String{
@@ -552,7 +585,7 @@ func evalArrayIndexExpression(left object.Object, index object.Object) object.Ob
 	indexObject := index.(*object.Integer)
 
 	indexValue := indexObject.Value
-	maxLength  := int64(len(arrayObject.Elements) - 1)
+	maxLength := int64(len(arrayObject.Elements) - 1)
 
 	if indexValue < 0 || indexValue > maxLength {
 		return NIL
@@ -582,12 +615,12 @@ func evalHashIndexExpression(left object.Object, index object.Object) object.Obj
 func evalStringIndexExpression(left object.Object, index object.Object) object.Object {
 	// for string[integer]
 	stringObject := left.(*object.String)
-	indexObject  := index.(*object.Integer)
+	indexObject := index.(*object.Integer)
 
 	stringValue := stringObject.Value
-	indexValue  := indexObject.Value
+	indexValue := indexObject.Value
 
-	maxLength   := int64(len(stringValue) - 1)
+	maxLength := int64(len(stringValue) - 1)
 
 	if indexValue < 0 || indexValue > maxLength {
 		return NIL
@@ -661,7 +694,7 @@ func evalPlusPrefixOperatorExpression(right object.Object) object.Object {
 
 // For infix expression
 func evalIntegerIntegerInfixExpression(left object.Object, operator string, right object.Object) object.Object {
-	leftInteger  := left.(*object.Integer)
+	leftInteger := left.(*object.Integer)
 	rightInteger := right.(*object.Integer)
 
 	leftValue := leftInteger.Value
@@ -669,13 +702,13 @@ func evalIntegerIntegerInfixExpression(left object.Object, operator string, righ
 
 	switch operator {
 	case "+":
-		return &object.Integer{ Value: leftValue + rightValue }
+		return &object.Integer{Value: leftValue + rightValue}
 	case "-":
-		return &object.Integer{ Value: leftValue - rightValue }
+		return &object.Integer{Value: leftValue - rightValue}
 	case "*":
-		return &object.Integer{ Value: leftValue * rightValue }
+		return &object.Integer{Value: leftValue * rightValue}
 	case "/":
-		return &object.Integer{ Value: leftValue / rightValue }
+		return &object.Integer{Value: leftValue / rightValue}
 	case "<":
 		return nativeBoolToBooleanObject(leftValue < rightValue)
 	case ">":
@@ -695,20 +728,20 @@ func evalIntegerIntegerInfixExpression(left object.Object, operator string, righ
 
 func evalIntegerFloatInfixExpression(left object.Object, operator string, right object.Object) object.Object {
 	leftInteger := left.(*object.Integer)
-	rightFloat  := right.(*object.Float)
+	rightFloat := right.(*object.Float)
 
-	leftValue  := float64(leftInteger.Value)
+	leftValue := float64(leftInteger.Value)
 	rightValue := rightFloat.Value
 
 	switch operator {
 	case "+":
-		return &object.Float{ Value: humanFloat(leftValue + rightValue) }
+		return &object.Float{Value: humanFloat(leftValue + rightValue)}
 	case "-":
-		return &object.Float{ Value: humanFloat(leftValue - rightValue) }
+		return &object.Float{Value: humanFloat(leftValue - rightValue)}
 	case "*":
-		return &object.Float{ Value: humanFloat(leftValue * rightValue) }
+		return &object.Float{Value: humanFloat(leftValue * rightValue)}
 	case "/":
-		return &object.Float{ Value: humanFloat(leftValue / rightValue) }
+		return &object.Float{Value: humanFloat(leftValue / rightValue)}
 	case "<":
 		return nativeBoolToBooleanObject(leftValue < rightValue)
 	case ">":
@@ -728,20 +761,20 @@ func evalIntegerFloatInfixExpression(left object.Object, operator string, right 
 
 func evalFloatFloatInfixExpression(left object.Object, operator string, right object.Object) object.Object {
 	leftFloat := left.(*object.Float)
-	rightFloat  := right.(*object.Float)
+	rightFloat := right.(*object.Float)
 
-	leftValue  := leftFloat.Value
+	leftValue := leftFloat.Value
 	rightValue := rightFloat.Value
 
 	switch operator {
 	case "+":
-		return &object.Float{ Value: humanFloat(leftValue + rightValue) }
+		return &object.Float{Value: humanFloat(leftValue + rightValue)}
 	case "-":
-		return &object.Float{ Value: humanFloat(leftValue - rightValue) }
+		return &object.Float{Value: humanFloat(leftValue - rightValue)}
 	case "*":
-		return &object.Float{ Value: humanFloat(leftValue * rightValue) }
+		return &object.Float{Value: humanFloat(leftValue * rightValue)}
 	case "/":
-		return &object.Float{ Value: humanFloat(leftValue / rightValue) }
+		return &object.Float{Value: humanFloat(leftValue / rightValue)}
 	case "<":
 		return nativeBoolToBooleanObject(leftValue < rightValue)
 	case ">":
@@ -760,21 +793,21 @@ func evalFloatFloatInfixExpression(left object.Object, operator string, right ob
 }
 
 func evalFloatIntegerInfixExpression(left object.Object, operator string, right object.Object) object.Object {
-	leftFloat    := left.(*object.Float)
+	leftFloat := left.(*object.Float)
 	rightInteger := right.(*object.Integer)
 
-	leftValue  := leftFloat.Value
+	leftValue := leftFloat.Value
 	rightValue := float64(rightInteger.Value)
 
 	switch operator {
 	case "+":
-		return &object.Float{ Value: humanFloat(leftValue + rightValue) }
+		return &object.Float{Value: humanFloat(leftValue + rightValue)}
 	case "-":
-		return &object.Float{ Value: humanFloat(leftValue - rightValue) }
+		return &object.Float{Value: humanFloat(leftValue - rightValue)}
 	case "*":
-		return &object.Float{ Value: humanFloat(leftValue * rightValue) }
+		return &object.Float{Value: humanFloat(leftValue * rightValue)}
 	case "/":
-		return &object.Float{ Value: humanFloat(leftValue / rightValue) }
+		return &object.Float{Value: humanFloat(leftValue / rightValue)}
 	case "<":
 		return nativeBoolToBooleanObject(leftValue < rightValue)
 	case ">":
@@ -793,15 +826,15 @@ func evalFloatIntegerInfixExpression(left object.Object, operator string, right 
 }
 
 func evalStringStringInfixExpression(left object.Object, operator string, right object.Object) object.Object {
-	leftString  := left.(*object.String)
+	leftString := left.(*object.String)
 	rightString := right.(*object.String)
 
-	leftValue  := leftString.Value
+	leftValue := leftString.Value
 	rightValue := rightString.Value
 
 	switch operator {
 	case "+":
-		return &object.String{ Value: leftValue + rightValue }
+		return &object.String{Value: leftValue + rightValue}
 	case "<":
 		return nativeBoolToBooleanObject(leftValue < rightValue)
 	case ">":
@@ -820,15 +853,15 @@ func evalStringStringInfixExpression(left object.Object, operator string, right 
 }
 
 func evalArrayArrayInfixExpression(left object.Object, operator string, right object.Object, env *object.Environment) object.Object {
-	leftArray  := left.(*object.Array)
+	leftArray := left.(*object.Array)
 	rightArray := right.(*object.Array)
 
-	leftElements  := leftArray.Elements
+	leftElements := leftArray.Elements
 	rightElements := rightArray.Elements
 
 	switch operator {
 	case "+":
-		return &object.Array{ Elements: append(leftElements, rightElements...) }
+		return &object.Array{Elements: append(leftElements, rightElements...)}
 	case "==":
 		if len(leftElements) != len(rightElements) {
 			return FALSE
@@ -855,10 +888,10 @@ func evalArrayArrayInfixExpression(left object.Object, operator string, right ob
 }
 
 func evalHashHashInfixExpression(left object.Object, operator string, right object.Object) object.Object {
-	leftHash  := left.(*object.Hash)
+	leftHash := left.(*object.Hash)
 	rightHash := right.(*object.Hash)
 
-	leftPairs  := leftHash.Pairs
+	leftPairs := leftHash.Pairs
 	rightPairs := rightHash.Pairs
 
 	switch operator {
@@ -876,10 +909,10 @@ func evalHashHashInfixExpression(left object.Object, operator string, right obje
 				}
 
 				leftPairs[hashKey] = object.HashPair{
-					Key  : pair.Key,
+					Key:   pair.Key,
 					Value: pair.Value,
 				}
-			}else{
+			} else {
 				return newError("Cannot use %s as hash key", pair.Key.Type())
 			}
 		}
@@ -899,8 +932,8 @@ func evalHashHashInfixExpression(left object.Object, operator string, right obje
 				if leftPairKey.Value == rightPairKey.Value &&
 					leftPair.Key.Inspect() == rightPair.Key.Inspect() &&
 					leftPair.Value.Inspect() == rightPair.Value.Inspect() {
-						matchCount = matchCount + 1
-					}
+					matchCount = matchCount + 1
+				}
 			}
 		}
 
@@ -927,7 +960,7 @@ func evalExpressions(expressions []ast.Expression, env *object.Environment) []ob
 	for _, expression := range expressions {
 		evaluated := Eval(expression, env)
 		if isError(evaluated) == true {
-			return []object.Object{ evaluated }
+			return []object.Object{evaluated}
 		}
 
 		objects = append(objects, evaluated)
