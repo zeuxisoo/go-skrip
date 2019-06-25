@@ -4,9 +4,9 @@ type Break struct {
 }
 
 func (b *Break) Type() ObjectType {
-    return BREAK_OBJECT
+	return BREAK_OBJECT
 }
 
 func (b *Break) Inspect() string {
-    return "break"
+	return "break"
 }
