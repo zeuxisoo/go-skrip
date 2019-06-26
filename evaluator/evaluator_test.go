@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -892,6 +893,45 @@ func TestIfExpression(t *testing.T) {
 	})
 }
 
+func TestForEverExpression(t *testing.T) {
+	Convey("For ever expresion test", t, func() {
+		expecteds := []struct {
+			source string
+			result interface{}
+		}{
+			{
+				`let a = 0;
+				for {
+					let a = a + 1;
+					if (a < 10) { continue; }else{ break; }
+				}
+				a;`,
+				10,
+			},
+			{
+				`let a = 1;
+				for {
+					let a = a + 1;
+
+					if (a / 2 == 1) {
+						return a;
+					}
+				}
+				a;`,
+				2,
+			},
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, Source: %s", index, codeToSingleLine(expected.source)), func() {
+				evaluated := testEval(expected.source)
+
+				testLiteralObject(evaluated, expected.result)
+			})
+		}
+	})
+}
+
 // Statements
 func TestLetStatement(t *testing.T) {
 	Convey("Let statement test", t, func() {
@@ -1204,4 +1244,16 @@ func testContinueObject(obj object.Object, expected string) {
 // Helper functions for common
 func runMessage(format string, values ...interface{}) string {
 	return fmt.Sprintf(format, values...)
+}
+
+func codeToSingleLine(text string) string {
+	var result string
+
+	reTab := regexp.MustCompile(`\t+`)
+	reLineBreak := regexp.MustCompile((`\n|\r|\r\n`))
+
+	result = reTab.ReplaceAllString(text, "")
+	result = reLineBreak.ReplaceAllString(result, " ")
+
+	return result
 }
