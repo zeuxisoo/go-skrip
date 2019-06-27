@@ -29,3 +29,7 @@ type Object interface {
 type Hashable interface {
 	HashKey() HashKey
 }
+
+type Iterable interface {
+	Iterable() bool
+}

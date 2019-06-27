@@ -27,3 +27,7 @@ func (a *Array) Inspect() string {
 
 	return out.String()
 }
+
+func (a *Array) Iterable() bool {
+	return true
+}

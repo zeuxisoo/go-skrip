@@ -81,6 +81,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIfExpression(node, env)
 	case *ast.ForEverExpression:
 		return evalForEverExpression(node, env)
+	case *ast.ForEachArrayOrRangeExpression:
+		return evalForEachArrayOrRangeExpression(node, env)
 	}
 
 	return NIL
@@ -424,6 +426,54 @@ func evalIfExpression(ifExp *ast.IfExpression, env *object.Environment) object.O
 func evalForEverExpression(forever *ast.ForEverExpression, env *object.Environment) object.Object {
 	for {
 		block := Eval(forever.Block, env)
+
+		if isError(block) == true {
+			return block
+		}
+
+		if _, ok := block.(*object.Break); ok {
+			break
+		}
+
+		if _, ok := block.(*object.Continue); ok {
+			continue
+		}
+
+		if returnValue, ok := block.(*object.ReturnValue); ok {
+			if returnValue.Value != nil {
+				return returnValue
+			}
+
+			break
+		}
+	}
+
+	return NIL
+}
+
+func evalForEachArrayOrRangeExpression(arrayOrRange *ast.ForEachArrayOrRangeExpression, env *object.Environment) object.Object {
+	iterable := Eval(arrayOrRange.Iterable, env)
+
+	_, ok := iterable.(object.Iterable)
+	if ok == false {
+		return newError("%s is not iterable", iterable.Inspect())
+	}
+
+	var items []object.Object
+
+	switch iter := iterable.(type) {
+	case *object.Array:
+		items = iter.Elements
+		break
+	default:
+		return newError("%s is a %s, not support for loop", iter.Inspect(), iter.Type())
+	}
+
+	for key, value := range items {
+		env.Set("_loopKey", &object.Integer{Value: int64(key)})
+		env.Set(arrayOrRange.Value, value)
+
+		block := Eval(arrayOrRange.Block, env)
 
 		if isError(block) == true {
 			return block
