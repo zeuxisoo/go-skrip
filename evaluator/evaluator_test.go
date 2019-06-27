@@ -932,6 +932,81 @@ func TestForEverExpression(t *testing.T) {
 	})
 }
 
+func TestForEachArrayOrRangeExpression(t *testing.T) {
+	Convey("For each array or range", t, func() {
+		expecteds := []struct {
+			source string
+			result interface{}
+		}{
+			{
+				`let a = 0;
+				for b in 1..4 {
+					let a = a + b;
+				}
+				a;`,
+				6,
+			},
+			{
+				`let a = 0;
+				for b in 0.1..0.4 {
+					let a = a + b;
+				}
+				a;`,
+				0.6,
+			},
+			{
+				`let a = "";
+				for b in "a".."d" {
+					let a = a + b;
+				}
+				a;`,
+				"abc",
+			},
+			{
+				`let a = 0;
+				for b in [1,2,3,4] {
+					let a = a + b;
+				}
+				a;`,
+				10,
+			},
+			{
+				`let a = 0;
+				for b in [1,2,3,4] {
+					if (b == 3) {
+						break;
+					}else{
+						let a = a + b;
+						continue;
+					}
+				}
+				a;`,
+				3,
+			},
+			{
+				`let a = 0;
+				for b in [1,2,3,4] {
+					let a = a + b;
+
+					if (a > 4) {
+						return a;
+					}
+				}
+				a;`,
+				6,
+			},
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, Source: %s", index, codeToSingleLine(expected.source)), func() {
+				evaluated := testEval(expected.source)
+
+				testLiteralObject(evaluated, expected.result)
+			})
+		}
+	})
+}
+
 // Statements
 func TestLetStatement(t *testing.T) {
 	Convey("Let statement test", t, func() {
