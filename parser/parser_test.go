@@ -7,18 +7,18 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/zeuxisoo/go-skrip/lexer"
 	"github.com/zeuxisoo/go-skrip/ast"
+	"github.com/zeuxisoo/go-skrip/lexer"
 )
 
 type expectedLetStatement struct {
-	source 		string
-	identifier 	string
-	value		interface{}
+	source     string
+	identifier string
+	value      interface{}
 }
 
 type expectedReturnStatement struct {
-	source 		string
+	source      string
 	returnValue interface{}
 }
 
@@ -26,10 +26,10 @@ type expectedReturnStatement struct {
 func TestLetStatement(t *testing.T) {
 	Convey("Let statement testing", t, func() {
 		expectedStatements := []expectedLetStatement{
-			{ "let a = 5;",		"a",	5 },
-			{ "let b = 5.1",	"b",	5.1 },
-			{ "let c = true",	"c",	true },
-			{ "let d = c",		"d",	"c" },
+			{"let a = 5;", "a", 5},
+			{"let b = 5.1", "b", 5.1},
+			{"let c = true", "c", true},
+			{"let d = c", "d", "c"},
 		}
 
 		testLetStatement(expectedStatements)
@@ -38,11 +38,11 @@ func TestLetStatement(t *testing.T) {
 
 func TestBadLetStatement(t *testing.T) {
 	Convey("Bad let statement testing", t, func() {
-		sources := []string{ "let", "let x;" }
+		sources := []string{"let", "let x;"}
 
 		for _, source := range sources {
-			theLexer   := lexer.NewLexer(source)
-			theParser  := NewParser(theLexer)
+			theLexer := lexer.NewLexer(source)
+			theParser := NewParser(theLexer)
 			theProgram := theParser.Parse()
 
 			So(theProgram, ShouldNotBeNil)
@@ -55,10 +55,10 @@ func TestBadLetStatement(t *testing.T) {
 func TestReturnStatement(t *testing.T) {
 	Convey("Return statement testing", t, func() {
 		expectedStatements := []expectedReturnStatement{
-			{ "return 5;", 		5 },
-			{ "return 10.1;", 	10.1 },
-			{ "return true;", 	true },
-			{ "return foo;", 	"foo" },
+			{"return 5;", 5},
+			{"return 10.1;", 10.1},
+			{"return true;", true},
+			{"return foo;", "foo"},
 		}
 
 		testReturnStatement(expectedStatements)
@@ -69,8 +69,8 @@ func TestFunctionStatement(t *testing.T) {
 	Convey("Function statement testing", t, func() {
 		source := `func funcName(x, y) { x + y; };`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -111,8 +111,8 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	Convey("Integer literal expression test", t, func() {
 		source := `5;`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -141,8 +141,8 @@ func TestFloatLiteralExpression(t *testing.T) {
 	Convey("Float literal expression test", t, func() {
 		source := `12.34;`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -171,8 +171,8 @@ func TestStringLiteralExpression(t *testing.T) {
 	Convey("String literal expression test", t, func() {
 		source := `"Hello World";`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -199,10 +199,10 @@ func TestStringLiteralExpression(t *testing.T) {
 
 func TestNilLiteralExpression(t *testing.T) {
 	Convey("Nil expression test", t, func() {
-		source := `nil;`;
+		source := `nil;`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -230,8 +230,8 @@ func TestLetStatementFunctionLiteralExpression(t *testing.T) {
 	Convey("Let statement function literal expression test", t, func() {
 		source := `let foo = func(x, y) { x + y; }`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -279,20 +279,20 @@ func TestLetStatementFunctionLiteralExpression(t *testing.T) {
 
 func TestLetStatementFunctionParameterParsing(t *testing.T) {
 	Convey("Let statement function parameter parsing test", t, func() {
-		expectedStatements := []struct{
-			source 		string
-			parameters 	[]string
+		expectedStatements := []struct {
+			source     string
+			parameters []string
 		}{
-			{ "let foo = func() {};", 			[]string{} },
-			{ "let foo = func(x) {};", 			[]string{ "x" } },
-			{ "let foo = func(x, y, z) {};",  	[]string{ "x", "y", "z" } },
+			{"let foo = func() {};", []string{}},
+			{"let foo = func(x) {};", []string{"x"}},
+			{"let foo = func(x, y, z) {};", []string{"x", "y", "z"}},
 		}
 
 		for index, expected := range expectedStatements {
 			message := runMessage("Running %d, Source: %s", index, expected.source)
 
-			theLexer   := lexer.NewLexer(expected.source)
-			theParser  := NewParser(theLexer)
+			theLexer := lexer.NewLexer(expected.source)
+			theParser := NewParser(theLexer)
 			theProgram := theParser.Parse()
 
 			Convey(message, func() {
@@ -340,8 +340,8 @@ func TestNoNamedFunctionLiteralExpression(t *testing.T) {
 	Convey("No named function literal expression test", t, func() {
 		source := `func(x, y) { x + y; }`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -385,20 +385,20 @@ func TestNoNamedFunctionLiteralExpression(t *testing.T) {
 
 func TestNoNamedFunctionParameterParsing(t *testing.T) {
 	Convey("No named function parameter parsing test", t, func() {
-		expectedStatements := []struct{
-			source 		string
-			parameters 	[]string
+		expectedStatements := []struct {
+			source     string
+			parameters []string
 		}{
-			{ "func() {};", 		[]string{} },
-			{ "func(x) {};", 		[]string{ "x" } },
-			{ "func(x, y, z) {};",  []string{ "x", "y", "z" } },
+			{"func() {};", []string{}},
+			{"func(x) {};", []string{"x"}},
+			{"func(x, y, z) {};", []string{"x", "y", "z"}},
 		}
 
 		for index, expected := range expectedStatements {
 			message := runMessage("Running %d, Source: %s", index, expected.source)
 
-			theLexer   := lexer.NewLexer(expected.source)
-			theParser  := NewParser(theLexer)
+			theLexer := lexer.NewLexer(expected.source)
+			theParser := NewParser(theLexer)
 			theProgram := theParser.Parse()
 
 			Convey(message, func() {
@@ -440,10 +440,10 @@ func TestNoNamedFunctionParameterParsing(t *testing.T) {
 
 func TestIdentifierExpression(t *testing.T) {
 	Convey("Identifier expression test", t, func() {
-		source := `foobar;`;
+		source := `foobar;`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -470,19 +470,19 @@ func TestIdentifierExpression(t *testing.T) {
 
 func TestBooleanExpression(t *testing.T) {
 	Convey("Boolean expression test", t, func() {
-		expectedExpressions := []struct{
+		expectedExpressions := []struct {
 			source string
 			value  bool
 		}{
-			{ "true;",  true },
-			{ "false;", false },
+			{"true;", true},
+			{"false;", false},
 		}
 
 		for index, expression := range expectedExpressions {
 			message := runMessage("Running %d, Source: %s", index, expression.source)
 
-			theLexer   := lexer.NewLexer(expression.source)
-			theParser  := NewParser(theLexer)
+			theLexer := lexer.NewLexer(expression.source)
+			theParser := NewParser(theLexer)
 			theProgram := theParser.Parse()
 
 			Convey(message, func() {
@@ -505,7 +505,7 @@ func TestBooleanExpression(t *testing.T) {
 					"Boolean expression value should be equal %s",
 					strconv.FormatBool(expression.value),
 				), func() {
-						So(booleanExpression.Value, ShouldEqual, expression.value)
+					So(booleanExpression.Value, ShouldEqual, expression.value)
 				})
 			})
 		}
@@ -514,26 +514,26 @@ func TestBooleanExpression(t *testing.T) {
 
 func TestPrefixExpression(t *testing.T) {
 	Convey("Prefix expression test", t, func() {
-		expectedExpressions := []struct{
-			source 		string
-			operator 	string
-			value 		interface{}
+		expectedExpressions := []struct {
+			source   string
+			operator string
+			value    interface{}
 		}{
-			{ "!5", 	 "!", 	5 },
-			{ "-10", 	 "-", 	10 },
-			{ "+15",     "+",   15 },
-			{ "!foobar", "!",	"foobar" },
-			{ "-foobar", "-", 	"foobar"} ,
-			{ "+foobar", "+",   "foobar" },
-			{ "!true",	 "!",	true },
-			{ "!false",  "!",   false },
+			{"!5", "!", 5},
+			{"-10", "-", 10},
+			{"+15", "+", 15},
+			{"!foobar", "!", "foobar"},
+			{"-foobar", "-", "foobar"},
+			{"+foobar", "+", "foobar"},
+			{"!true", "!", true},
+			{"!false", "!", false},
 		}
 
 		for index, expression := range expectedExpressions {
 			message := runMessage("Running %d, Source: %s", index, expression.source)
 
-			theLexer   := lexer.NewLexer(expression.source)
-			theParser  := NewParser(theLexer)
+			theLexer := lexer.NewLexer(expression.source)
+			theParser := NewParser(theLexer)
 			theProgram := theParser.Parse()
 
 			Convey(message, func() {
@@ -567,45 +567,45 @@ func TestPrefixExpression(t *testing.T) {
 
 func TestInfixExpression(t *testing.T) {
 	Convey("Infix expression test", t, func() {
-		expectedExpressions := []struct{
-			source 		string
-			leftValue 	interface{}
-			operator 	string
-			rightValue 	interface{}
+		expectedExpressions := []struct {
+			source     string
+			leftValue  interface{}
+			operator   string
+			rightValue interface{}
 		}{
-			{ "10 + 10;", 	10, 	"+", 	10 },
-			{ "11 - 11;", 	11, 	"-", 	11 },
-			{ "12 * 12;", 	12, 	"*", 	12 },
-			{ "13 / 13;", 	13, 	"/", 	13 },
-			{ "14 > 14;", 	14, 	">", 	14 },
-			{ "15 < 15;", 	15, 	"<", 	15 },
-			{ "16 == 16;", 	16, 	"==", 	16 },
-			{ "17 != 17;", 	17, 	"!=", 	17 },
+			{"10 + 10;", 10, "+", 10},
+			{"11 - 11;", 11, "-", 11},
+			{"12 * 12;", 12, "*", 12},
+			{"13 / 13;", 13, "/", 13},
+			{"14 > 14;", 14, ">", 14},
+			{"15 < 15;", 15, "<", 15},
+			{"16 == 16;", 16, "==", 16},
+			{"17 != 17;", 17, "!=", 17},
 
-			{ "foobar1 + barfoo1;", 	"foobar1", 	"+", 	"barfoo1" },
-			{ "foobar2 - barfoo2;", 	"foobar2", 	"-", 	"barfoo2" },
-			{ "foobar3 * barfoo3;", 	"foobar3", 	"*", 	"barfoo3" },
-			{ "foobar4 / barfoo4;", 	"foobar4", 	"/", 	"barfoo4" },
-			{ "foobar5 > barfoo5;", 	"foobar5", 	">", 	"barfoo5" },
-			{ "foobar6 < barfoo6;", 	"foobar6", 	"<", 	"barfoo6" },
-			{ "foobar7 == barfoo7;", 	"foobar7", 	"==", 	"barfoo7" },
-			{ "foobar8 != barfoo8;", 	"foobar8", 	"!=", 	"barfoo8" },
+			{"foobar1 + barfoo1;", "foobar1", "+", "barfoo1"},
+			{"foobar2 - barfoo2;", "foobar2", "-", "barfoo2"},
+			{"foobar3 * barfoo3;", "foobar3", "*", "barfoo3"},
+			{"foobar4 / barfoo4;", "foobar4", "/", "barfoo4"},
+			{"foobar5 > barfoo5;", "foobar5", ">", "barfoo5"},
+			{"foobar6 < barfoo6;", "foobar6", "<", "barfoo6"},
+			{"foobar7 == barfoo7;", "foobar7", "==", "barfoo7"},
+			{"foobar8 != barfoo8;", "foobar8", "!=", "barfoo8"},
 
-			{ "true == true", 	true, 	"==", 	true },
-			{ "true != false",	true, 	"!=", 	false },
-			{ "false == false", false, 	"==", 	false },
+			{"true == true", true, "==", true},
+			{"true != false", true, "!=", false},
+			{"false == false", false, "==", false},
 
-			{ "foo && bar", 	"foo",	"&&",	"bar" },
-			{ "foo || bar", 	"foo",	"||",	"bar" },
-			{ "true && true",  	true,	"&&",	true},
-			{ "true && false", 	true,	"&&",	false },
+			{"foo && bar", "foo", "&&", "bar"},
+			{"foo || bar", "foo", "||", "bar"},
+			{"true && true", true, "&&", true},
+			{"true && false", true, "&&", false},
 		}
 
 		for index, expression := range expectedExpressions {
 			message := runMessage("Running %d, Source: %s", index, expression.source)
 
-			theLexer   := lexer.NewLexer(expression.source)
-			theParser  := NewParser(theLexer)
+			theLexer := lexer.NewLexer(expression.source)
+			theParser := NewParser(theLexer)
 			theProgram := theParser.Parse()
 
 			Convey(message, func() {
@@ -627,36 +627,36 @@ func TestInfixExpression(t *testing.T) {
 
 func TestOperatorPrecedence(t *testing.T) {
 	Convey("Operator precedence test", t, func() {
-		expectedExpressions := []struct{
-			source 		string
-			expected 	string
-			length 		int
+		expectedExpressions := []struct {
+			source   string
+			expected string
+			length   int
 		}{
-			{ "-a * b", 					"((-a) * b)",								1 },
-			{ "!-a", 						"(!(-a))",									1 },
-			{ "a + b + c", 					"((a + b) + c)", 							1 },
-			{ "a + b - c", 					"((a + b) - c)",							1 },
-			{ "a * b * c", 					"((a * b) * c)", 							1 },
-			{ "a * b / c", 					"((a * b) / c)",							1 },
-			{ "a + b / c", 					"(a + (b / c))", 							1 },
-			{ "a + b * c + d / e - f", 		"(((a + (b * c)) + (d / e)) - f)",			1 },
-			{ "3 + 4; -5 * 5", 				"(3 + 4)((-5) * 5)",						2 },
-			{ "5 > 4 == 3 < 4", 			"((5 > 4) == (3 < 4))",						1 },
-			{ "5 < 4 != 3 > 4", 			"((5 < 4) != (3 > 4))",						1 },
-			{ "3 + 4 * 5 == 3 * 1 + 4 * 5",	"((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",	1 },
+			{"-a * b", "((-a) * b)", 1},
+			{"!-a", "(!(-a))", 1},
+			{"a + b + c", "((a + b) + c)", 1},
+			{"a + b - c", "((a + b) - c)", 1},
+			{"a * b * c", "((a * b) * c)", 1},
+			{"a * b / c", "((a * b) / c)", 1},
+			{"a + b / c", "(a + (b / c))", 1},
+			{"a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)", 1},
+			{"3 + 4; -5 * 5", "(3 + 4)((-5) * 5)", 2},
+			{"5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))", 1},
+			{"5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))", 1},
+			{"3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))", 1},
 
-			{ "true", 	"true",		1 },
-			{ "false", 	"false",	1 },
+			{"true", "true", 1},
+			{"false", "false", 1},
 
-			{ "3 > 5 == false",	"((3 > 5) == false)",	1 },
-			{ "3 < 5 == true", 	"((3 < 5) == true)",	1 },
+			{"3 > 5 == false", "((3 > 5) == false)", 1},
+			{"3 < 5 == true", "((3 < 5) == true)", 1},
 		}
 
 		for index, expression := range expectedExpressions {
 			message := runMessage("Running %d, Source: %s", index, expression.source)
 
-			theLexer   := lexer.NewLexer(expression.source)
-			theParser  := NewParser(theLexer)
+			theLexer := lexer.NewLexer(expression.source)
+			theParser := NewParser(theLexer)
 			theProgram := theParser.Parse()
 
 			Convey(message, func() {
@@ -680,8 +680,8 @@ func TestArrayLiteralExpression(t *testing.T) {
 	Convey("Array literal expression test", t, func() {
 		source := `[1, 2 * 2, 3 + 3];`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -721,8 +721,8 @@ func TestEmptyArrayLieteralExpression(t *testing.T) {
 	Convey("Empty array literal expression test", t, func() {
 		source := `[];`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -748,15 +748,15 @@ func TestEmptyArrayLieteralExpression(t *testing.T) {
 
 func TestHashLiteralExpressionStringKeys(t *testing.T) {
 	Convey("Hash literal expression string keys test", t, func() {
-		source   := `{ "one": 1, "two": 2, "three":3 };`
+		source := `{ "one": 1, "two": 2, "three":3 };`
 		expected := map[string]int{
-			"one"  : 1,
-			"two"  : 2,
+			"one":   1,
+			"two":   2,
 			"three": 3,
 		}
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -780,7 +780,7 @@ func TestHashLiteralExpressionStringKeys(t *testing.T) {
 
 		Convey("Hash values should matched", func() {
 			for keyExpression, valueExpression := range hashLiteralExpression.Pairs {
-				keyString     := keyExpression.(*ast.StringLiteralExpression)
+				keyString := keyExpression.(*ast.StringLiteralExpression)
 				expectedValue := expected[keyString.String()]
 
 				testIntegerLiteralExpression(valueExpression, int64(expectedValue))
@@ -791,14 +791,14 @@ func TestHashLiteralExpressionStringKeys(t *testing.T) {
 
 func TestHashLiteralExpressionBooleanKeys(t *testing.T) {
 	Convey("Hash literal expression boolean keys test", t, func() {
-		source   := `{ true: 1, false: 2 };`
+		source := `{ true: 1, false: 2 };`
 		expected := map[string]int{
-			"true" : 1,
+			"true":  1,
 			"false": 2,
 		}
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -822,7 +822,7 @@ func TestHashLiteralExpressionBooleanKeys(t *testing.T) {
 
 		Convey("Hash values should matched", func() {
 			for keyExpression, valueExpression := range hashLiteralExpression.Pairs {
-				keyString     := keyExpression.(*ast.BooleanExpression)
+				keyString := keyExpression.(*ast.BooleanExpression)
 				expectedValue := expected[keyString.String()]
 
 				testIntegerLiteralExpression(valueExpression, int64(expectedValue))
@@ -833,15 +833,15 @@ func TestHashLiteralExpressionBooleanKeys(t *testing.T) {
 
 func TestHashLiteralExpressionIntegerKeys(t *testing.T) {
 	Convey("Hash literal expression integer keys test", t, func() {
-		source   := `{ 1: 1, 2: 2, 3: 3 };`
+		source := `{ 1: 1, 2: 2, 3: 3 };`
 		expected := map[string]int{
 			"1": 1,
 			"2": 2,
 			"3": 3,
 		}
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -865,7 +865,7 @@ func TestHashLiteralExpressionIntegerKeys(t *testing.T) {
 
 		Convey("Hash values should matched", func() {
 			for keyExpression, valueExpression := range hashLiteralExpression.Pairs {
-				keyString     := keyExpression.(*ast.IntegerLiteralExpression)
+				keyString := keyExpression.(*ast.IntegerLiteralExpression)
 				expectedValue := expected[keyString.String()]
 
 				testIntegerLiteralExpression(valueExpression, int64(expectedValue))
@@ -877,20 +877,20 @@ func TestHashLiteralExpressionIntegerKeys(t *testing.T) {
 func TestHashLiteralExpressionWithExpressionValues(t *testing.T) {
 	Convey("Hash literal expression with expression values test", t, func() {
 		type expectedValue struct {
-			left 		interface{}
-			operator  	string
-			right 		interface{}
+			left     interface{}
+			operator string
+			right    interface{}
 		}
 
-		source      := `{ "one": 1 + 2, "two": 10 - 7, "three": 15 / 3 };`
+		source := `{ "one": 1 + 2, "two": 10 - 7, "three": 15 / 3 };`
 		expectedMap := map[string]expectedValue{
-			"one"  : expectedValue{ 1, "+", 2 },
-			"two"  : expectedValue{ 10, "-", 7 },
-			"three": expectedValue{ 15, "/", 3 },
+			"one":   expectedValue{1, "+", 2},
+			"two":   expectedValue{10, "-", 7},
+			"three": expectedValue{15, "/", 3},
 		}
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -938,8 +938,8 @@ func TestEmptyHashLiteralExpression(t *testing.T) {
 	Convey("Empty hash literal expression test", t, func() {
 		source := `{};`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -979,8 +979,8 @@ func TestHashLiteralExpressionKeysOrder(t *testing.T) {
 			1.3: "c",
 		};`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -1022,21 +1022,21 @@ func TestHashLiteralExpressionKeysOrder(t *testing.T) {
 
 func TestRangeExpression(t *testing.T) {
 	Convey("Range expression test", t, func() {
-		expectedExpressions := []struct{
+		expectedExpressions := []struct {
 			source string
 			start  interface{}
 			end    interface{}
 		}{
-			{ `1..3`, 	  1,   3 },
-			{ `1.1..3.3`, 1.1, 3.3 },
-			{ `"a".."b"`, "a", "b", },
+			{`1..3`, 1, 3},
+			{`1.1..3.3`, 1.1, 3.3},
+			{`"a".."b"`, "a", "b"},
 		}
 
 		for index, expression := range expectedExpressions {
 			message := runMessage("Running %d, Source: %s", index, expression.source)
 
-			theLexer   := lexer.NewLexer(expression.source)
-			theParser  := NewParser(theLexer)
+			theLexer := lexer.NewLexer(expression.source)
+			theParser := NewParser(theLexer)
 			theProgram := theParser.Parse()
 
 			Convey(message, func() {
@@ -1056,10 +1056,10 @@ func TestRangeExpression(t *testing.T) {
 				})
 
 				Convey("Range start and end should be equals", func() {
-					if _ ,ok := rangeExpression.Start.(*ast.StringLiteralExpression); ok {
+					if _, ok := rangeExpression.Start.(*ast.StringLiteralExpression); ok {
 						testStringLiteralExpression(rangeExpression.Start, expression.start.(string))
 						testStringLiteralExpression(rangeExpression.End, expression.end.(string))
-					}else{
+					} else {
 						testLiteralExpression(rangeExpression.Start, expression.start)
 						testLiteralExpression(rangeExpression.End, expression.end)
 					}
@@ -1073,8 +1073,8 @@ func TestIndexExpression(t *testing.T) {
 	Convey("Index expression test", t, func() {
 		source := `myArray[1+2];`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -1104,21 +1104,21 @@ func TestIndexExpression(t *testing.T) {
 
 func TestGroupedExpression(t *testing.T) {
 	Convey("Grouped expression test", t, func() {
-		expectedExpressions := []struct{
+		expectedExpressions := []struct {
 			source   string
 			expected string
 		}{
-			{ "1 + (2 + 3) + 4", 	"((1 + (2 + 3)) + 4)" },
-			{ "(5 + 5) * 2", 		"((5 + 5) * 2)" },
-			{ "2 / (5 + 5)",		"(2 / (5 + 5))" },
-			{ "-(5 + 5)", 			"(-(5 + 5))" },
-			{ "!(true == true)", 	"(!(true == true))" },
+			{"1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"},
+			{"(5 + 5) * 2", "((5 + 5) * 2)"},
+			{"2 / (5 + 5)", "(2 / (5 + 5))"},
+			{"-(5 + 5)", "(-(5 + 5))"},
+			{"!(true == true)", "(!(true == true))"},
 		}
 
 		for index, expression := range expectedExpressions {
 			Convey(runMessage("Running: %d, Source: %s", index, expression.source), func() {
-				theLexer   := lexer.NewLexer(expression.source)
-				theParser  := NewParser(theLexer)
+				theLexer := lexer.NewLexer(expression.source)
+				theParser := NewParser(theLexer)
 				theProgram := theParser.Parse()
 
 				Convey("Parse program check", func() {
@@ -1136,19 +1136,19 @@ func TestGroupedExpression(t *testing.T) {
 
 func TestCallExpression(t *testing.T) {
 	Convey("Call expression test", t, func() {
-		expectedExpressions := []struct{
+		expectedExpressions := []struct {
 			source   string
 			expected string
 		}{
-			{ "add(1, 2 * 3, 4 + 5)",				"add(1, (2 * 3), (4 + 5))" },
-			{ "a + add(b * c) + d", 				"((a + add((b * c))) + d)"},
-			{ "add(a * b[4], b[5], 2 * [6, 7][1])", "add((a * (b[4])), (b[5]), (2 * ([6, 7][1])))"},
+			{"add(1, 2 * 3, 4 + 5)", "add(1, (2 * 3), (4 + 5))"},
+			{"a + add(b * c) + d", "((a + add((b * c))) + d)"},
+			{"add(a * b[4], b[5], 2 * [6, 7][1])", "add((a * (b[4])), (b[5]), (2 * ([6, 7][1])))"},
 		}
 
 		for index, expression := range expectedExpressions {
 			Convey(runMessage("Running: %d, Source: %s", index, expression.source), func() {
-				theLexer   := lexer.NewLexer(expression.source)
-				theParser  := NewParser(theLexer)
+				theLexer := lexer.NewLexer(expression.source)
+				theParser := NewParser(theLexer)
 				theProgram := theParser.Parse()
 
 				Convey("Parse program check", func() {
@@ -1168,8 +1168,8 @@ func TestIfExpression(t *testing.T) {
 	Convey("If expression test", t, func() {
 		source := `if (a < b) { c };`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -1217,8 +1217,8 @@ func TestIfExpressionWithElseBlock(t *testing.T) {
 	Convey("If expression else block test", t, func() {
 		source := `if (a < b) { c } else { d };`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -1278,18 +1278,18 @@ func TestIfExpressionWithElseIfBlockAndElseBlock(t *testing.T) {
 				e
 			};
 		`
-		expectedIfBlocks := []struct{
-			leftValue 	string
-			operator  	string
-			rightValue 	string
-			blockValue	string
+		expectedIfBlocks := []struct {
+			leftValue  string
+			operator   string
+			rightValue string
+			blockValue string
 		}{
-			{ "a", "<", "b", "c" },
-			{ "a", ">", "b", "d" },
+			{"a", "<", "b", "c"},
+			{"a", ">", "b", "d"},
 		}
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -1359,8 +1359,8 @@ func TestForEverExpression(t *testing.T) {
 	Convey("For ever expression test", t, func() {
 		source := `for { c }`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -1395,14 +1395,14 @@ func TestForEverExpression(t *testing.T) {
 
 func TestForEachHashExpression(t *testing.T) {
 	Convey("For each hash expression test", t, func() {
-		source   := `for k, v in { "a": 1, "b": 2 } { c }`
+		source := `for k, v in { "a": 1, "b": 2 } { c }`
 		expected := map[string]int{
 			"a": 1,
 			"b": 2,
 		}
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -1438,7 +1438,7 @@ func TestForEachHashExpression(t *testing.T) {
 
 		Convey("For each hash data values should matched", func() {
 			for keyExpression, valueExpression := range data.Pairs {
-				keyString     := keyExpression.(*ast.StringLiteralExpression)
+				keyString := keyExpression.(*ast.StringLiteralExpression)
 				expectedValue := expected[keyString.String()]
 
 				testIntegerLiteralExpression(valueExpression, int64(expectedValue))
@@ -1463,11 +1463,11 @@ func TestForEachHashExpression(t *testing.T) {
 
 func TestForEachArrayExpression(t *testing.T) {
 	Convey("For each array expression test", t, func() {
-		source   := `for v in [1,2,3] { c }`
-		expected := []int64{ 1, 2, 3 }
+		source := `for v in [1,2,3] { c }`
+		expected := []int64{1, 2, 3}
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -1526,10 +1526,10 @@ func TestForEachArrayExpression(t *testing.T) {
 
 func TestForEachRangeExpression(t *testing.T) {
 	Convey("For each range expression test", t, func() {
-		source   := `for v in 1..3 { c }`
+		source := `for v in 1..3 { c }`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -1580,10 +1580,10 @@ func TestForEachRangeExpression(t *testing.T) {
 
 func TestBreakExpression(t *testing.T) {
 	Convey("Break expression test", t, func() {
-		source   := `break;`
+		source := `break;`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -1610,10 +1610,10 @@ func TestBreakExpression(t *testing.T) {
 
 func TestContinueExpression(t *testing.T) {
 	Convey("Continue expression test", t, func() {
-		source   := `continue;`
+		source := `continue;`
 
-		theLexer   := lexer.NewLexer(source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		Convey("Parse program check", func() {
@@ -1643,8 +1643,8 @@ func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
 		message := runMessage("Running %d, Source: %s", index, currentStatement.source)
 
-		theLexer   := lexer.NewLexer(currentStatement.source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(currentStatement.source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		statement := theProgram.Statements[0]
@@ -1668,10 +1668,10 @@ func testLetStatement(expectedStatements []expectedLetStatement) {
 
 func testReturnStatement(expectedStatements []expectedReturnStatement) {
 	for index, currentStatement := range expectedStatements {
-		message := runMessage("Running %d, Source: %s", index,currentStatement.source)
+		message := runMessage("Running %d, Source: %s", index, currentStatement.source)
 
-		theLexer   := lexer.NewLexer(currentStatement.source)
-		theParser  := NewParser(theLexer)
+		theLexer := lexer.NewLexer(currentStatement.source)
+		theParser := NewParser(theLexer)
 		theProgram := theParser.Parse()
 
 		returnStatement, ok := theProgram.Statements[0].(*ast.ReturnStatement)
@@ -1692,7 +1692,7 @@ func testReturnStatement(expectedStatements []expectedReturnStatement) {
 
 // Sub method function for sub method
 func testParserError(parser *Parser) {
-	parserErrors       := parser.Errors()
+	parserErrors := parser.Errors()
 	parserErrorsLength := len(parserErrors)
 
 	So(parserErrorsLength, ShouldEqual, 0)
@@ -1723,7 +1723,7 @@ func testLiteralExpression(expression ast.Expression, expected interface{}) {
 func testIdentifierExpression(expression ast.Expression, value string) {
 	identifier, ok := expression.(*ast.IdentifierExpression)
 
-	identifierValue 	   := identifier.Value
+	identifierValue := identifier.Value
 	identifierTokenLiteral := identifier.TokenLiteral()
 
 	Convey(
@@ -1742,7 +1742,7 @@ func testIdentifierExpression(expression ast.Expression, value string) {
 func testBooleanExpression(expression ast.Expression, value bool) {
 	boolean, ok := expression.(*ast.BooleanExpression)
 
-	booleanValue 		:= boolean.Value
+	booleanValue := boolean.Value
 	booleanTokenLiteral := boolean.TokenLiteral()
 
 	Convey(
@@ -1761,7 +1761,7 @@ func testBooleanExpression(expression ast.Expression, value bool) {
 func testIntegerLiteralExpression(expression ast.Expression, value int64) {
 	integer, ok := expression.(*ast.IntegerLiteralExpression)
 
-	integerValue 		:= integer.Value
+	integerValue := integer.Value
 	integerTokenLiteral := integer.TokenLiteral()
 
 	Convey(
@@ -1780,9 +1780,9 @@ func testIntegerLiteralExpression(expression ast.Expression, value int64) {
 func testFloatLiteralExpression(expression ast.Expression, value float64) {
 	float, ok := expression.(*ast.FloatLiteralExpression)
 
-	floatValue 		  := fmt.Sprintf("%.1f", float.Value)
+	floatValue := fmt.Sprintf("%.1f", float.Value)
 	floatTokenLiteral := float.TokenLiteral()
-	expectedValue     := fmt.Sprintf("%.1f", value)
+	expectedValue := fmt.Sprintf("%.1f", value)
 
 	Convey(
 		runMessage(
