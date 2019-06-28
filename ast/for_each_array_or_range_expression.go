@@ -7,10 +7,10 @@ import (
 )
 
 type ForEachArrayOrRangeExpression struct {
-	Token 		token.Token
-	Value 		string
-	Iterable	Expression
-	Block 		*BlockStatement
+	Token    token.Token
+	Value    string
+	Iterable Expression
+	Block    *BlockStatement
 }
 
 func (f *ForEachArrayOrRangeExpression) expressionNode() {
@@ -24,13 +24,13 @@ func (f *ForEachArrayOrRangeExpression) TokenLiteral() string {
 func (f *ForEachArrayOrRangeExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString("for")						// for
-	out.WriteString(" " + f.Value + " ")		//	value
-	out.WriteString("in")						// in
-	out.WriteString(" " + f.Iterable.String())	// 	{k: v, k: v}
-	out.WriteString(" { ")						// {
-	out.WriteString(f.Block.String())			// 	...
-	out.WriteString(" } ")						// }
+	out.WriteString("for")                     // for
+	out.WriteString(" " + f.Value + " ")       //	value
+	out.WriteString("in")                      // in
+	out.WriteString(" " + f.Iterable.String()) // 	{k: v, k: v}
+	out.WriteString(" { ")                     // {
+	out.WriteString(f.Block.String())          // 	...
+	out.WriteString(" } ")                     // }
 
 	return out.String()
 }

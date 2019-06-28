@@ -4,36 +4,36 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/zeuxisoo/go-skrip/ast"
 	"github.com/zeuxisoo/go-skrip/lexer"
 	"github.com/zeuxisoo/go-skrip/token"
-	"github.com/zeuxisoo/go-skrip/ast"
 )
 
 type (
 	prefixParseFunction func() ast.Expression
-	infixParseFunction	func(ast.Expression) ast.Expression
+	infixParseFunction  func(ast.Expression) ast.Expression
 )
 
 type Parser struct {
-	lexer 	*lexer.Lexer
-	errors  errorStrings
+	lexer  *lexer.Lexer
+	errors errorStrings
 
 	currentToken token.Token
-	peekToken 	 token.Token
+	peekToken    token.Token
 
 	prefixParseFunctions map[token.Type]prefixParseFunction
-	infixParseFunctions	 map[token.Type]infixParseFunction
+	infixParseFunctions  map[token.Type]infixParseFunction
 }
 
 // Public functions
 func NewParser(lexer *lexer.Lexer) *Parser {
 	parser := &Parser{
-		lexer: 	lexer,
+		lexer:  lexer,
 		errors: []string{},
 	}
 
-	parser.nextToken()	// set the current token
-	parser.nextToken() 	// set the peek token
+	parser.nextToken() // set the current token
+	parser.nextToken() // set the peek token
 
 	parser.prefixParseFunctions = make(map[token.Type]prefixParseFunction)
 	parser.registerPrefixParseFunction(token.INT, parser.parseIntegerLiteral)
@@ -71,7 +71,6 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerInfixParseFunction(token.RANGE, parser.parseRangeExpression)
 	parser.registerInfixParseFunction(token.LEFT_BRACKET, parser.parseIndexExpression)
 	parser.registerInfixParseFunction(token.LEFT_PARENTHESIS, parser.parseCallExpression)
-
 
 	return parser
 }
@@ -111,7 +110,7 @@ func (p *Parser) parseStatement() ast.Statement {
 		// otherwise, parse by function literal expression e.g. "func() {}"
 		if p.peekTokenTypeIs(token.IDENTIFIER) == true {
 			return p.parseFunctionStatement()
-		}else{
+		} else {
 			return p.parseExpressionStatement()
 		}
 	default:
@@ -261,7 +260,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 		// - pass left express (5) to found infix parse function
 		if infixParseFunction == nil {
 			return leftExpression
-		}else{
+		} else {
 			p.nextToken()
 
 			leftExpression = infixParseFunction(leftExpression)
@@ -291,8 +290,8 @@ func (p *Parser) parseExpressionList(endTokenType token.Type) []ast.Expression {
 	// Loop when found comma again and again
 	// and add each found element into expression list
 	for p.peekTokenTypeIs(token.COMMA) == true {
-		p.nextToken()	// set current token to ","
-		p.nextToken()	// set current token to next element
+		p.nextToken() // set current token to ","
+		p.nextToken() // set current token to next element
 
 		expressions = append(expressions, p.parseExpression(LOWEST))
 	}
@@ -493,14 +492,14 @@ func (p *Parser) parseIfExpression() ast.Expression {
 
 	// Loop until found "else" token
 	for p.peekTokenTypeIs(token.ELSE) == true {
-		p.nextToken()	// should be point to else
-		p.nextToken()	// should be point to "if" or "{"
+		p.nextToken() // should be point to else
+		p.nextToken() // should be point to "if" or "{"
 
 		if p.currentTokenTypeIs(token.IF) == true {
 			// Next token must be "(", otherwise return nil
 			if p.expectPeekTokenTypeIs(token.LEFT_PARENTHESIS) == false {
 				return nil
-			}else{
+			} else {
 				// Enter to else if condition
 				p.nextToken()
 
@@ -594,7 +593,7 @@ func (p *Parser) parseBoolean() ast.Expression {
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
 	prefix := &ast.PrefixExpression{
-		Token   : p.currentToken,
+		Token:    p.currentToken,
 		Operator: p.currentToken.Literal,
 	}
 
@@ -607,8 +606,8 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 
 func (p *Parser) parseInfixExpression(leftExpression ast.Expression) ast.Expression {
 	infix := &ast.InfixExpression{
-		Token   : p.currentToken,
-		Left    : leftExpression,
+		Token:    p.currentToken,
+		Left:     leftExpression,
 		Operator: p.currentToken.Literal,
 	}
 
@@ -637,7 +636,7 @@ func (p *Parser) parseRangeExpression(leftExpression ast.Expression) ast.Express
 func (p *Parser) parseIndexExpression(leftExpression ast.Expression) ast.Expression {
 	index := &ast.IndexExpression{
 		Token: p.currentToken,
-		Left : leftExpression,
+		Left:  leftExpression,
 	}
 
 	p.nextToken()
@@ -655,7 +654,7 @@ func (p *Parser) parseIndexExpression(leftExpression ast.Expression) ast.Express
 
 func (p *Parser) parseCallExpression(leftExpression ast.Expression) ast.Expression {
 	call := &ast.CallExpression{
-		Token   : p.currentToken,
+		Token:    p.currentToken,
 		Function: leftExpression,
 	}
 
@@ -667,7 +666,7 @@ func (p *Parser) parseCallExpression(leftExpression ast.Expression) ast.Expressi
 // Helper functions
 func (p *Parser) nextToken() {
 	p.currentToken = p.peekToken
-	p.peekToken    = p.lexer.NextToken()
+	p.peekToken = p.lexer.NextToken()
 }
 
 func (p *Parser) expectPeekTokenTypeIs(tokenType token.Type) bool {
@@ -791,7 +790,7 @@ func (p *Parser) parseForEverExpression(currentToken token.Token) ast.Expression
 func (p *Parser) parseForEachHashExpression(tokenFor token.Token, currentToken token.Token) ast.Expression {
 	forEachHashExpression := &ast.ForEachHashExpression{
 		Token: tokenFor,
-		Key  : currentToken.Literal,
+		Key:   currentToken.Literal,
 	}
 
 	// If next token is ",", set current token to it
@@ -835,7 +834,7 @@ func (p *Parser) parseForEachHashExpression(tokenFor token.Token, currentToken t
 func (p *Parser) parseForEachArrayOrRangeExpression(tokenFor token.Token, currentToken token.Token) ast.Expression {
 	forEachArrayOrRangeExpression := &ast.ForEachArrayOrRangeExpression{
 		Token: tokenFor,
-		Value: currentToken.Literal,
+		Value: p.currentToken.Literal,
 	}
 
 	// If next token is "in", set current token to it
