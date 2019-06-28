@@ -1603,7 +1603,6 @@ func TestBreakExpression(t *testing.T) {
 
 		Convey("Break expression token literal should be break", func() {
 			So(breakExpression.TokenLiteral(), ShouldEqual, "break")
-			So(breakExpression.String(), ShouldEqual, "break")
 		})
 	})
 }
@@ -1633,7 +1632,6 @@ func TestContinueExpression(t *testing.T) {
 
 		Convey("Continue expression token literal should be continue", func() {
 			So(continueExpression.TokenLiteral(), ShouldEqual, "continue")
-			So(continueExpression.String(), ShouldEqual, "continue")
 		})
 	})
 }
