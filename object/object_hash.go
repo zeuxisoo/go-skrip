@@ -1,10 +1,10 @@
 package object
 
 import (
-	"fmt"
 	"bytes"
-	"strings"
+	"fmt"
 	"sort"
+	"strings"
 )
 
 type HashKey struct {
@@ -18,7 +18,7 @@ type HashPair struct {
 }
 
 type Hash struct {
-	Order  []HashKey
+	Order []HashKey
 	Pairs map[HashKey]HashPair
 }
 
@@ -46,4 +46,8 @@ func (h *Hash) Inspect() string {
 	out.WriteString("}")
 
 	return out.String()
+}
+
+func (h *Hash) Iterable() bool {
+	return true
 }

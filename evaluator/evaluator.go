@@ -83,6 +83,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalForEverExpression(node, env)
 	case *ast.ForEachArrayOrRangeExpression:
 		return evalForEachArrayOrRangeExpression(node, env)
+	case *ast.ForEachHashExpression:
+		return evalForEachHashExpression(node, env)
 	}
 
 	return NIL
@@ -474,6 +476,51 @@ func evalForEachArrayOrRangeExpression(arrayOrRange *ast.ForEachArrayOrRangeExpr
 		env.Set(arrayOrRange.Value, value)
 
 		block := Eval(arrayOrRange.Block, env)
+
+		if isError(block) == true {
+			return block
+		}
+
+		if _, ok := block.(*object.Break); ok {
+			break
+		}
+
+		if _, ok := block.(*object.Continue); ok {
+			continue
+		}
+
+		if returnValue, ok := block.(*object.ReturnValue); ok {
+			if returnValue.Value != nil {
+				return returnValue
+			}
+
+			break
+		}
+	}
+
+	return NIL
+}
+
+func evalForEachHashExpression(hash *ast.ForEachHashExpression, env *object.Environment) object.Object {
+	iterable := Eval(hash.Iterable, env)
+
+	_, ok := iterable.(object.Iterable)
+	if ok == false {
+		return newError("%s is not iterable", iterable.Inspect())
+	}
+
+	hashObject, ok := iterable.(*object.Hash)
+	if ok == false {
+		return newError("%s is a %s, not support for loop", iterable.Inspect(), iterable.Type())
+	}
+
+	for _, hashKey := range hashObject.Order {
+		pair, _ := hashObject.Pairs[hashKey]
+
+		env.Set(hash.Key, pair.Key)
+		env.Set(hash.Value, pair.Value)
+
+		block := Eval(hash.Block, env)
 
 		if isError(block) == true {
 			return block
