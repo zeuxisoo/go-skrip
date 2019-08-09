@@ -933,7 +933,7 @@ func TestForEverExpression(t *testing.T) {
 }
 
 func TestForEachArrayOrRangeExpression(t *testing.T) {
-	Convey("For each array or range", t, func() {
+	Convey("For each array or range test", t, func() {
 		expecteds := []struct {
 			source string
 			result interface{}
@@ -994,6 +994,63 @@ func TestForEachArrayOrRangeExpression(t *testing.T) {
 				}
 				a;`,
 				6,
+			},
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, Source: %s", index, codeToSingleLine(expected.source)), func() {
+				evaluated := testEval(expected.source)
+
+				testLiteralObject(evaluated, expected.result)
+			})
+		}
+	})
+}
+
+func TestForEachHashExpression(t *testing.T) {
+	Convey("For each hash test", t, func() {
+		expecteds := []struct {
+			source string
+			result interface{}
+		}{
+			{
+				`
+				for k, v in { "a": 1, "b": 3 } {
+					return k;
+				}
+				`,
+				"a",
+			},
+			{
+				`
+				for k, v in { "a": 1, "b": 3 } {
+					return v;
+				}
+				`,
+				1,
+			},
+			{
+				`
+				for k, v in { 1: "a", 3: 4 } {
+					if (k == 3) {
+						return v;
+					}
+				}
+				`,
+				4,
+			},
+			{
+				`
+				let c = 0;
+				for k,v in { "a": 1, "b": 2 } {
+					let c = c + v;
+
+					if (c == 3) {
+						return c;
+					}
+				}
+				c`,
+				3,
 			},
 		}
 
