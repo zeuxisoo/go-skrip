@@ -1,13 +1,25 @@
-# Go Skriplang
+# Go Skrip
 
-Skriplang is Skriplang
+## Development
 
-# Testing
+Using the go module by default
 
-Please turn off first if go module is turn on
+    export GO111MODULE=on
 
-    export GO111MODULE=off
-
-Install the tools
+Install the test package
 
     go get github.com/smartystreets/goconvey
+
+## Testing
+
+Run all test case
+
+    go test ./... -count
+
+Run all test case in specify the package
+
+    go test ./parser -count=1
+
+Run selected test case in specify the package
+
+    go test ./evaluator -run "TestForEachHashExpression"
