@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/zeuxisoo/go-skrip/ast"
+	"github.com/zeuxisoo/go-skrip/builtins"
 	"github.com/zeuxisoo/go-skrip/object"
 )
 
@@ -15,8 +16,6 @@ var (
 	BREAK    = &object.Break{}
 	CONTINUE = &object.Continue{}
 )
-
-var builtIns = map[string]*object.BuiltIn{}
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
@@ -91,7 +90,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 }
 
 func RegisterBuiltIn(name string, function object.BuiltInFunction) {
-	builtIns[name] = &object.BuiltIn{
+	builtins.BuiltIns[name] = &object.BuiltIn{
 		Function: function,
 	}
 }
@@ -194,7 +193,7 @@ func evalIdentifierExpression(identifer *ast.IdentifierExpression, env *object.E
 		return value
 	}
 
-	if builtIn, ok := builtIns[identifer.Value]; ok {
+	if builtIn, ok := builtins.BuiltIns[identifer.Value]; ok {
 		return builtIn
 	}
 
