@@ -12,4 +12,7 @@ var (
 var BuiltIns = map[string]*object.BuiltIn{
 	"print":   &object.BuiltIn{Function: Print},
 	"println": &object.BuiltIn{Function: Println},
+
+	// alias
+	"echo": &object.BuiltIn{Function: Print},
 }
