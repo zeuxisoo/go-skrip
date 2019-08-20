@@ -17,6 +17,7 @@ func main() {
 	app.Version = AppVersion
 	app.Commands = []cli.Command{
 		cmd.Run,
+		cmd.Eval,
 	}
 
 	app.Run(os.Args)
