@@ -759,7 +759,7 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	p.nextToken()
 
 	// Loop until found "}"
-	for p.currentTokenTypeIs(token.RIGHT_BRACE) == false {
+	for p.currentTokenTypeIs(token.RIGHT_BRACE) == false && p.currentTokenTypeIs(token.EOF) == false {
 		statement := p.parseStatement()
 
 		if statement != nil {
