@@ -42,9 +42,9 @@ func runEval(c *cli.Context) error {
 		theEvaluator := evaluator.Eval(theProgram, theEnvironment)
 
 		if theEvaluator != nil {
-			theEvaluator.Inspect()
-		} else {
-			fmt.Println("Error!")
+			if theEvaluator.Type() == object.ERROR_OBJECT {
+				fmt.Println("Error")
+			}
 		}
 	}
 

@@ -18,6 +18,7 @@ func main() {
 	app.Commands = []cli.Command{
 		cmd.Run,
 		cmd.Eval,
+		cmd.Cli,
 	}
 
 	app.Run(os.Args)
