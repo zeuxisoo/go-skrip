@@ -8,9 +8,9 @@ import (
 )
 
 type FunctionLiteralExpression struct {
-	Token 		token.Token
-	Parameters 	[]*IdentifierExpression
-	Block		*BlockStatement
+	Token      token.Token
+	Parameters []*IdentifierExpression
+	Block      *BlockStatement
 }
 
 func (f *FunctionLiteralExpression) expressionNode() {
@@ -32,13 +32,13 @@ func (f *FunctionLiteralExpression) String() string {
 
 	// Only for expression:
 	// let foo = func(params) { block }
-	out.WriteString(f.TokenLiteral())				// functionName
-	out.WriteString("(")							// (
-	out.WriteString(strings.Join(parameters, ", "))	// 	parameter1, parameter2, etc
-	out.WriteString(") ")							// )
-	out.WriteString("{ ")							// {
-	out.WriteString(f.Block.String()) 				// 	block
-	out.WriteString(" }")							// }
+	out.WriteString(f.TokenLiteral())               // functionName
+	out.WriteString("(")                            // (
+	out.WriteString(strings.Join(parameters, ", ")) // 	parameter1, parameter2, etc
+	out.WriteString(") ")                           // )
+	out.WriteString("{ ")                           // {
+	out.WriteString(f.Block.String())               // 	block
+	out.WriteString(" }")                           // }
 
 	return out.String()
 }

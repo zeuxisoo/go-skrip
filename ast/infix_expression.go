@@ -7,10 +7,10 @@ import (
 )
 
 type InfixExpression struct {
-	Token		token.Token
-	Left	 	Expression
-	Operator 	string
-	Right 		Expression
+	Token    token.Token
+	Left     Expression
+	Operator string
+	Right    Expression
 }
 
 func (i *InfixExpression) expressionNode() {

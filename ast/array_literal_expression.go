@@ -8,8 +8,8 @@ import (
 )
 
 type ArrayLiteralExpression struct {
-	Token 		token.Token
-	Elements 	[]Expression
+	Token    token.Token
+	Elements []Expression
 }
 
 func (a *ArrayLiteralExpression) expressionNode() {

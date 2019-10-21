@@ -5,23 +5,23 @@ type Type string
 
 // Token will store the input value
 type Token struct {
-	Type 		Type
-	Literal 	string
-	LineNumber 	int
+	Type       Type
+	Literal    string
+	LineNumber int
 }
 
 var keywords = map[string]Type{
-	"func"    : FUNCTION,
-	"let"     : LET,
-	"true"    : TRUE,
-	"false"   : FALSE,
-	"if"      : IF,
-	"else"    : ELSE,
-	"return"  : RETURN,
-	"for"     : FOR,
-	"in"      : IN,
-	"nil"     : NIL,
-	"break"   : BREAK,
+	"func":     FUNCTION,
+	"let":      LET,
+	"true":     TRUE,
+	"false":    FALSE,
+	"if":       IF,
+	"else":     ELSE,
+	"return":   RETURN,
+	"for":      FOR,
+	"in":       IN,
+	"nil":      NIL,
+	"break":    BREAK,
 	"continue": CONTINUE,
 }
 

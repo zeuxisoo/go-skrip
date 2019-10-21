@@ -21,7 +21,7 @@ func (s *String) HashKey() HashKey {
 	h.Write([]byte(s.Inspect()))
 
 	return HashKey{
-		Type : s.Type(),
+		Type:  s.Type(),
 		Value: h.Sum64(),
 	}
 }

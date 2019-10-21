@@ -26,12 +26,12 @@ func (h *HashLiteralExpression) String() string {
 
 	pairs := []string{}
 	for key, value := range h.Pairs {
-		pairs = append(pairs, key.String() + ":" + value.String())
+		pairs = append(pairs, key.String()+":"+value.String())
 	}
 
-	out.WriteString("{")						// {
-	out.WriteString(strings.Join(pairs, ", "))	// key:value, key:value ...
-	out.WriteString("}")						// }
+	out.WriteString("{")                       // {
+	out.WriteString(strings.Join(pairs, ", ")) // key:value, key:value ...
+	out.WriteString("}")                       // }
 
 	return out.String()
 }

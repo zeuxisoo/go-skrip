@@ -7,11 +7,11 @@ import (
 )
 
 type ForEachHashExpression struct {
-	Token 		token.Token
-	Key   		string
-	Value 		string
-	Iterable 	Expression
-	Block 		*BlockStatement
+	Token    token.Token
+	Key      string
+	Value    string
+	Iterable Expression
+	Block    *BlockStatement
 }
 
 func (f *ForEachHashExpression) expressionNode() {
@@ -25,13 +25,13 @@ func (f *ForEachHashExpression) TokenLiteral() string {
 func (f *ForEachHashExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString("for")									// for
-	out.WriteString(" " + f.Key + ", " + f.Value + " ")		// 	key, value
-	out.WriteString("in")									// in
-	out.WriteString(" " + f.Iterable.String())				// 	{k: v, k: v}
-	out.WriteString(" { ")									// {
-	out.WriteString(f.Block.String())						// 	...
-	out.WriteString(" } ")									// }
+	out.WriteString("for")                              // for
+	out.WriteString(" " + f.Key + ", " + f.Value + " ") // 	key, value
+	out.WriteString("in")                               // in
+	out.WriteString(" " + f.Iterable.String())          // 	{k: v, k: v}
+	out.WriteString(" { ")                              // {
+	out.WriteString(f.Block.String())                   // 	...
+	out.WriteString(" } ")                              // }
 
 	return out.String()
 }

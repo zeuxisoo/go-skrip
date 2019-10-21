@@ -23,15 +23,15 @@ func (l *LetStatement) TokenLiteral() string {
 func (l *LetStatement) String() string {
 	var out bytes.Buffer
 
-	out.WriteString(l.TokenLiteral() + " ")	// let
-	out.WriteString(l.Name.String())		// variable
-	out.WriteString(" = ")					// =
+	out.WriteString(l.TokenLiteral() + " ") // let
+	out.WriteString(l.Name.String())        // variable
+	out.WriteString(" = ")                  // =
 
 	if l.Value != nil {
-		out.WriteString(l.Value.String())	// Value
+		out.WriteString(l.Value.String()) // Value
 	}
 
-	out.WriteString(";")					// ;
+	out.WriteString(";") // ;
 
 	return out.String()
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type ReturnStatement struct {
-	Token 		token.Token
+	Token       token.Token
 	ReturnValue Expression
 }
 
@@ -22,13 +22,13 @@ func (r *ReturnStatement) TokenLiteral() string {
 func (r *ReturnStatement) String() string {
 	var out bytes.Buffer
 
-	out.WriteString(r.TokenLiteral() + " ")		// return
+	out.WriteString(r.TokenLiteral() + " ") // return
 
 	if r.ReturnValue != nil {
-		out.WriteString(r.ReturnValue.String())	// value
+		out.WriteString(r.ReturnValue.String()) // value
 	}
 
-	out.WriteString(";")						// ;
+	out.WriteString(";") // ;
 
 	return out.String()
 }

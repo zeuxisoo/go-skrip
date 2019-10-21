@@ -6,10 +6,10 @@ const (
 	EOF     = "EOF"
 
 	// Identifiers and literals
-	IDENTIFIER = "IDENTIFIER"	// function name, variable name, etc
-	INT        = "INT"          // 12345
-	FLOAT      = "FLOAT"        // 12.345
-	STRING     = "STRING"       // "text"
+	IDENTIFIER = "IDENTIFIER" // function name, variable name, etc
+	INT        = "INT"        // 12345
+	FLOAT      = "FLOAT"      // 12.345
+	STRING     = "STRING"     // "text"
 
 	// Operators
 	ASSIGN   = "="
@@ -24,19 +24,18 @@ const (
 	GT   = ">"
 	GTEQ = ">="
 
-	EQ      = "=="
-	NOT_EQ  = "!="
-	AND     = "&&"
-	OR      = "||"
+	EQ     = "=="
+	NOT_EQ = "!="
+	AND    = "&&"
+	OR     = "||"
 
-	DOT     = "."
-	RANGE   = ".."
+	DOT   = "."
+	RANGE = ".."
 
 	// Delimiters
 	COMMA     = ","
 	SEMICOLON = ";"
 	COLON     = ":"
-
 
 	LEFT_PARENTHESIS  = "("
 	RIGHT_PARENTHESIS = ")"

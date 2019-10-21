@@ -8,8 +8,8 @@ import (
 )
 
 type FunctionStatement struct {
-	Token 	 token.Token
-	Name  	 *IdentifierExpression
+	Token    token.Token
+	Name     *IdentifierExpression
 	Function *FunctionLiteralExpression
 }
 
@@ -29,14 +29,14 @@ func (f *FunctionStatement) String() string {
 		parameters = append(parameters, parameter.String())
 	}
 
-	out.WriteString("func ")							// func
-	out.WriteString(f.Name.String())					// name
-	out.WriteString("(")								// (
-	out.WriteString(strings.Join(parameters, ", "))		// 	param1, param2, etc
-	out.WriteString(")")								// )
-	out.WriteString(" { ")								// {
-	out.WriteString(f.Function.Block.String())			// 	block
-	out.WriteString(" }")								// }
+	out.WriteString("func ")                        // func
+	out.WriteString(f.Name.String())                // name
+	out.WriteString("(")                            // (
+	out.WriteString(strings.Join(parameters, ", ")) // 	param1, param2, etc
+	out.WriteString(")")                            // )
+	out.WriteString(" { ")                          // {
+	out.WriteString(f.Function.Block.String())      // 	block
+	out.WriteString(" }")                           // }
 
 	return out.String()
 }

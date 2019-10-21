@@ -12,8 +12,8 @@ type IfScene struct {
 }
 
 type IfExpression struct {
-	Token 		token.Token
-	Scenes		[]*IfScene
+	Token       token.Token
+	Scenes      []*IfScene
 	Alternative *BlockStatement
 }
 
@@ -35,7 +35,7 @@ func (i *IfExpression) String() string {
 			out.WriteString(" { ")
 			out.WriteString(scene.Block.String())
 			out.WriteString(" } ")
-		}else{
+		} else {
 			out.WriteString("else if ")
 			out.WriteString(scene.Condition.String())
 			out.WriteString(" { ")

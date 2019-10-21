@@ -7,8 +7,8 @@ import (
 )
 
 type BlockStatement struct {
-	Token 		token.Token
-	Statements 	[]Statement
+	Token      token.Token
+	Statements []Statement
 }
 
 func (b *BlockStatement) statementNode() {

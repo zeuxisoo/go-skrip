@@ -1,12 +1,12 @@
 package logger
 
 import (
+	"bufio"
+	"bytes"
 	"os"
 	"os/exec"
-	"bytes"
-	"bufio"
-	"testing"
 	"strings"
+	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -17,12 +17,12 @@ var (
 
 //
 type LoggerCapturer struct {
-	Buffer  *bytes.Buffer
-	Writer 	*bufio.Writer
+	Buffer *bytes.Buffer
+	Writer *bufio.Writer
 }
 
 func newLoggerCapturer() *LoggerCapturer {
-	buffer  := &bytes.Buffer{}
+	buffer := &bytes.Buffer{}
 	capture := &LoggerCapturer{
 		Buffer: buffer,
 		Writer: bufio.NewWriter(buffer),
@@ -48,7 +48,7 @@ func TestLogger(t *testing.T) {
 		loggerCapturer := newLoggerCapturer()
 
 		Convey("Format message method", func() {
-			got      := FormatMessage(TRACE, "Hello %s", "format")
+			got := FormatMessage(TRACE, "Hello %s", "format")
 			expected := formats[TRACE] + outputColors[TRACE]("Hello format")
 
 			So(got, ShouldEqual, expected)
@@ -91,8 +91,8 @@ func TestLogger(t *testing.T) {
 
 func TestLoggerFatal(t *testing.T) {
 	if os.Getenv("MUST_CRASHER") == "1" {
-        Fatal("Hello %s", "fatal")
-        return
+		Fatal("Hello %s", "fatal")
+		return
 	}
 
 	Convey("Exit should be OK", t, func() {

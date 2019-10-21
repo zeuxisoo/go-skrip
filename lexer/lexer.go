@@ -3,21 +3,21 @@ package lexer
 import (
 	"strings"
 
-	"github.com/zeuxisoo/go-skrip/token"
 	"github.com/zeuxisoo/go-skrip/pkg/helper"
+	"github.com/zeuxisoo/go-skrip/token"
 )
 
 type Lexer struct {
-	source			string
-	currentChar		rune	// current character
-	currentPosition	int		// position of current character
-	nextPosition	int 	// position after current character (greater than 1)
-	currentLine		int		// position of current line
+	source          string
+	currentChar     rune // current character
+	currentPosition int  // position of current character
+	nextPosition    int  // position after current character (greater than 1)
+	currentLine     int  // position of current line
 }
 
 func NewLexer(source string) *Lexer {
 	lexer := &Lexer{
-		source: source,
+		source:      source,
 		currentLine: 1,
 	}
 
@@ -54,10 +54,10 @@ func (l *Lexer) NextToken() token.Token {
 			l.readChar()
 
 			theToken = token.Token{
-				Type   : token.EQ,
+				Type:    token.EQ,
 				Literal: string(oldCurrentChar) + string(l.currentChar), // text: ==
 			}
-		}else{
+		} else {
 			theToken = l.newToken(token.ASSIGN)
 		}
 	case '+':
@@ -85,10 +85,10 @@ func (l *Lexer) NextToken() token.Token {
 			l.readChar()
 
 			theToken = token.Token{
-				Type   : token.NOT_EQ,
+				Type:    token.NOT_EQ,
 				Literal: string(oldCurrentChar) + string(l.currentChar), // text: !=
 			}
-		}else{
+		} else {
 			theToken = l.newToken(token.BANG)
 		}
 	case '-':
@@ -104,10 +104,10 @@ func (l *Lexer) NextToken() token.Token {
 			l.readChar()
 
 			theToken = token.Token{
-				Type: token.LTEQ,
+				Type:    token.LTEQ,
 				Literal: string(oldCurrentChar) + string(l.currentChar), // text: <=
 			}
-		}else{
+		} else {
 			theToken = l.newToken(token.LT)
 		}
 	case '>':
@@ -117,15 +117,15 @@ func (l *Lexer) NextToken() token.Token {
 			l.readChar()
 
 			theToken = token.Token{
-				Type: token.GTEQ,
+				Type:    token.GTEQ,
 				Literal: string(oldCurrentChar) + string(l.currentChar), // text: >=
 			}
-		}else{
+		} else {
 			theToken = l.newToken(token.GT)
 		}
 	case '"':
 		theToken = token.Token{
-			Type   : token.STRING,
+			Type:    token.STRING,
 			Literal: l.readString(),
 		}
 	case '&':
@@ -135,10 +135,10 @@ func (l *Lexer) NextToken() token.Token {
 			l.readChar()
 
 			theToken = token.Token{
-				Type   : token.AND,
+				Type:    token.AND,
 				Literal: string(oldCurrentChar) + string(l.currentChar), // text: &&
 			}
-		}else{
+		} else {
 			theToken = l.newToken(token.ILLEGAL)
 		}
 	case '|':
@@ -148,10 +148,10 @@ func (l *Lexer) NextToken() token.Token {
 			l.readChar()
 
 			theToken = token.Token{
-				Type   : token.OR,
+				Type:    token.OR,
 				Literal: string(oldCurrentChar) + string(l.currentChar), // text: ||
 			}
-		}else{
+		} else {
 			theToken = l.newToken(token.ILLEGAL)
 		}
 	case ':':
@@ -163,36 +163,36 @@ func (l *Lexer) NextToken() token.Token {
 			l.readChar()
 
 			theToken = token.Token{
-				Type   : token.RANGE,
-				Literal: string(oldCurrentChar) + string(l.currentChar),     // text: ..
+				Type:    token.RANGE,
+				Literal: string(oldCurrentChar) + string(l.currentChar), // text: ..
 			}
-		}else{
+		} else {
 			theToken = token.Token{
-				Type   : token.DOT,
+				Type:    token.DOT,
 				Literal: l.readString(),
 			}
 		}
 	case 0:
 		theToken.Literal = ""
-		theToken.Type    = token.EOF
+		theToken.Type = token.EOF
 	default:
 		if helper.IsLetter(l.currentChar) {
 			lineNumber := l.currentLine
 			identifier := l.readIdentifier()
 
 			return token.Token{
-				Type      : token.FindKeywordType(identifier),
-				Literal   : identifier,
+				Type:       token.FindKeywordType(identifier),
+				Literal:    identifier,
 				LineNumber: lineNumber,
 			}
 		}
 
 		if helper.IsDigit(l.currentChar) {
-			theToken.Literal    = l.readNumber()
+			theToken.Literal = l.readNumber()
 			theToken.LineNumber = l.currentLine
 
 			switch len(strings.Split(theToken.Literal, ".")) {
-			case 1:	// e.g. 12, 13
+			case 1: // e.g. 12, 13
 				theToken.Type = token.INT
 			case 2: // e.g. 12.00, 13.77
 				theToken.Type = token.FLOAT
@@ -219,7 +219,7 @@ func (l *Lexer) readChar() {
 	// Otherwise set next position to current position
 	if l.nextPosition >= len(l.source) {
 		l.currentChar = 0
-	}else{
+	} else {
 		l.currentChar = rune(l.source[l.nextPosition])
 	}
 
@@ -321,16 +321,16 @@ func (l *Lexer) readString() string {
 
 func (l *Lexer) newToken(tokenType token.Type) token.Token {
 	return token.Token{
-		Type      : tokenType,
-		Literal   : string(l.currentChar),
+		Type:       tokenType,
+		Literal:    string(l.currentChar),
 		LineNumber: l.currentLine,
 	}
 }
 
 func (l *Lexer) newIllegalToken(literal string) token.Token {
 	return token.Token{
-		Type      : token.ILLEGAL,
-		Literal   : literal,
+		Type:       token.ILLEGAL,
+		Literal:    literal,
 		LineNumber: l.currentLine,
 	}
 }

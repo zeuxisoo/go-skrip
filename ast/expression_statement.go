@@ -5,8 +5,8 @@ import (
 )
 
 type ExpressionStatement struct {
-	Token		token.Token
-	Expression 	Expression
+	Token      token.Token
+	Expression Expression
 }
 
 func (e *ExpressionStatement) statementNode() {

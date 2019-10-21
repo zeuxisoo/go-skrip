@@ -1,8 +1,8 @@
 package object
 
 import (
-	"strconv"
 	"hash/fnv"
+	"strconv"
 )
 
 type Float struct {
@@ -22,7 +22,7 @@ func (f *Float) HashKey() HashKey {
 	h.Write([]byte(f.Inspect()))
 
 	return HashKey{
-		Type: f.Type(),
+		Type:  f.Type(),
 		Value: h.Sum64(),
 	}
 }

@@ -23,12 +23,12 @@ func (i *IndexExpression) TokenLiteral() string {
 func (i *IndexExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString("(")				// (
-	out.WriteString(i.Left.String())	// object/variable
-	out.WriteString("[")				// [
-	out.WriteString(i.Index.String())	// index
-	out.WriteString("]")				// ]
-	out.WriteString(")")				// )
+	out.WriteString("(")              // (
+	out.WriteString(i.Left.String())  // object/variable
+	out.WriteString("[")              // [
+	out.WriteString(i.Index.String()) // index
+	out.WriteString("]")              // ]
+	out.WriteString(")")              // )
 
 	return out.String()
 }

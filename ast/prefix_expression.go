@@ -7,9 +7,9 @@ import (
 )
 
 type PrefixExpression struct {
-	Token 		token.Token
-	Operator 	string
-	Right 		Expression
+	Token    token.Token
+	Operator string
+	Right    Expression
 }
 
 func (p *PrefixExpression) expressionNode() {

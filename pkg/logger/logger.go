@@ -1,9 +1,9 @@
 package logger
 
 import (
-	"os"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/fatih/color"
 )
@@ -23,7 +23,7 @@ const (
 //
 var logger *log.Logger
 
-var osExit  = os.Exit
+var osExit = os.Exit
 var formats = map[LEVEL]string{
 	TRACE: "[TRACE] ",
 	INFO:  "[ INFO] ",
@@ -33,7 +33,7 @@ var formats = map[LEVEL]string{
 }
 
 // Sort: Trace, Info, Warn, Error, Fatal
-var outputColors = []func(_ ...interface{}) string {
+var outputColors = []func(_ ...interface{}) string{
 	color.New(color.FgMagenta).SprintFunc(),
 	color.New(color.FgGreen).SprintFunc(),
 	color.New(color.FgYellow).SprintFunc(),
@@ -42,7 +42,7 @@ var outputColors = []func(_ ...interface{}) string {
 }
 
 func init() {
-	logger = log.New(color.Output, "", log.Flags() &^ (log.Ldate | log.Ltime))
+	logger = log.New(color.Output, "", log.Flags()&^(log.Ldate|log.Ltime))
 }
 
 // FormatMessage will return styled message

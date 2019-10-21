@@ -23,11 +23,11 @@ func (i *RangeExpression) TokenLiteral() string {
 func (i *RangeExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString("(")				// (
-	out.WriteString(i.Start.String())	// object/variable
-	out.WriteString("..")				// ..
-	out.WriteString(i.End.String())     // object/variable
-	out.WriteString(")")				// )
+	out.WriteString("(")              // (
+	out.WriteString(i.Start.String()) // object/variable
+	out.WriteString("..")             // ..
+	out.WriteString(i.End.String())   // object/variable
+	out.WriteString(")")              // )
 
 	return out.String()
 }

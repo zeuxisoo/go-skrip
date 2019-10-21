@@ -26,7 +26,7 @@ func (b *Boolean) HashKey() HashKey {
 	}
 
 	return HashKey{
-		Type : b.Type(),
+		Type:  b.Type(),
 		Value: value,
 	}
 }
