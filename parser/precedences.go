@@ -8,6 +8,7 @@ const (
 	_           int = iota
 	LOWEST          //
 	ANDOR           // || or &&
+	ASSIGN          // =
 	EQUALS          // ==
 	LESSGREATER     // > or <
 	SUM             // +
@@ -22,6 +23,7 @@ const (
 var precedences = map[token.Type]int{
 	token.AND:              ANDOR,
 	token.OR:               ANDOR,
+	token.ASSIGN:           ASSIGN,
 	token.EQ:               EQUALS,
 	token.NOT_EQ:           EQUALS,
 	token.LT:               LESSGREATER,

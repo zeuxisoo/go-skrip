@@ -71,6 +71,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerInfixParseFunction(token.RANGE, parser.parseRangeExpression)
 	parser.registerInfixParseFunction(token.LEFT_BRACKET, parser.parseIndexExpression)
 	parser.registerInfixParseFunction(token.LEFT_PARENTHESIS, parser.parseCallExpression)
+	parser.registerInfixParseFunction(token.ASSIGN, parser.parseAssignExpression)
 
 	return parser
 }
@@ -661,6 +662,33 @@ func (p *Parser) parseCallExpression(leftExpression ast.Expression) ast.Expressi
 	call.Arguments = p.parseExpressionList(token.RIGHT_PARENTHESIS)
 
 	return call
+}
+
+func (p *Parser) parseAssignExpression(leftExpression ast.Expression) ast.Expression {
+	switch leftExpression.(type) {
+	// skip the follow expression
+	case *ast.IdentifierExpression:
+	case *ast.IndexExpression:
+	// otherwise throw expection
+	default:
+		p.errors = append(
+			p.errors,
+			fmt.Sprintf("Line: %d, Expected identifier or index expression on left but got %s", p.currentToken.LineNumber, p.currentToken.Literal),
+		)
+
+		return nil
+	}
+
+	assign := &ast.AssignExpression{
+		Token: p.currentToken,
+		Left:  leftExpression,
+	}
+
+	p.nextToken()
+
+	assign.Value = p.parseExpression(LOWEST)
+
+	return assign
 }
 
 // Helper functions
