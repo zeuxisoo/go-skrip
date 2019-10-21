@@ -45,6 +45,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIdentifierExpression(node, env)
 	case *ast.BooleanExpression:
 		return nativeBoolToBooleanObject(node.Value)
+	case *ast.AssignExpression:
+		return evalAssignExpression(node, env)
 	case *ast.ArrayLiteralExpression:
 		return evalArrayLiteralExpression(node, env)
 	case *ast.HashLiteralExpression:
@@ -198,6 +200,70 @@ func evalIdentifierExpression(identifer *ast.IdentifierExpression, env *object.E
 	}
 
 	return newError("Identifier not found: " + identifer.Value)
+}
+
+func evalAssignExpression(assign *ast.AssignExpression, env *object.Environment) object.Object {
+	left := Eval(assign.Left, env)
+	if isError(left) == true {
+		return left
+	}
+
+	value := Eval(assign.Value, env)
+	if isError(value) == true {
+		return value
+	}
+
+	// Identifier
+	if identifierExpression, ok := assign.Left.(*ast.IdentifierExpression); ok {
+		env.Set(identifierExpression.Value, value)
+
+		return NIL
+	}
+
+	// Index
+	if indexExpression, ok := assign.Left.(*ast.IndexExpression); ok {
+		obj := Eval(indexExpression.Left, env)
+		if isError(obj) == true {
+			return obj
+		}
+
+		// Is array?
+		if arrayObject, ok := obj.(*object.Array); ok {
+			indexObject := Eval(indexExpression.Index, env)
+
+			if isError(indexObject) == true {
+				return indexObject
+			}
+
+			if indexIntegerObject, ok := indexObject.(*object.Integer); ok {
+				arrayObject.Elements[indexIntegerObject.Value] = value
+			} else {
+				return newError("Cannot assign array index with %s", indexObject.Inspect())
+			}
+		}
+
+		// Is hash?
+		if hashObject, ok := obj.(*object.Hash); ok {
+			keyObject := Eval(indexExpression.Index, env)
+
+			if isError(keyObject) == true {
+				return keyObject
+			}
+
+			if hashKey, ok := keyObject.(object.Hashable); ok {
+				hashed := hashKey.HashKey()
+
+				hashObject.Pairs[hashed] = object.HashPair{
+					Key:   keyObject,
+					Value: value,
+				}
+			} else {
+				return newError("Cannot assign hash index with %s", keyObject.Inspect())
+			}
+		}
+	}
+
+	return newError("Expected identifier or index expression but got %s: %s", left.Type(), left.Inspect())
 }
 
 func evalArrayLiteralExpression(array *ast.ArrayLiteralExpression, env *object.Environment) object.Object {
