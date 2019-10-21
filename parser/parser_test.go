@@ -1636,6 +1636,48 @@ func TestContinueExpression(t *testing.T) {
 	})
 }
 
+func TestAssignExpression(t *testing.T) {
+	Convey("Assign expression test", t, func() {
+		expectedExpressions := []struct {
+			source string
+			left   interface{}
+			value  interface{}
+		}{
+			{`let a = "foo"; a = "bar"`, "a", "bar"},
+			{`let a = 12345; a = 56789`, "a", "56789"},
+			{`let a = "foo"; a = 12312`, "a", "12312"},
+		}
+
+		for index, expression := range expectedExpressions {
+			Convey(runMessage("Running: %d, Source: %s", index, expression.source), func() {
+				theLexer := lexer.NewLexer(expression.source)
+				theParser := NewParser(theLexer)
+				theProgram := theParser.Parse()
+
+				Convey("Parse program check", func() {
+					testParserError(theParser)
+					testParserProgramLength(theProgram, 2)
+				})
+
+				statement, ok := theProgram.Statements[1].(*ast.ExpressionStatement)
+				Convey("Can convert to expression statement", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				assignExpression, ok := statement.Expression.(*ast.AssignExpression)
+				Convey("Can convert to assign expression", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				Convey(runMessage("Assign expression token literal should be equals %s = %s", expression.left, expression.value), func() {
+					So(assignExpression.Left.String(), ShouldEqual, expression.left)
+					So(assignExpression.Value.String(), ShouldEqual, expression.value)
+				})
+			})
+		}
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
