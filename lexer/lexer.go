@@ -167,10 +167,7 @@ func (l *Lexer) NextToken() token.Token {
 				Literal: string(oldCurrentChar) + string(l.currentChar), // text: ..
 			}
 		} else {
-			theToken = token.Token{
-				Type:    token.DOT,
-				Literal: l.readString(),
-			}
+			theToken = l.newToken(token.DOT)
 		}
 	case 0:
 		theToken.Literal = ""

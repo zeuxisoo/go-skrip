@@ -72,6 +72,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	parser.registerInfixParseFunction(token.LEFT_BRACKET, parser.parseIndexExpression)
 	parser.registerInfixParseFunction(token.LEFT_PARENTHESIS, parser.parseCallExpression)
 	parser.registerInfixParseFunction(token.ASSIGN, parser.parseAssignExpression)
+	parser.registerInfixParseFunction(token.DOT, parser.parseDotExpression)
 
 	return parser
 }
@@ -669,6 +670,7 @@ func (p *Parser) parseAssignExpression(leftExpression ast.Expression) ast.Expres
 	// skip the follow expression
 	case *ast.IdentifierExpression:
 	case *ast.IndexExpression:
+	case *ast.DotExpression:
 	// otherwise throw expection
 	default:
 		p.errors = append(
@@ -689,6 +691,27 @@ func (p *Parser) parseAssignExpression(leftExpression ast.Expression) ast.Expres
 	assign.Value = p.parseExpression(LOWEST)
 
 	return assign
+}
+
+func (p *Parser) parseDotExpression(leftExpression ast.Expression) ast.Expression {
+	// Ensure the token is identifier after dot symbol
+	// self.identifier = item
+	// -----^^^^^^^^^^
+	if p.expectPeekTokenTypeIs(token.IDENTIFIER) == false {
+		return nil
+	}
+
+	item := &ast.StringLiteralExpression{
+		Token: p.currentToken,
+		Value: p.currentToken.Literal,
+	}
+
+	dot := &ast.DotExpression{
+		Left: leftExpression,
+		Item: item,
+	}
+
+	return dot
 }
 
 // Helper functions
