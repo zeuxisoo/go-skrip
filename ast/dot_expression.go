@@ -23,11 +23,9 @@ func (d *DotExpression) TokenLiteral() string {
 func (d *DotExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString("(")
 	out.WriteString(d.Left.String()) // object
 	out.WriteString(".")             // .
 	out.WriteString(d.Item.String()) // item
-	out.WriteString(")")
 
 	return out.String()
 }

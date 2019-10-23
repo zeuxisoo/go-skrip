@@ -1678,6 +1678,62 @@ func TestAssignExpression(t *testing.T) {
 	})
 }
 
+func TestDotExpression(t *testing.T) {
+	Convey("Dot expression test", t, func() {
+		expectedExpressions := []struct {
+			source string
+			left   interface{}
+			item   interface{}
+			value  interface{}
+		}{
+			{`let hash = {}; hash.foo = 123;`, "hash", "foo", "123"},
+		}
+
+		for index, expression := range expectedExpressions {
+			Convey(runMessage("Running: %d, Source: %s", index, expression.source), func() {
+				theLexer := lexer.NewLexer(expression.source)
+				theParser := NewParser(theLexer)
+				theProgram := theParser.Parse()
+
+				Convey("Parse program check", func() {
+					testParserError(theParser)
+					testParserProgramLength(theProgram, 2)
+				})
+
+				statement, ok := theProgram.Statements[1].(*ast.ExpressionStatement)
+				Convey("Can convert to expression statement", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				assignExpression, ok := statement.Expression.(*ast.AssignExpression)
+				Convey("Can convert to assign expression", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				assignTestMessage := runMessage(
+					"Assign expression token literal should be equals %s.%s = %s",
+					expression.left, expression.item, expression.value,
+				)
+
+				Convey(assignTestMessage, func() {
+					So(assignExpression.Left.String(), ShouldEqual, fmt.Sprintf("%s.%s", expression.left, expression.item))
+					So(assignExpression.Value.String(), ShouldEqual, expression.value)
+				})
+
+				dotExpression, ok := assignExpression.Left.(*ast.DotExpression)
+				Convey("Can convert assign expression left to dot expression", func() {
+					So(ok, ShouldBeTrue)
+				})
+
+				Convey(runMessage("Dot expression token literal should be equals %s.%s", expression.left, expression.item), func() {
+					So(dotExpression.Left.String(), ShouldEqual, expression.left)
+					So(dotExpression.Item.String(), ShouldEqual, expression.item)
+				})
+			})
+		}
+	})
+}
+
 // Sub method for test case
 func testLetStatement(expectedStatements []expectedLetStatement) {
 	for index, currentStatement := range expectedStatements {
