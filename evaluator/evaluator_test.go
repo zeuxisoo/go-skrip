@@ -215,6 +215,9 @@ func TestAssignExpression(t *testing.T) {
 			{`let a = {1: "foo", 2: "bar"}; a[2] = "baz"; a[2]`, "baz"},
 
 			{`let a = [1,2,3]; a[1] = "foo"; a[1]`, "foo"},
+
+			{`let a = {}; a.foo = 12; a.bar = "baz"; a.foo;`, 12},
+			{`let a = {}; a.foo = 12; a.bar = "baz"; a.bar;`, "baz"},
 		}
 
 		for index, expected := range expecteds {
