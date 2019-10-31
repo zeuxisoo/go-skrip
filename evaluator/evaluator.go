@@ -59,6 +59,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalCallExpression(node, env)
 	case *ast.IndexExpression:
 		return evalIndexExpression(node, env)
+	case *ast.DotExpression:
+		return evalDotExpression(node, env)
 	case *ast.PrefixExpression:
 		return evalPrefixExpression(node, env)
 	case *ast.InfixExpression:
@@ -222,52 +224,88 @@ func evalAssignExpression(assign *ast.AssignExpression, env *object.Environment)
 
 	// Index
 	if indexExpression, ok := assign.Left.(*ast.IndexExpression); ok {
-		obj := Eval(indexExpression.Left, env)
-		if isError(obj) == true {
-			return obj
-		}
+		return evalAssignIndexExpression(indexExpression, value, env)
+	}
 
-		// Is array?
-		if arrayObject, ok := obj.(*object.Array); ok {
-			indexObject := Eval(indexExpression.Index, env)
-
-			if isError(indexObject) == true {
-				return indexObject
-			}
-
-			if indexIntegerObject, ok := indexObject.(*object.Integer); ok {
-				arrayObject.Elements[indexIntegerObject.Value] = value
-
-				return NIL
-			} else {
-				return newError("Cannot assign array index with %s", indexObject.Inspect())
-			}
-		}
-
-		// Is hash?
-		if hashObject, ok := obj.(*object.Hash); ok {
-			keyObject := Eval(indexExpression.Index, env)
-
-			if isError(keyObject) == true {
-				return keyObject
-			}
-
-			if hashKey, ok := keyObject.(object.Hashable); ok {
-				hashed := hashKey.HashKey()
-
-				hashObject.Pairs[hashed] = object.HashPair{
-					Key:   keyObject,
-					Value: value,
-				}
-
-				return NIL
-			} else {
-				return newError("Cannot assign hash index with %s", keyObject.Inspect())
-			}
-		}
+	// Dot
+	if dotExpression, ok := assign.Left.(*ast.DotExpression); ok {
+		return evalAssignDotExpression(dotExpression, value, env)
 	}
 
 	return newError("Expected identifier or index expression but got %s: %s", left.Type(), left.Inspect())
+}
+
+func evalAssignIndexExpression(indexExpression *ast.IndexExpression, value object.Object, env *object.Environment) object.Object {
+	obj := Eval(indexExpression.Left, env)
+	if isError(obj) == true {
+		return obj
+	}
+
+	// Is array?
+	if arrayObject, ok := obj.(*object.Array); ok {
+		indexObject := Eval(indexExpression.Index, env)
+
+		if isError(indexObject) == true {
+			return indexObject
+		}
+
+		if indexIntegerObject, ok := indexObject.(*object.Integer); ok {
+			arrayObject.Elements[indexIntegerObject.Value] = value
+		} else {
+			return newError("Cannot assign array index with %s", indexObject.Inspect())
+		}
+	}
+
+	// Is hash?
+	if hashObject, ok := obj.(*object.Hash); ok {
+		keyObject := Eval(indexExpression.Index, env)
+
+		if isError(keyObject) == true {
+			return keyObject
+		}
+
+		if hashKey, ok := keyObject.(object.Hashable); ok {
+			hashed := hashKey.HashKey()
+
+			hashObject.Pairs[hashed] = object.HashPair{
+				Key:   keyObject,
+				Value: value,
+			}
+		} else {
+			return newError("Cannot assign hash index with %s", keyObject.Inspect())
+		}
+	}
+
+	return NIL
+}
+
+func evalAssignDotExpression(dotExpression *ast.DotExpression, value object.Object, env *object.Environment) object.Object {
+	obj := Eval(dotExpression.Left, env)
+	if isError(obj) == true {
+		return obj
+	}
+
+	// Is hash?
+	if hashObject, ok := obj.(*object.Hash); ok {
+		keyObject := Eval(dotExpression.Item, env)
+
+		if isError(keyObject) == true {
+			return keyObject
+		}
+
+		if hashKey, ok := keyObject.(object.Hashable); ok {
+			hashed := hashKey.HashKey()
+
+			hashObject.Pairs[hashed] = object.HashPair{
+				Key:   keyObject,
+				Value: value,
+			}
+		} else {
+			return newError("Cannot assign hash index with %s", keyObject.Inspect())
+		}
+	}
+
+	return NIL
 }
 
 func evalArrayLiteralExpression(array *ast.ArrayLiteralExpression, env *object.Environment) object.Object {
@@ -411,6 +449,26 @@ func evalIndexExpression(index *ast.IndexExpression, env *object.Environment) ob
 	// string[integer]
 	case left.Type() == object.STRING_OBJECT && idx.Type() == object.INTEGER_OBJECT:
 		return evalStringIndexExpression(left, idx)
+	default:
+		return newError("Index operator not support for %s on %s", idx.Inspect(), left.Type())
+	}
+}
+
+func evalDotExpression(dot *ast.DotExpression, env *object.Environment) object.Object {
+	left := Eval(dot.Left, env)
+	if isError(left) == true {
+		return left
+	}
+
+	idx := Eval(dot.Item, env)
+	if isError(idx) == true {
+		return idx
+	}
+
+	switch {
+	// hash.hashable
+	case left.Type() == object.HASH_OBJECT:
+		return evalHashIndexExpression(left, idx)
 	default:
 		return newError("Index operator not support for %s on %s", idx.Inspect(), left.Type())
 	}
