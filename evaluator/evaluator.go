@@ -237,6 +237,8 @@ func evalAssignExpression(assign *ast.AssignExpression, env *object.Environment)
 
 			if indexIntegerObject, ok := indexObject.(*object.Integer); ok {
 				arrayObject.Elements[indexIntegerObject.Value] = value
+
+				return NIL
 			} else {
 				return newError("Cannot assign array index with %s", indexObject.Inspect())
 			}
@@ -257,6 +259,8 @@ func evalAssignExpression(assign *ast.AssignExpression, env *object.Environment)
 					Key:   keyObject,
 					Value: value,
 				}
+
+				return NIL
 			} else {
 				return newError("Cannot assign hash index with %s", keyObject.Inspect())
 			}

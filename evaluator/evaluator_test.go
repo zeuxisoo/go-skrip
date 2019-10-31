@@ -200,6 +200,35 @@ func TestBooleanExpression(t *testing.T) {
 	})
 }
 
+func TestAssignExpression(t *testing.T) {
+	Convey("Assign expression test", t, func() {
+		expecteds := []struct {
+			source string
+			result interface{}
+		}{
+			{`let a = "foo"; a = "bar"; a`, "bar"},
+			{`let a = 12345; a = 56789; a`, 56789},
+			{`let a = "foo"; a = 56789; a`, 56789},
+
+			{`let a = {}; a[1] = "foo"; a[1]`, "foo"},
+			{`let a = {}; a["foo"] = "bar"; a["foo"]`, "bar"},
+			{`let a = {1: "foo", 2: "bar"}; a[2] = "baz"; a[2]`, "baz"},
+
+			{`let a = [1,2,3]; a[1] = "foo"; a[1]`, "foo"},
+		}
+
+		for index, expected := range expecteds {
+			Convey(runMessage("Running: %d, ", index), func() {
+				evaluated := testEval(expected.source)
+
+				Convey(runMessage("Source: %s", expected.source), func() {
+					testLiteralObject(evaluated, expected.result)
+				})
+			})
+		}
+	})
+}
+
 func TestArrayLiteralExpression(t *testing.T) {
 	Convey("Array literal expression test", t, func() {
 		expecteds := []expectedArray{
