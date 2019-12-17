@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"io/ioutil"
 	"strings"
 
@@ -44,20 +43,11 @@ func runRun(c *cli.Context) error {
 			logger.Error(message)
 		}
 	} else {
-		fmt.Println("AST:")
-		fmt.Println(theProgram.String())
-		fmt.Println()
-
 		theEnvironment := object.NewEnvironment()
 		theEvaluator := evaluator.Eval(theProgram, theEnvironment)
 
-		fmt.Println("Result:")
-
-		if theEvaluator != nil {
-			fmt.Println(theEvaluator)
-			fmt.Println("\nOK!")
-		} else {
-			fmt.Println("\n\nError!")
+		if theEvaluator == nil {
+			// nothing todo
 		}
 	}
 
